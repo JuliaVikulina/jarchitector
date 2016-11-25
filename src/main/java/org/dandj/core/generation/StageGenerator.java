@@ -5,15 +5,14 @@ import java.util.Random;
 import static org.dandj.api.API.*;
 
 public class StageGenerator {
-    public static Stage createStage(Stage input, Random r) {
-        Stage.Builder stageBuilder = Stage.newBuilder(input);
+    public static Stage createStage(Stage.Builder stageBuilder, Random r) {
         int roomSizeX = 3; //todo make random
         int roomSizeY = 3; //todo make random
 
         int roomTries = 15; //todo make random
 
-        int xrange = input.getWidth();
-        int yrange = input.getHeight();
+        int xrange = stageBuilder.getWidth();
+        int yrange = stageBuilder.getHeight();
 
         int[][] stage = new int[xrange][];
         for (int i = 0; i < xrange; i++) {

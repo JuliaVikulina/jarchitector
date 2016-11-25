@@ -3,6 +3,7 @@ package org.dandj;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.dandj.resources.GenerateResource;
 
 public class JarchitectorApplication extends Application<JarchitectorConfiguration> {
 
@@ -23,7 +24,6 @@ public class JarchitectorApplication extends Application<JarchitectorConfigurati
     @Override
     public void run(final JarchitectorConfiguration configuration,
                     final Environment environment) {
-        // TODO: implement application
+        environment.jersey().register(new GenerateResource());
     }
-
 }

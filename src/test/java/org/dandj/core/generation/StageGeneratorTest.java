@@ -13,12 +13,12 @@ import static org.dandj.api.API.Stage;
 public class StageGeneratorTest {
     @Test
     public void createStage() throws Exception {
-        Stage.Builder b = Stage.newBuilder()
+        Stage.Builder builder = Stage.newBuilder()
                 .setWidth(6)
                 .setHeight(5)
                 .setResolution(5);
         Random r = new Random(42);
-        Stage stage = StageGenerator.createStage(b.build(), r);
+        Stage stage = StageGenerator.createStage(builder, r);
         String expected = "{\n" +
                 "  \"resolution\": 5,\n" +
                 "  \"width\": 6,\n" +
