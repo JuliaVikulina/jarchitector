@@ -18,11 +18,13 @@ public class GenerateResource {
     public String generate(
             @FormParam("width") @DefaultValue("21") int width,
             @FormParam("height") @DefaultValue("22") int height,
-            @FormParam("seed") @DefaultValue("23") int seed) {
+            @FormParam("seed") @DefaultValue("0") int seed) {
         API.Stage.Builder builder = API.Stage.newBuilder();
         builder.setHeight(height).setWidth(width).setResolution(1);
-        Random r = new Random(seed);
-        StageGenerator.createStage(builder, r);
+        if (seed == 0)
+            seed = new Random().nextInt(Integer.MAX_VALUE);
+        Random random = new Random(seed);
+        StageGenerator.createStage(builder, random);
         try {
             return JsonFormat.printer().print(builder.build());
         } catch (InvalidProtocolBufferException e) {
