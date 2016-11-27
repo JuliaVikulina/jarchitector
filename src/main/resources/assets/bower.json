@@ -6,8 +6,5 @@
     "jquery": "~3.1.1",
     "tether": "1.3.7"
   },
-  "private": true,
-  "resolutions": {
-    "tether": "^1.3.7"
-  }
+  "private": true
 }
