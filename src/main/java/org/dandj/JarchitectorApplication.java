@@ -1,6 +1,7 @@
 package org.dandj;
 
 import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.dandj.resources.GenerateResource;
@@ -18,6 +19,7 @@ public class JarchitectorApplication extends Application<JarchitectorConfigurati
 
     @Override
     public void initialize(final Bootstrap<JarchitectorConfiguration> bootstrap) {
+        bootstrap.addBundle(new AssetsBundle("/assets", "/", "index.html"));
         // TODO: application initialization
     }
 

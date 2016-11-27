@@ -1,4 +1,18 @@
+server:
+  rootPath: /app/
+
 logging:
   level: INFO
   loggers:
     org.dandj: DEBUG
+  appenders:
+    - type: console
+      threshold: ALL
+      timeZone: GTC+3
+      target: stdout
+    - type: file
+      threshold: ALL
+      currentLogFilename: ./log/xdropwizard.log
+      archivedLogFilenamePattern: ./log/xdropwizard-%d.log.gz,
+      archivedFileCount: 5
+      timeZone: GTC+3
