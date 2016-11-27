@@ -11,3 +11,12 @@ Health Check
 ---
 
 To see your applications health enter url `http://localhost:8081/healthcheck`
+
+How to deploy front end
+---
+
+1. Install nodejs
+2. Install bower `npm install bower`
+3. Install dependencies
+`cd src/main/resources/assets`;
+`bower install`
