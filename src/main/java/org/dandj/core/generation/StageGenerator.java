@@ -1,5 +1,7 @@
 package org.dandj.core.generation;
 
+import org.dandj.utils.AsciiPrinter;
+
 import java.util.Random;
 
 import static org.dandj.api.API.*;
@@ -8,8 +10,7 @@ public class StageGenerator {
     public static Stage createStage(Stage.Builder stageBuilder, Random r) {
         int roomSizeX = 3; //todo make random
         int roomSizeY = 3; //todo make random
-
-        int roomTries = 15; //todo make random
+        int roomTries = 5; //todo make random
 
         int xrange = stageBuilder.getWidth();
         int yrange = stageBuilder.getHeight();
@@ -42,6 +43,7 @@ public class StageGenerator {
             }
             stageBuilder.addRegions(regionBuilder.build());
         }
+        System.out.println(AsciiPrinter.printStage(stageBuilder));
         return stageBuilder.build();
     }
 }
