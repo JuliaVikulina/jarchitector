@@ -7,7 +7,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.dandj.api.API.*;
-import static org.dandj.core.generation.StageGenerator.Tile.*;
 import static org.dandj.core.generation.StageGenerator.Tile.Direction.*;
 
 public class StageGenerator {
@@ -15,6 +14,7 @@ public class StageGenerator {
         int roomSizeX = 3; //todo make input parameter
         int roomSizeY = 3; //todo make input parameter
         int roomTries = 5; //todo make input parameter
+        float mazeStraightness = 0.1f; //todo make input parameter
 
         int xrange = sb.getWidth();
         int yrange = sb.getHeight();
@@ -61,37 +61,49 @@ public class StageGenerator {
             while (!notConnected.isEmpty()) {
                 // we carve a maze starting from any connected region
                 Region startingRegion = connected.get(r.nextInt(connected.size()));
-
                 Region.Builder maze = Region.newBuilder();
                 Region destination = null;
-                // todo: do the job
                 Tile start = getNearPoint(startingRegion, stageGrid, r);
                 if (start == null) // todo make protection from infinite loop
                     continue;
-                List<Tile.Direction> directions = getAvailableDirections(start.x, start.y, stageGrid);
+                List<Tile> directions = getAdjacentAvailableTiles(start.x, start.y, stageGrid);
                 if (directions.isEmpty())
                     continue;
-                Direction direction = directions.get(r.nextInt(directions.size()));
 
-                // add cells to maze region until hit a unconnected region or cannot carve anymore
+                while (true) {
+                    Tile newTile = directions.get(r.nextInt(directions.size()));
+                    Cell.Builder cell = Cell.newBuilder().setX(newTile.x).setY(newTile.y);
+                    maze.addCells(cell);
+                    stageGrid[newTile.x][newTile.y] = cell.build();
+
+                    destination = findNearRegion(newTile, stageGrid, startingRegion, r);
+                    if (destination != null)
+                        break;
+                }
+                // add cells to maze region until we hit a unconnected region or cannot carve anymore
 
                 // if a carved maze connects an yet unconnected region,
                 // add it and mentioned region to connected and remove from notConnected
-                if (destination != null) {
-                    notConnected.remove(destination);
-                    connected.add(destination);
-                    connected.add(maze.build());
-                }
-                break;
+                notConnected.remove(destination);
+                connected.add(destination);
+                Region builtMaze = maze.build();
+                connected.add(builtMaze);
+                builtMaze.getCellsList().forEach(cell -> cell.parent = builtMaze);
             }
         }
         System.out.println(AsciiPrinter.printStage(sb));
         return sb.build();
     }
 
-    private static List<Tile.Direction> getAvailableDirections(int x, int y, @Nonnull Cell[][] stageGrid) {
-        return getAdjacentAvailableTiles(x, y, stageGrid).stream()
-                .map(tile -> tile.direction).collect(Collectors.toList());
+    private static Region findNearRegion(Tile newTile, Cell[][] stageGrid, Region startingRegion, Random r) {
+        List<Region> around = getUpDownLeftRightTiles(newTile.x, newTile.y).stream()
+                .filter(tile -> tile.insideStage(stageGrid))
+                .filter(tile -> stageGrid[tile.x][tile.y] != null)
+                .filter(tile -> stageGrid[tile.x][tile.y].parent != startingRegion)
+                .map(tile -> stageGrid[tile.x][tile.y].parent).collect(Collectors.toList());
+        if (around.isEmpty())
+            return null;
+        return around.get(r.nextInt(around.size()));
     }
 
     private static Tile getNearPoint(@Nonnull Region from, @Nonnull Cell stageGrid[][], Random r) {
@@ -126,8 +138,12 @@ public class StageGenerator {
          * @return whether the tile is inside stage and empty or not
          */
         boolean available(@Nonnull Cell stageGrid[][]) {
-            return x >= 0 && x < stageGrid.length && y >= 0 && y < stageGrid[0].length
+            return insideStage(stageGrid)
                     && stageGrid[x][y] == null;
+        }
+
+        boolean insideStage(@Nonnull Cell[][] stageGrid) {
+            return x >= 0 && x < stageGrid.length && y >= 0 && y < stageGrid[0].length;
         }
 
         Tile(int x, int y, Direction direction) {
