@@ -41,7 +41,7 @@ public final class API {
       this.unknownFields = builder.getUnknownFields();
     }
     private Cell(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
+    public Region parent;
     private static final Cell defaultInstance;
     public static Cell getDefaultInstance() {
       return defaultInstance;
