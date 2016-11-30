@@ -51,7 +51,7 @@ public class StageGenerator {
             sb.addRegions(region);
         }
 
-        if (!sb.getRegionsList().isEmpty()) {
+        if (!sb.getRegionsList().isEmpty() && sb.getRegionsList().size() > 1) {
             // carve corridors to regions:
             Set<Region> notConnected = new HashSet<>(sb.getRegionsList());
             List<Region> connected = new LinkedList<>();
@@ -63,27 +63,27 @@ public class StageGenerator {
                 Region startingRegion = connected.get(r.nextInt(connected.size()));
                 Region.Builder maze = Region.newBuilder();
                 List<Region> destinations = new ArrayList<>();
-                Tile start = getNearPoint(startingRegion, stageGrid, r);
-                if (start == null) // todo make protection from infinite loop
-                    continue;
-                List<Tile> directions = getAdjacentAvailableTiles(start.x, start.y, stageGrid);
-                if (directions.isEmpty())
+                //todo add check if there are empty cells in a stage
+                Tile currentTile = getStartTile(startingRegion, stageGrid, r);
+                if (currentTile == null)
+                    // todo connect this region using junction
                     continue;
 
-                while (destinations.isEmpty()) { // todo make protection from infinite loop
-                    Tile newTile = directions.get(r.nextInt(directions.size()));
-                    Cell.Builder cell = Cell.newBuilder().setX(newTile.x).setY(newTile.y);
+                while (destinations.isEmpty() && currentTile != null) { // todo make protection from infinite loop
+                    Cell.Builder cell = Cell.newBuilder().setX(currentTile.x).setY(currentTile.y);
                     maze.addCells(cell);
-                    stageGrid[newTile.x][newTile.y] = cell.build();
+                    stageGrid[currentTile.x][currentTile.y] = cell.build();
                     // todo check if it not connected already
-                    destinations = findNearRegion(newTile, stageGrid, startingRegion);
+                    destinations = findNearRegion(currentTile, stageGrid, startingRegion);
+                    if (destinations.isEmpty())
+                        currentTile = getNextTile(currentTile, stageGrid, r);
                 }
                 // add cells to maze region until we hit a unconnected region or cannot carve anymore
 
                 // if a carved maze connects an yet unconnected region,
                 // add it and mentioned region to connected and remove from notConnected
                 Collections.shuffle(destinations, r);
-                List<Region> toAdd = destinations.subList(0, r.nextInt(destinations.size()));
+                List<Region> toAdd = destinations.subList(0, r.nextInt(destinations.size() - 1) + 1);
                 notConnected.removeAll(toAdd);
                 connected.addAll(toAdd);
 
@@ -96,8 +96,15 @@ public class StageGenerator {
         return sb.build();
     }
 
-    private static List<Region> findNearRegion(Tile newTile, Cell[][] stageGrid, Region startingRegion) {
+    private static Tile getNextTile(Tile currentTile, Cell[][] stageGrid, Random r) {
+        List<Tile> adjacentAvailableTiles = getAdjacentAvailableTiles(currentTile.x, currentTile.y, stageGrid);
+        // 1. if old dir is not available then roll (nullable)
+        // 2. if old dir is the only available cell then continue with old direction (not nullable)
+        // 3. roll for the new dir (not nullable)
+        return null;
+    }
 
+    private static List<Region> findNearRegion(Tile newTile, Cell[][] stageGrid, Region startingRegion) {
         return getUpDownLeftRightTiles(newTile.x, newTile.y).stream()
                 .filter(tile -> tile.insideStage(stageGrid))
                 .filter(tile -> stageGrid[tile.x][tile.y] != null)
@@ -105,13 +112,21 @@ public class StageGenerator {
                 .map(tile -> stageGrid[tile.x][tile.y].parent).collect(Collectors.toList());
     }
 
-    private static Tile getNearPoint(@Nonnull Region from, @Nonnull Cell stageGrid[][], Random r) {
-        ArrayList<Cell> cells = new ArrayList<>(from.getCellsList());
-        Cell cell = cells.get(r.nextInt(cells.size()));
-        List<Tile> adjacentTiles = getAdjacentAvailableTiles(cell.getX(), cell.getY(), stageGrid);
-        if (adjacentTiles.isEmpty())
+    private static Tile getStartTile(@Nonnull Region from, @Nonnull Cell stageGrid[][], Random r) {
+        Cell startingCell = findValidStartingCell(from, stageGrid);
+        if (startingCell == null)
             return null;
+        List<Tile> adjacentTiles = getAdjacentAvailableTiles(startingCell.getX(), startingCell.getY(), stageGrid);
         return adjacentTiles.get(r.nextInt(adjacentTiles.size()));
+    }
+
+    private static Cell findValidStartingCell(@Nonnull Region from, @Nonnull Cell[][] stageGrid) {
+        for (Cell cell : from.getCellsList()) {
+            if (!getAdjacentAvailableTiles(cell.getX(), cell.getY(), stageGrid).isEmpty()) {
+                return cell;
+            }
+        }
+        return null;
     }
 
     private static List<Tile> getAdjacentAvailableTiles(int x, int y, @Nonnull Cell stageGrid[][]) {
