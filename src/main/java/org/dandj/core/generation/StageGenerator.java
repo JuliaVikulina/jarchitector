@@ -62,7 +62,7 @@ public class StageGenerator {
                 // we carve a maze starting from any connected region
                 Region startingRegion = connected.get(r.nextInt(connected.size()));
                 Region.Builder maze = Region.newBuilder();
-                Region destination = null;
+                List<Region> destinations = new ArrayList<>();
                 Tile start = getNearPoint(startingRegion, stageGrid, r);
                 if (start == null) // todo make protection from infinite loop
                     continue;
@@ -70,20 +70,23 @@ public class StageGenerator {
                 if (directions.isEmpty())
                     continue;
 
-                while (destination == null) { // todo make protection from infinite loop
+                while (destinations.isEmpty()) { // todo make protection from infinite loop
                     Tile newTile = directions.get(r.nextInt(directions.size()));
                     Cell.Builder cell = Cell.newBuilder().setX(newTile.x).setY(newTile.y);
                     maze.addCells(cell);
                     stageGrid[newTile.x][newTile.y] = cell.build();
                     // todo check if it not connected already
-                    destination = findNearRegion(newTile, stageGrid, startingRegion, r);
+                    destinations = findNearRegion(newTile, stageGrid, startingRegion);
                 }
                 // add cells to maze region until we hit a unconnected region or cannot carve anymore
 
                 // if a carved maze connects an yet unconnected region,
                 // add it and mentioned region to connected and remove from notConnected
-                notConnected.remove(destination);
-                connected.add(destination);
+                Collections.shuffle(destinations, r);
+                List<Region> toAdd = destinations.subList(0, r.nextInt(destinations.size()));
+                notConnected.removeAll(toAdd);
+                connected.addAll(toAdd);
+
                 Region builtMaze = maze.build();
                 connected.add(builtMaze);
                 builtMaze.getCellsList().forEach(cell -> cell.parent = builtMaze);
@@ -93,15 +96,13 @@ public class StageGenerator {
         return sb.build();
     }
 
-    private static Region findNearRegion(Tile newTile, Cell[][] stageGrid, Region startingRegion, Random r) {
-        List<Region> around = getUpDownLeftRightTiles(newTile.x, newTile.y).stream()
+    private static List<Region> findNearRegion(Tile newTile, Cell[][] stageGrid, Region startingRegion) {
+
+        return getUpDownLeftRightTiles(newTile.x, newTile.y).stream()
                 .filter(tile -> tile.insideStage(stageGrid))
                 .filter(tile -> stageGrid[tile.x][tile.y] != null)
                 .filter(tile -> stageGrid[tile.x][tile.y].parent != startingRegion)
                 .map(tile -> stageGrid[tile.x][tile.y].parent).collect(Collectors.toList());
-        if (around.isEmpty())
-            return null;
-        return around.get(r.nextInt(around.size()));
     }
 
     private static Tile getNearPoint(@Nonnull Region from, @Nonnull Cell stageGrid[][], Random r) {
@@ -133,6 +134,12 @@ public class StageGenerator {
         final int y;
         final Direction direction;
 
+        Tile(int x, int y, Direction direction) {
+            this.x = x;
+            this.y = y;
+            this.direction = direction;
+        }
+
         /**
          * @return whether the tile is inside stage and empty or not
          */
@@ -143,12 +150,6 @@ public class StageGenerator {
 
         boolean insideStage(@Nonnull Cell[][] stageGrid) {
             return x >= 0 && x < stageGrid.length && y >= 0 && y < stageGrid[0].length;
-        }
-
-        Tile(int x, int y, Direction direction) {
-            this.x = x;
-            this.y = y;
-            this.direction = direction;
         }
 
         enum Direction {
