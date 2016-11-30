@@ -70,15 +70,13 @@ public class StageGenerator {
                 if (directions.isEmpty())
                     continue;
 
-                while (true) {
+                while (destination == null) { // todo make protection from infinite loop
                     Tile newTile = directions.get(r.nextInt(directions.size()));
                     Cell.Builder cell = Cell.newBuilder().setX(newTile.x).setY(newTile.y);
                     maze.addCells(cell);
                     stageGrid[newTile.x][newTile.y] = cell.build();
-
+                    // todo check if it not connected already
                     destination = findNearRegion(newTile, stageGrid, startingRegion, r);
-                    if (destination != null)
-                        break;
                 }
                 // add cells to maze region until we hit a unconnected region or cannot carve anymore
 
@@ -116,8 +114,9 @@ public class StageGenerator {
     }
 
     private static List<Tile> getAdjacentAvailableTiles(int x, int y, @Nonnull Cell stageGrid[][]) {
-        List<Tile> result = getUpDownLeftRightTiles(x, y);
-        return result.stream().filter((tile -> tile.available(stageGrid))).collect(Collectors.toList());
+        return getUpDownLeftRightTiles(x, y).stream()
+                .filter((tile -> tile.available(stageGrid)))
+                .collect(Collectors.toList());
     }
 
     private static List<Tile> getUpDownLeftRightTiles(int x, int y) {
