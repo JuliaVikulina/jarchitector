@@ -74,9 +74,9 @@ public class StageGenerator {
                     maze.addCells(cell);
                     stageGrid[currentTile.x][currentTile.y] = cell.build();
                     // todo check if it not connected already
-                    destinations = findNearRegion(currentTile, stageGrid, startingRegion);
+                    destinations = findNearRegion(currentTile, stageGrid, startingRegion, notConnected);
                     if (destinations.isEmpty())
-                        currentTile = getNextTile(currentTile, stageGrid, r);
+                        currentTile = getNextTile(currentTile, stageGrid, mazeStraightness, r);
                 }
                 // add cells to maze region until we hit a unconnected region or cannot carve anymore
 
@@ -96,19 +96,35 @@ public class StageGenerator {
         return sb.build();
     }
 
-    private static Tile getNextTile(Tile currentTile, Cell[][] stageGrid, Random r) {
+    private static Tile getNextTile(Tile currentTile, Cell[][] stageGrid, float mazeStraightness, Random r) {
         List<Tile> adjacentAvailableTiles = getAdjacentAvailableTiles(currentTile.x, currentTile.y, stageGrid);
-        // 1. if old dir is not available then roll (nullable)
-        // 2. if old dir is the only available cell then continue with old direction (not nullable)
-        // 3. roll for the new dir (not nullable)
-        return null;
+        if (adjacentAvailableTiles.isEmpty()) {
+            return null;
+        } else if (adjacentAvailableTiles.size() == 1) {
+            return adjacentAvailableTiles.get(0);
+        }
+
+        List<Tile> oldDirTile = adjacentAvailableTiles.stream()
+                .filter(tile -> tile.direction == currentTile.direction)
+                .collect(Collectors.toList());
+
+        if (oldDirTile.isEmpty()) {
+            // chance to change direction
+            return adjacentAvailableTiles.get(r.nextInt(adjacentAvailableTiles.size()));
+        } else if (r.nextFloat() > mazeStraightness) {
+            // chance to change direction
+            adjacentAvailableTiles.removeAll(oldDirTile);
+            return adjacentAvailableTiles.get(r.nextInt(adjacentAvailableTiles.size()));
+        }
+
+        return oldDirTile.get(0);
     }
 
-    private static List<Region> findNearRegion(Tile newTile, Cell[][] stageGrid, Region startingRegion) {
+    private static List<Region> findNearRegion(Tile newTile, Cell[][] stageGrid, Region startingRegion, Set<Region> notConnected) {
         return getUpDownLeftRightTiles(newTile.x, newTile.y).stream()
                 .filter(tile -> tile.insideStage(stageGrid))
-                .filter(tile -> stageGrid[tile.x][tile.y] != null)
-                .filter(tile -> stageGrid[tile.x][tile.y].parent != startingRegion)
+                .filter(tile -> stageGrid[tile.x][tile.y] != null) // there is a cell at the point (x,y)
+                .filter(tile -> !notConnected.contains(stageGrid[tile.x][tile.y].parent))
                 .map(tile -> stageGrid[tile.x][tile.y].parent).collect(Collectors.toList());
     }
 
