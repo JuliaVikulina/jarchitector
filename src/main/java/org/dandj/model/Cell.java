@@ -1,12 +1,14 @@
 package org.dandj.model;
 
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import javax.annotation.Nonnull;
 
 @Accessors(fluent = true)
 @Data
+@ToString(exclude = "region")
 public class Cell {
 
     private int x;

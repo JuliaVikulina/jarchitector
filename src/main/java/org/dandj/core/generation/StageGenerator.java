@@ -24,6 +24,7 @@ public class StageGenerator {
         for (int i = 0; i < yrange; i++) {
             stageGrid[i] = new Cell[xrange];
         }
+        stage.cells(stageGrid);
 
         createRoom:
         for (int i = 0; i < stage.roomTries(); i++) {
@@ -31,9 +32,9 @@ public class StageGenerator {
             int roomY = r.nextInt(yrange - roomSizeY);
 
             // check that new room does not overlap with existing ones
-            for (int x = 0; x < stage.roomSizeX(); x++) {
-                for (int y = 0; y < stage.roomSizeY(); y++) {
-                    if (stageGrid[roomX + x][roomY + y] != null) {
+            for (int y = 0; y < roomY; y++) {
+                for (int x = 0; x < roomX; x++) {
+                    if (stageGrid[roomY + y][roomX + x] != null) {
                         continue createRoom;
                     }
                 }

@@ -1,8 +1,10 @@
 package org.dandj.utils;
 
-import com.google.protobuf.util.JsonFormat;
-import org.junit.Assert;
+import org.dandj.core.generation.StageGenerator;
+import org.dandj.model.Stage;
 import org.junit.Test;
+
+import java.util.Random;
 
 /**
  * Created by daniil on 26.11.16.
@@ -10,7 +12,7 @@ import org.junit.Test;
 public class AsciiPrinterTest {
     @Test
     public void printStage() throws Exception {
-        assert true;
+        System.out.println(AsciiPrinter.printStage(StageGenerator.createStage(new Stage().width(80).height(25), new Random())));
     }
 
 }

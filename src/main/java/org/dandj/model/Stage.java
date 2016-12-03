@@ -20,4 +20,6 @@ public class Stage {
     private int resolution;
     private int width;
     private int height;
+
+    private transient Cell cells[][];
 }
