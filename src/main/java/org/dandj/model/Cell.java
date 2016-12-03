@@ -1,17 +1,32 @@
 package org.dandj.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.annotation.Nonnull;
+
 @Accessors(fluent = true)
 @Data
-@AllArgsConstructor
 public class Cell {
 
-    private final int x;
+    private int x;
 
-    private final int y;
+    private int y;
+
+    private Direction direction;
 
     private Region region;
+
+    /**
+     * @return whether the tile is inside stage and empty or not
+     */
+    public boolean available(@Nonnull Cell[][] stageGrid) {
+        return insideStage(stageGrid)
+                && stageGrid[x][y] == null;
+    }
+
+    public boolean insideStage(@Nonnull Cell[][] stageGrid) {
+        return x >= 0 && x < stageGrid.length && y >= 0 && y < stageGrid[0].length;
+    }
+
 }
