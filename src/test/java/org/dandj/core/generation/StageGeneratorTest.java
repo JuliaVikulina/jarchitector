@@ -1,59 +1,48 @@
 package org.dandj.core.generation;
 
 
-import com.google.protobuf.util.JsonFormat;
-import org.dandj.utils.AsciiPrinter;
-import org.junit.Assert;
+import org.dandj.api.API;
+import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Random;
-
-import static org.dandj.api.API.Stage;
+import java.util.List;
 
 public class StageGeneratorTest {
+    private static API.Cell stage[][];
+
+    @Before
+    public void setUp(){
+        stage = new API.Cell[3][];
+        stage[0] = new API.Cell[3];
+        stage[1] = new API.Cell[3];
+        stage[2] = new API.Cell[3];
+    }
+
     @Test
-    public void createStage() throws Exception {
-        Stage.Builder builder = Stage.newBuilder()
-                .setWidth(6)
-                .setHeight(5)
-                .setResolution(5);
-        Random r = new Random(42);
-        Stage stage = StageGenerator.createStage(builder, r);
-        String expected = "{\n" +
-                "  \"resolution\": 5,\n" +
-                "  \"width\": 6,\n" +
-                "  \"height\": 5,\n" +
-                "  \"regions\": [{\n" +
-                "    \"cells\": [{\n" +
-                "      \"x\": 2,\n" +
-                "      \"y\": 0\n" +
-                "    }, {\n" +
-                "      \"x\": 2,\n" +
-                "      \"y\": 1\n" +
-                "    }, {\n" +
-                "      \"x\": 2,\n" +
-                "      \"y\": 2\n" +
-                "    }, {\n" +
-                "      \"x\": 3,\n" +
-                "      \"y\": 0\n" +
-                "    }, {\n" +
-                "      \"x\": 3,\n" +
-                "      \"y\": 1\n" +
-                "    }, {\n" +
-                "      \"x\": 3,\n" +
-                "      \"y\": 2\n" +
-                "    }, {\n" +
-                "      \"x\": 4,\n" +
-                "      \"y\": 0\n" +
-                "    }, {\n" +
-                "      \"x\": 4,\n" +
-                "      \"y\": 1\n" +
-                "    }, {\n" +
-                "      \"x\": 4,\n" +
-                "      \"y\": 2\n" +
-                "    }]\n" +
-                "  }]\n" +
-                "}";
-        Assert.assertEquals(expected, JsonFormat.printer().print(stage));
+    public void testGetUpDownLeftRightTiles() {
+        List<StageGenerator.Tile> tiles = StageGenerator.getUpDownLeftRightTiles(0, 0);
+        assert tiles.get(0).x == -1;
+        assert tiles.get(1).x == 0;
+        assert tiles.get(2).x == 0;
+        assert tiles.get(3).x == 1;
+
+        assert tiles.get(0).y == 0;
+        assert tiles.get(1).y == -1;
+        assert tiles.get(2).y == 1;
+        assert tiles.get(3).y == 0;
+
+        assert tiles.get(0).direction == StageGenerator.Tile.Direction.LEFT;
+        assert tiles.get(1).direction == StageGenerator.Tile.Direction.UP;
+        assert tiles.get(2).direction == StageGenerator.Tile.Direction.DOWN;
+        assert tiles.get(3).direction == StageGenerator.Tile.Direction.RIGHT;
+    }
+
+    @Test
+    public void testGetAdjacentAvailableTiles() {
+        stage[0][1] = API.Cell.newBuilder().setX(0).setY(0).build();
+        List<StageGenerator.Tile> tiles = StageGenerator.getAdjacentAvailableTiles(0, 0, stage);
+        assert tiles.size() == 1;
+        assert tiles.get(0).x == 1;
+        assert tiles.get(0).y == 0;
     }
 }
