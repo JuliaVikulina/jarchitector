@@ -108,16 +108,14 @@ public class StageGenerator {
                 .filter(tile -> tile.direction == currentTile.direction)
                 .collect(Collectors.toList());
 
-        if (oldDirTile.isEmpty()) {
-            // chance to change direction
-            return adjacentAvailableTiles.get(r.nextInt(adjacentAvailableTiles.size()));
-        } else if (r.nextFloat() > mazeStraightness) {
-            // chance to change direction
+        boolean changeDirection = r.nextFloat() > mazeStraightness;
+        if (!changeDirection && !oldDirTile.isEmpty()) {
+            return oldDirTile.get(0);
+        } else if (changeDirection) {
             adjacentAvailableTiles.removeAll(oldDirTile);
-            return adjacentAvailableTiles.get(r.nextInt(adjacentAvailableTiles.size()));
         }
 
-        return oldDirTile.get(0);
+        return adjacentAvailableTiles.get(r.nextInt(adjacentAvailableTiles.size()));
     }
 
     private static List<Region> findNearRegion(Tile newTile, Cell[][] stageGrid, Region startingRegion, Set<Region> notConnected) {
