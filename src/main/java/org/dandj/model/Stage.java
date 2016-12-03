@@ -9,13 +9,12 @@ import java.util.List;
 @Accessors(fluent = true)
 @Data
 public class Stage {
-    int roomSizeXMin = 3;
-    int roomSizeXMax = 6;
-    int roomSizeYMin = 2;
-    int roomSizeYMax = 6;
-
-    int roomTries = 5;
-    float mazeStraightness = 0.1f;
+    private int roomSizeXMin = 3;
+    private int roomSizeXMax = 6;
+    private int roomSizeYMin = 2;
+    private int roomSizeYMax = 6;
+    private int roomTries = 5;
+    private float mazeStraightness = 0.1f;
     private List<Region> regions = new ArrayList<>();
     private int resolution;
     private int width;

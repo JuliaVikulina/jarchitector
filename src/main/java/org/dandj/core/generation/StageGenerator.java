@@ -5,9 +5,13 @@ import org.dandj.model.Region;
 import org.dandj.model.Stage;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.lang.Math.max;
 import static org.dandj.model.Direction.*;
 
 public class StageGenerator {
@@ -41,14 +45,9 @@ public class StageGenerator {
                     }
                 }
             }
-            Region region = new Region().id(i);
-            for (int x = 0; x < roomSizeX; x++) {
-                for (int y = 0; y < roomSizeY; y++) {
-                    Cell cell = new Cell().x(roomX + x).y(roomY + y).region(region);
-                    region.cells().add(cell);
-                    stageGrid[roomY + y][roomX + x] = cell;
-                }
-            }
+            Region region = formRectangleRoom(stageGrid, roomSizeX, roomSizeY, roomX, roomY, i);
+//            Region region = formRaggedRoom(stageGrid, roomSizeX, roomSizeY, roomX, roomY, i, r);
+
             stage.regions().add(region);
         }
 
@@ -93,6 +92,34 @@ public class StageGenerator {
         }
 */
         return stage;
+    }
+
+    private static Region formRectangleRoom(Cell[][] stageGrid, int roomSizeX, int roomSizeY, int roomX, int roomY, int id) {
+        Region region = new Region().id(id);
+
+        for (int x = 0; x < roomSizeX; x++) {
+            for (int y = 0; y < roomSizeY; y++) {
+                Cell cell = new Cell().x(roomX + x).y(roomY + y).region(region);
+                region.cells().add(cell);
+                stageGrid[roomY + y][roomX + x] = cell;
+            }
+        }
+        return region;
+    }
+
+    private static Region formRaggedRoom(Cell[][] stageGrid, int roomSizeX, int roomSizeY, int roomX, int roomY, int id, Random r) {
+        Region region = new Region().id(id);
+
+        int biasX = r.nextInt(max(roomSizeX / 2, 1));
+        for (int x = biasX; x < roomSizeX - biasX; x++) {
+            int biasY = r.nextInt(max(roomSizeY / 2, 1));
+            for (int y = biasY; y < roomSizeY - biasY; y++) {
+                Cell cell = new Cell().x(roomX + x).y(roomY + y).region(region);
+                region.cells().add(cell);
+                stageGrid[roomY + y][roomX + x] = cell;
+            }
+        }
+        return region;
     }
 
     static Cell getNextCell(Cell currentCell, Cell[][] stageGrid, float mazeStraightness, Random r) {
