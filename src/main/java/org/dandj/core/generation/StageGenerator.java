@@ -13,8 +13,6 @@ import static org.dandj.model.Direction.*;
 public class StageGenerator {
     public static Stage createStage(Stage stage, Random r) {
 
-        int roomSizeX = r.nextInt(stage.roomSizeXMax() - stage.roomSizeXMin() + 1) + stage.roomSizeXMin();
-        int roomSizeY = r.nextInt(stage.roomSizeYMax() - stage.roomSizeYMin() + 1) + stage.roomSizeYMin();
 
         int xrange = stage.width();
         int yrange = stage.height();
@@ -28,22 +26,24 @@ public class StageGenerator {
 
         createRoom:
         for (int i = 0; i < stage.roomTries(); i++) {
+
+            int roomSizeX = r.nextInt(stage.roomSizeXMax() - stage.roomSizeXMin() + 1) + stage.roomSizeXMin();
+            int roomSizeY = r.nextInt(stage.roomSizeYMax() - stage.roomSizeYMin() + 1) + stage.roomSizeYMin();
+
             int roomX = r.nextInt(xrange - roomSizeX);
             int roomY = r.nextInt(yrange - roomSizeY);
 
             // check that new room does not overlap with existing ones
-            for (int y = 0; y < roomY; y++) {
-                for (int x = 0; x < roomX; x++) {
+            for (int y = 0; y < roomSizeY; y++) {
+                for (int x = 0; x < roomSizeX; x++) {
                     if (stageGrid[roomY + y][roomX + x] != null) {
                         continue createRoom;
                     }
                 }
             }
             Region region = new Region().id(i);
-            int biasX = r.nextInt(roomSizeX);
-            for (int x = biasX; x < roomSizeX - biasX; x++) {
-                int biasY = r.nextInt(roomSizeX);
-                for (int y = biasY; y < roomSizeY - biasY; y++) {
+            for (int x = 0; x < roomSizeX; x++) {
+                for (int y = 0; y < roomSizeY; y++) {
                     Cell cell = new Cell().x(roomX + x).y(roomY + y).region(region);
                     region.cells().add(cell);
                     stageGrid[roomY + y][roomX + x] = cell;
@@ -52,6 +52,7 @@ public class StageGenerator {
             stage.regions().add(region);
         }
 
+/*
         if (stage.regions().size() > 1) {
             // carve corridors to regions:
             Set<Region> notConnected = new HashSet<>(stage.regions());
@@ -90,6 +91,7 @@ public class StageGenerator {
                 connected.add(maze);
             }
         }
+*/
         return stage;
     }
 

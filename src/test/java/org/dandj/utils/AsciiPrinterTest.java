@@ -12,7 +12,9 @@ import java.util.Random;
 public class AsciiPrinterTest {
     @Test
     public void printStage() throws Exception {
-        System.out.println(AsciiPrinter.printStage(StageGenerator.createStage(new Stage().width(80).height(25), new Random())));
+        System.out.println(
+                AsciiPrinter.printStage(
+                        StageGenerator.createStage(new Stage().width(80).height(25), new Random())));
     }
 
 }
