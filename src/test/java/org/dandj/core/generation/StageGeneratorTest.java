@@ -40,7 +40,7 @@ public class StageGeneratorTest {
 
     @Test
     public void testGetAdjacentAvailableTiles() {
-        stage[0][1] = new Cell().x(0).y(0);
+        stage[1][0] = new Cell().x(0).y(0);
         List<Cell> tiles = StageGenerator.getAdjacentAvailableCells(0, 0, stage);
         assert tiles.size() == 1;
         assert tiles.get(0).x() == 1;

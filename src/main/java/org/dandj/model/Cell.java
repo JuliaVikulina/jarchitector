@@ -22,7 +22,7 @@ public class Cell {
      */
     public boolean available(@Nonnull Cell[][] stageGrid) {
         return insideStage(stageGrid)
-                && stageGrid[x][y] == null;
+                && stageGrid[y][x] == null;
     }
 
     public boolean insideStage(@Nonnull Cell[][] stageGrid) {

@@ -20,9 +20,9 @@ public class StageGenerator {
         int yrange = stage.height();
 
         // simple two dimensional array to represent the layout
-        Cell[][] stageGrid = new Cell[xrange][];
-        for (int i = 0; i < xrange; i++) {
-            stageGrid[i] = new Cell[yrange];
+        Cell[][] stageGrid = new Cell[yrange][];
+        for (int i = 0; i < yrange; i++) {
+            stageGrid[i] = new Cell[xrange];
         }
 
         createRoom:
@@ -31,8 +31,8 @@ public class StageGenerator {
             int roomY = r.nextInt(yrange - roomSizeY);
 
             // check that new room does not overlap with existing ones
-            for (int x = 0; x < roomSizeX; x++) {
-                for (int y = 0; y < roomSizeY; y++) {
+            for (int x = 0; x < stage.roomSizeX(); x++) {
+                for (int y = 0; y < stage.roomSizeY(); y++) {
                     if (stageGrid[roomX + x][roomY + y] != null) {
                         continue createRoom;
                     }
@@ -45,7 +45,7 @@ public class StageGenerator {
                 for (int y = biasY; y < roomSizeY - biasY; y++) {
                     Cell cell = new Cell().x(roomX + x).y(roomY + y).region(region);
                     region.cells().add(cell);
-                    stageGrid[roomX + x][roomY + y] = cell;
+                    stageGrid[roomY + y][roomX + x] = cell;
                 }
             }
             stage.regions().add(region);
@@ -72,7 +72,7 @@ public class StageGenerator {
                 while (destinations.isEmpty() && currentCell != null) { // todo make protection from infinite loop
                     Cell cell = new Cell().x(currentCell.x()).y(currentCell.y()).region(maze);
                     maze.cells().add(cell);
-                    stageGrid[currentCell.x()][currentCell.y()] = cell;
+                    stageGrid[currentCell.y()][currentCell.x()] = cell;
                     // todo check if it not connected already
                     destinations = findNearRegion(currentCell, stageGrid, startingRegion, notConnected);
                     if (destinations.isEmpty())
@@ -101,7 +101,7 @@ public class StageGenerator {
         }
 
         List<Cell> oldDirCell = adjacentAvailableCells.stream()
-                .filter(tile -> tile.direction() == currentCell.direction())
+                .filter(cell -> cell.direction() == currentCell.direction())
                 .collect(Collectors.toList());
 
         boolean changeDirection = r.nextFloat() > mazeStraightness;
@@ -116,10 +116,10 @@ public class StageGenerator {
 
     static List<Region> findNearRegion(Cell newCell, Cell[][] stageGrid, Region startingRegion, Set<Region> notConnected) {
         return getUpDownLeftRightCells(newCell.x(), newCell.y()).stream()
-                .filter(tile -> tile.insideStage(stageGrid))
-                .filter(tile -> stageGrid[tile.x()][tile.y()] != null) // there is a cell at the point (x,y)
-                .filter(tile -> !notConnected.contains(stageGrid[tile.x()][tile.y()].region()))
-                .map(tile -> stageGrid[tile.x()][tile.y()].region()).collect(Collectors.toList());
+                .filter(cell -> cell.insideStage(stageGrid))
+                .filter(cell -> stageGrid[cell.y()][cell.x()] != null) // there is a cell at the point (x,y)
+                .filter(cell -> !notConnected.contains(stageGrid[cell.y()][cell.x()].region()))
+                .map(cell -> stageGrid[cell.y()][cell.x()].region()).collect(Collectors.toList());
     }
 
     static Cell getStartCell(@Nonnull Region from, @Nonnull Cell[][] stageGrid, Random r) {
@@ -141,7 +141,7 @@ public class StageGenerator {
 
     static List<Cell> getAdjacentAvailableCells(int x, int y, @Nonnull Cell[][] stageGrid) {
         return getUpDownLeftRightCells(x, y).stream()
-                .filter((tile -> tile.available(stageGrid)))
+                .filter((cell -> cell.available(stageGrid)))
                 .collect(Collectors.toList());
     }
 

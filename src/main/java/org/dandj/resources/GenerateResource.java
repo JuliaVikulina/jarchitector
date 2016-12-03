@@ -1,5 +1,7 @@
 package org.dandj.resources;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dandj.core.generation.StageGenerator;
 import org.dandj.model.Stage;
 
@@ -16,12 +18,13 @@ public class GenerateResource {
     public String generate(
             @FormParam("width") @DefaultValue("21") int width,
             @FormParam("height") @DefaultValue("22") int height,
-            @FormParam("seed") @DefaultValue("0") int seed) {
+            @FormParam("seed") @DefaultValue("0") int seed) throws JsonProcessingException {
         Stage stage = new Stage().height(height).width(width);
         if (seed == 0)
             seed = new Random().nextInt(Integer.MAX_VALUE);
         StageGenerator.createStage(stage, new Random(seed));
-        return stage.toString();
+        ObjectMapper om = new ObjectMapper();
+        return om.writeValueAsString(stage);
     }
 
     @GET
