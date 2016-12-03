@@ -13,6 +13,9 @@ import static org.dandj.model.Direction.*;
 public class StageGenerator {
     public static Stage createStage(Stage stage, Random r) {
 
+        int roomSizeX = r.nextInt(stage.roomSizeXMax() - stage.roomSizeXMin() + 1) + stage.roomSizeXMin();
+        int roomSizeY = r.nextInt(stage.roomSizeYMax() - stage.roomSizeYMin() + 1) + stage.roomSizeYMin();
+
         int xrange = stage.width();
         int yrange = stage.height();
 
@@ -24,20 +27,20 @@ public class StageGenerator {
 
         createRoom:
         for (int i = 0; i < stage.roomTries(); i++) {
-            int roomX = r.nextInt(xrange - stage.roomSizeX());
-            int roomY = r.nextInt(yrange - stage.roomSizeY());
+            int roomX = r.nextInt(xrange - roomSizeX);
+            int roomY = r.nextInt(yrange - roomSizeY);
 
             // check that new room does not overlap with existing ones
-            for (int x = 0; x < stage.roomSizeX(); x++) {
-                for (int y = 0; y < stage.roomSizeY(); y++) {
+            for (int x = 0; x < roomSizeX; x++) {
+                for (int y = 0; y < roomSizeY; y++) {
                     if (stageGrid[roomX + x][roomY + y] != null) {
                         continue createRoom;
                     }
                 }
             }
             Region region = new Region().id(i);
-            for (int x = 0; x < stage.roomSizeX(); x++) {
-                for (int y = 0; y < stage.roomSizeY(); y++) {
+            for (int x = 0; x < roomSizeX; x++) {
+                for (int y = 0; y < roomSizeY; y++) {
                     Cell cell = new Cell().x(roomX + x).y(roomY + y).region(region);
                     region.cells().add(cell);
                     stageGrid[roomX + x][roomY + y] = cell;
