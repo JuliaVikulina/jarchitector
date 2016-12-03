@@ -12,10 +12,6 @@ import static org.dandj.model.Direction.*;
 
 public class StageGenerator {
     public static Stage createStage(Stage stage, Random r) {
-        int roomSizeX = 3; //todo make input parameter
-        int roomSizeY = 3; //todo make input parameter
-        int roomTries = 5; //todo make input parameter
-        float mazeStraightness = 0.1f; //todo make input parameter
 
         int xrange = stage.width();
         int yrange = stage.height();
@@ -27,21 +23,21 @@ public class StageGenerator {
         }
 
         createRoom:
-        for (int i = 0; i < roomTries; i++) {
-            int roomX = r.nextInt(xrange - roomSizeX);
-            int roomY = r.nextInt(yrange - roomSizeY);
+        for (int i = 0; i < stage.roomTries(); i++) {
+            int roomX = r.nextInt(xrange - stage.roomSizeX());
+            int roomY = r.nextInt(yrange - stage.roomSizeY());
 
             // check that new room does not overlap with existing ones
-            for (int x = 0; x < roomSizeX; x++) {
-                for (int y = 0; y < roomSizeY; y++) {
+            for (int x = 0; x < stage.roomSizeX(); x++) {
+                for (int y = 0; y < stage.roomSizeY(); y++) {
                     if (stageGrid[roomX + x][roomY + y] != null) {
                         continue createRoom;
                     }
                 }
             }
             Region region = new Region().id(i);
-            for (int x = 0; x < roomSizeX; x++) {
-                for (int y = 0; y < roomSizeY; y++) {
+            for (int x = 0; x < stage.roomSizeX(); x++) {
+                for (int y = 0; y < stage.roomSizeY(); y++) {
                     Cell cell = new Cell().x(roomX + x).y(roomY + y).region(region);
                     region.cells().add(cell);
                     stageGrid[roomX + x][roomY + y] = cell;
@@ -75,7 +71,7 @@ public class StageGenerator {
                     // todo check if it not connected already
                     destinations = findNearRegion(currentCell, stageGrid, startingRegion, notConnected);
                     if (destinations.isEmpty())
-                        currentCell = getNextCell(currentCell, stageGrid, mazeStraightness, r);
+                        currentCell = getNextCell(currentCell, stageGrid, stage.mazeStraightness(), r);
                 }
                 // add cells to maze region until we hit a unconnected region or cannot carve anymore
 
