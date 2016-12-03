@@ -10,4 +10,5 @@ import java.util.List;
 @Data
 public class Region {
     private List<Cell> cells = new ArrayList<>();
+    private int id;
 }

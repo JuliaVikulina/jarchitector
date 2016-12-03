@@ -1,9 +1,7 @@
 package org.dandj.resources;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.util.JsonFormat;
-import org.dandj.api.API;
 import org.dandj.core.generation.StageGenerator;
+import org.dandj.model.Stage;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -19,18 +17,11 @@ public class GenerateResource {
             @FormParam("width") @DefaultValue("21") int width,
             @FormParam("height") @DefaultValue("22") int height,
             @FormParam("seed") @DefaultValue("0") int seed) {
-        API.Stage.Builder builder = API.Stage.newBuilder();
-        builder.setHeight(height).setWidth(width).setResolution(1);
+        Stage stage = new Stage().height(height).width(width);
         if (seed == 0)
             seed = new Random().nextInt(Integer.MAX_VALUE);
-        Random random = new Random(seed);
-        StageGenerator.createStage(builder, random);
-        try {
-            return JsonFormat.printer().print(builder.build());
-        } catch (InvalidProtocolBufferException e) {
-            e.printStackTrace();
-            return "{\"error\":\"" + e.getMessage() + "\"}";
-        }
+        StageGenerator.createStage(stage, new Random(seed));
+        return stage.toString();
     }
 
     @GET

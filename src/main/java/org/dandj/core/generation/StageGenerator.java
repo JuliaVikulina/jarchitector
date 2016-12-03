@@ -39,7 +39,7 @@ public class StageGenerator {
                     }
                 }
             }
-            Region region = new Region();
+            Region region = new Region().id(i);
             for (int x = 0; x < roomSizeX; x++) {
                 for (int y = 0; y < roomSizeY; y++) {
                     Cell cell = new Cell().x(roomX + x).y(roomY + y).region(region);
