@@ -39,8 +39,10 @@ public class StageGenerator {
                 }
             }
             Region region = new Region().id(i);
-            for (int x = 0; x < roomSizeX; x++) {
-                for (int y = 0; y < roomSizeY; y++) {
+            int biasX = r.nextInt(roomSizeX);
+            for (int x = biasX; x < roomSizeX - biasX; x++) {
+                int biasY = r.nextInt(roomSizeX);
+                for (int y = biasY; y < roomSizeY - biasY; y++) {
                     Cell cell = new Cell().x(roomX + x).y(roomY + y).region(region);
                     region.cells().add(cell);
                     stageGrid[roomX + x][roomY + y] = cell;
