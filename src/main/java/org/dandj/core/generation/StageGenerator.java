@@ -1,6 +1,7 @@
 package org.dandj.core.generation;
 
 import org.dandj.model.Cell;
+import org.dandj.model.Direction;
 import org.dandj.model.Region;
 import org.dandj.model.Stage;
 
@@ -66,19 +67,22 @@ public class StageGenerator {
                 if (currentCell == null)
                     // todo connect this region using junction
                     continue;
-
+                Direction previous = null;
                 while (destinations.isEmpty() && currentCell != null) { // todo make protection from infinite loop
                     Cell cell = new Cell()
                             .x(currentCell.x())
                             .y(currentCell.y())
                             .direction(currentCell.direction())
+                            .previous(previous)
                             .region(maze);
                     maze.cells().add(cell);
                     stageGrid[cell.y()][cell.x()] = cell;
                     // todo check if it not connected already
                     destinations = findNearRegion(cell, stageGrid, startingRegion, notConnected);
-                    if (destinations.isEmpty())
+                    if (destinations.isEmpty()) {
+                        previous = currentCell.direction();
                         currentCell = getNextCell(cell, stageGrid, stage.mazeStraightness(), r);
+                    }
                 }
                 // add cells to maze region until we hit a unconnected region or cannot carve anymore
 
@@ -90,6 +94,7 @@ public class StageGenerator {
                     notConnected.removeAll(destinations);
                     connected.addAll(destinations);
                     connected.add(maze);
+                    stage.regions().add(maze);
                 } else {
                     // maze was build but led nowhere
                     // erase it from stageGrid
@@ -105,7 +110,6 @@ public class StageGenerator {
 
     private static Region formRectangleRoom(Cell[][] stageGrid, int roomSizeX, int roomSizeY, int roomX, int roomY, int id) {
         Region region = new Region(id);
-
         for (int x = 0; x < roomSizeX; x++) {
             for (int y = 0; y < roomSizeY; y++) {
                 Cell cell = new Cell().x(roomX + x).y(roomY + y).region(region);

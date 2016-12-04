@@ -12,11 +12,23 @@ import java.util.Random;
  */
 public class AsciiPrinterTest {
     @Test
-    public void printStage() throws Exception {
+    public void printStageWithChars() throws Exception {
         System.out.println(
-                AsciiPrinter.printStage(
+                AsciiPrinter.printStageWithChars(
                         StageGenerator.createStage(
-                                new Stage().width(80).height(25).mazeStraightness(1f), new Random(42))));
+                                new Stage().width(80).height(25).roomTries(20).mazeStraightness(0.3f), new Random(42))));
+    }
+
+    @Test
+    public void printStageWithBorders() throws Exception {
+        System.out.println(
+                AsciiPrinter.printStageWithBorders(
+                        StageGenerator.createStage(
+                                new Stage().width(10).height(10)
+                                        .roomTries(2)
+                                        .roomSizeXMin(2).roomSizeXMax(2)
+                                        .roomSizeYMin(2).roomSizeYMax(2)
+                                        .mazeStraightness(0.3f), new Random(42))));
     }
 
     @Test
