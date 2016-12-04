@@ -24,10 +24,10 @@ public class AsciiPrinterTest {
         System.out.println(
                 AsciiPrinter.printStageWithBorders(
                         StageGenerator.createStage(
-                                new Stage().width(10).height(10)
-                                        .roomTries(2)
-                                        .roomSizeXMin(2).roomSizeXMax(2)
-                                        .roomSizeYMin(2).roomSizeYMax(2)
+                                new Stage().width(80).height(25)
+                                        .roomTries(15)
+//                                        .roomSizeXMin(2).roomSizeXMax(2)
+//                                        .roomSizeYMin(2).roomSizeYMax(2)
                                         .mazeStraightness(0.3f), new Random(42))));
     }
 

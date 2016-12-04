@@ -45,10 +45,10 @@ public class AsciiPrinter {
         for (Cell[] row : input.cells()) {
             for (Cell cell : row) {
                 if (cell != null) {
-                    if (cell.direction() == null) {
+                    if (cell.next() == null) {
                         sb.append(BLOCK);
-                    } else if (cell.previous() == null) {
-                        switch (cell.direction()) {
+                    } else if (cell.direction() == null) {
+                        switch (cell.next()) {
                             case UP:
                             case DOWN:
                                 sb.append(VERTICAL);
@@ -59,14 +59,18 @@ public class AsciiPrinter {
                                 break;
                         }
                     } else {
-                        if (cell.previous() == UP && cell.direction() == RIGHT || cell.previous() == LEFT && cell.direction() == DOWN)
+                        if (cell.direction() == UP && cell.next() == RIGHT || cell.direction() == LEFT && cell.next() == DOWN)
                             sb.append(CORNER_UR);
-                        else if (cell.previous() == RIGHT && cell.direction() == DOWN || cell.previous() == UP && cell.direction() == LEFT)
+                        else if (cell.direction() == RIGHT && cell.next() == DOWN || cell.direction() == UP && cell.next() == LEFT)
                             sb.append(CORNER_RD);
-                        else if (cell.previous() == DOWN && cell.direction() == RIGHT || cell.previous() == LEFT && cell.direction() == UP)
+                        else if (cell.direction() == DOWN && cell.next() == RIGHT || cell.direction() == LEFT && cell.next() == UP)
                             sb.append(CORNER_DR);
-                        else if (cell.previous() == RIGHT && cell.direction() == UP || cell.previous() == DOWN && cell.direction() == LEFT)
+                        else if (cell.direction() == RIGHT && cell.next() == UP || cell.direction() == DOWN && cell.next() == LEFT)
                             sb.append(CORNER_RU);
+                        else if (cell.direction() == RIGHT && cell.next() == RIGHT || cell.direction() == LEFT && cell.next() == LEFT)
+                            sb.append(HORIZONTAL);
+                        else if (cell.direction() == UP && cell.next() == UP || cell.direction() == DOWN && cell.next() == DOWN)
+                            sb.append(VERTICAL);
                         else
                             sb.append('?');
                     }

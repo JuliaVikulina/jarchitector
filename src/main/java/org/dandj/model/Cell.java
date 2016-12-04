@@ -19,6 +19,8 @@ public class Cell {
 
     private Direction previous;
 
+    private Direction next;
+
     private Region region;
 
     /**
