@@ -5,10 +5,7 @@ import org.dandj.model.Region;
 import org.dandj.model.Stage;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.max;
@@ -27,7 +24,7 @@ public class StageGenerator {
             stageGrid[i] = new Cell[xrange];
         }
         stage.cells(stageGrid);
-
+        int regionId = 0;
         createRoom:
         for (int i = 0; i < stage.roomTries(); i++) {
 
@@ -45,13 +42,13 @@ public class StageGenerator {
                     }
                 }
             }
-            Region region = formRectangleRoom(stageGrid, roomSizeX, roomSizeY, roomX, roomY, i);
-//            Region region = formRaggedRoom(stageGrid, roomSizeX, roomSizeY, roomX, roomY, i, r);
+            Region region = formRectangleRoom(stageGrid, roomSizeX, roomSizeY, roomX, roomY, regionId++);
+//            Region region = formRaggedRoom(stageGrid, roomSizeX, roomSizeY, roomX, roomY, i, regionId++);
 
             stage.regions().add(region);
         }
 
-/*
+
         if (stage.regions().size() > 1) {
             // carve corridors to regions:
             Set<Region> notConnected = new HashSet<>(stage.regions());
@@ -62,7 +59,7 @@ public class StageGenerator {
             while (!notConnected.isEmpty()) {
                 // we carve a maze starting from any connected region
                 Region startingRegion = connected.get(r.nextInt(connected.size()));
-                Region maze = new Region();
+                Region maze = new Region(regionId++);
                 List<Region> destinations = new ArrayList<>();
                 //todo add check if there are empty cells in a stage
                 Cell currentCell = getStartCell(startingRegion, stageGrid, r);
@@ -71,31 +68,43 @@ public class StageGenerator {
                     continue;
 
                 while (destinations.isEmpty() && currentCell != null) { // todo make protection from infinite loop
-                    Cell cell = new Cell().x(currentCell.x()).y(currentCell.y()).region(maze);
+                    Cell cell = new Cell()
+                            .x(currentCell.x())
+                            .y(currentCell.y())
+                            .direction(currentCell.direction())
+                            .region(maze);
                     maze.cells().add(cell);
-                    stageGrid[currentCell.y()][currentCell.x()] = cell;
+                    stageGrid[cell.y()][cell.x()] = cell;
                     // todo check if it not connected already
-                    destinations = findNearRegion(currentCell, stageGrid, startingRegion, notConnected);
+                    destinations = findNearRegion(cell, stageGrid, startingRegion, notConnected);
                     if (destinations.isEmpty())
-                        currentCell = getNextCell(currentCell, stageGrid, stage.mazeStraightness(), r);
+                        currentCell = getNextCell(cell, stageGrid, stage.mazeStraightness(), r);
                 }
                 // add cells to maze region until we hit a unconnected region or cannot carve anymore
 
                 // if a carved maze connects yet unconnected regions,
                 // add some of them and newly created maze to connected and remove from notConnected
-                Collections.shuffle(destinations, r);
-                List<Region> toAdd = destinations.subList(0, r.nextInt(destinations.size() - 1) + 1);
-                notConnected.removeAll(toAdd);
-                connected.addAll(toAdd);
-                connected.add(maze);
+                if (destinations.size() > 0) {
+                    Collections.shuffle(destinations, r);
+                    destinations = destinations.subList(0, r.nextInt(destinations.size()) + 1);
+                    notConnected.removeAll(destinations);
+                    connected.addAll(destinations);
+                    connected.add(maze);
+                } else {
+                    // maze was build but led nowhere
+                    // erase it from stageGrid
+                    for (Cell cell : maze.cells()) {
+                        stageGrid[cell.y()][cell.x()] = null;
+                    }
+                }
             }
         }
-*/
+
         return stage;
     }
 
     private static Region formRectangleRoom(Cell[][] stageGrid, int roomSizeX, int roomSizeY, int roomX, int roomY, int id) {
-        Region region = new Region().id(id);
+        Region region = new Region(id);
 
         for (int x = 0; x < roomSizeX; x++) {
             for (int y = 0; y < roomSizeY; y++) {
@@ -108,7 +117,7 @@ public class StageGenerator {
     }
 
     private static Region formRaggedRoom(Cell[][] stageGrid, int roomSizeX, int roomSizeY, int roomX, int roomY, int id, Random r) {
-        Region region = new Region().id(id);
+        Region region = new Region(id);
 
         int biasX = r.nextInt(max(roomSizeX / 2, 1));
         for (int x = biasX; x < roomSizeX - biasX; x++) {
@@ -148,7 +157,7 @@ public class StageGenerator {
         return getUpDownLeftRightCells(newCell.x(), newCell.y()).stream()
                 .filter(cell -> cell.insideStage(stageGrid))
                 .filter(cell -> stageGrid[cell.y()][cell.x()] != null) // there is a cell at the point (x,y)
-                .filter(cell -> !notConnected.contains(stageGrid[cell.y()][cell.x()].region()))
+                .filter(cell -> notConnected.contains(stageGrid[cell.y()][cell.x()].region())) // we do not want to connect connected regions
                 .map(cell -> stageGrid[cell.y()][cell.x()].region()).collect(Collectors.toList());
     }
 
@@ -156,7 +165,7 @@ public class StageGenerator {
         Cell startingCell = findValidStartingCell(from, stageGrid);
         if (startingCell == null)
             return null;
-        List<Cell> adjacentCells = getAdjacentAvailableCells(startingCell.x(), startingCell.x(), stageGrid);
+        List<Cell> adjacentCells = getAdjacentAvailableCells(startingCell.x(), startingCell.y(), stageGrid);
         return adjacentCells.get(r.nextInt(adjacentCells.size()));
     }
 

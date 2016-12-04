@@ -28,7 +28,7 @@ public class Cell {
     }
 
     public boolean insideStage(@Nonnull Cell[][] stageGrid) {
-        return x >= 0 && x < stageGrid.length && y >= 0 && y < stageGrid[0].length;
+        return y >= 0 && y < stageGrid.length && x >= 0 && x < stageGrid[0].length;
     }
 
 }

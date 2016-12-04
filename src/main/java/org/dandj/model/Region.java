@@ -11,6 +11,6 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(exclude = "cells")
 public class Region {
+    private final int id;
     private List<Cell> cells = new ArrayList<>();
-    private int id;
 }
