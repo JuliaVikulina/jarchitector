@@ -163,11 +163,11 @@ public class StageGenerator {
     }
 
     static Map<Direction, Region> findNearRegions(Cell newCell, Cell[][] stageGrid, Set<Region> notConnected) {
-        List<Cell> collected = getUpDownLeftRightCells(newCell.x(), newCell.y()).stream()
-                .filter(cell -> cell.insideStage(stageGrid))
-                .filter(cell -> stageGrid[cell.y()][cell.x()] != null) // there is a cell at the point (x,y)
-                .filter(cell -> notConnected.contains(stageGrid[cell.y()][cell.x()].region())).collect(Collectors.toList());// we do not want to connect connected regions
-        return collected.stream().collect(Collectors.toMap(Cell::direction, cell -> stageGrid[cell.y()][cell.x()].region()));
+        return getUpDownLeftRightCells(newCell.x(), newCell.y()).stream()
+                .filter(cell1 -> cell1.insideStage(stageGrid))
+                .filter(cell1 -> stageGrid[cell1.y()][cell1.x()] != null) // there is a cell at the point (x,y)
+                .filter(cell1 -> notConnected.contains(stageGrid[cell1.y()][cell1.x()].region()))
+                .collect(Collectors.toMap(Cell::direction, cell -> stageGrid[cell.y()][cell.x()].region()));
     }
 
     static Cell getStartCell(@Nonnull Region from, @Nonnull Cell[][] stageGrid, Random r) {
@@ -175,7 +175,11 @@ public class StageGenerator {
         if (startingCell == null)
             return null;
         List<Cell> adjacentCells = getAdjacentAvailableCells(startingCell.x(), startingCell.y(), stageGrid);
-        return adjacentCells.get(r.nextInt(adjacentCells.size()));
+        Cell newMazeCell = adjacentCells.get(r.nextInt(adjacentCells.size()));
+        if (startingCell.orientation() != CellOrientation.BLOCK) {
+            startingCell.branch(newMazeCell.direction());
+        }
+        return newMazeCell;
     }
 
     static Cell findValidStartingCell(@Nonnull Region from, @Nonnull Cell[][] stageGrid) {

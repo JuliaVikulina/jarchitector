@@ -16,7 +16,9 @@ public class AsciiPrinterTest {
         System.out.println(
                 AsciiPrinter.printStageWithChars(
                         StageGenerator.createStage(
-                                new Stage().width(80).height(25).roomTries(20).mazeStraightness(0.3f), new Random(42))));
+                                new Stage().width(80).height(25)
+                                        .roomTries(5)
+                                        .mazeStraightness(0.3f), new Random(42))));
     }
 
     @Test
@@ -25,10 +27,8 @@ public class AsciiPrinterTest {
                 AsciiPrinter.printStageWithBorders(
                         StageGenerator.createStage(
                                 new Stage().width(80).height(25)
-                                        .roomTries(15)
-//                                        .roomSizeXMin(2).roomSizeXMax(2)
-//                                        .roomSizeYMin(2).roomSizeYMax(2)
-                                        .mazeStraightness(0.3f), new Random(42))));
+                                        .roomTries(5)
+                                        .mazeStraightness(0.4f), new Random(42))));
     }
 
     @Test
