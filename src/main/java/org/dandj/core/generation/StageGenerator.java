@@ -1,8 +1,6 @@
 package org.dandj.core.generation;
 
-import org.dandj.model.Cell;
-import org.dandj.model.Region;
-import org.dandj.model.Stage;
+import org.dandj.model.*;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -60,44 +58,53 @@ public class StageGenerator {
                 // we carve a maze starting from any connected region
                 Region startingRegion = connected.get(r.nextInt(connected.size()));
                 Region maze = new Region(regionId++);
-                List<Region> destinations = new ArrayList<>();
+                Map<Direction, Region> destinations = new HashMap<>();
                 //todo add check if there are empty cells in a stage
                 Cell currentCell = getStartCell(startingRegion, stageGrid, r);
                 if (currentCell == null)
                     // todo connect this region using junction
                     continue;
+                Cell previousCell = null;
                 while (destinations.isEmpty() && currentCell != null) { // todo make protection from infinite loop
-                    Cell cell = new Cell()
+                    previousCell = new Cell()
                             .x(currentCell.x())
                             .y(currentCell.y())
                             .direction(currentCell.direction())
                             .region(maze);
-                    maze.cells().add(cell);
-                    stageGrid[cell.y()][cell.x()] = cell;
+                    maze.cells().add(previousCell);
+                    stageGrid[previousCell.y()][previousCell.x()] = previousCell;
                     // todo check if it not connected already
-                    destinations = findNearRegion(cell, stageGrid, startingRegion, notConnected);
+                    destinations = findNearRegions(previousCell, stageGrid, notConnected);
                     if (destinations.isEmpty()) {
-                        currentCell = getNextCell(cell, stageGrid, stage.mazeStraightness(), r);
+                        currentCell = getNextCell(previousCell, stageGrid, stage.mazeStraightness(), r);
                         if (currentCell != null)
-                            cell.next(currentCell.direction());
+                            previousCell.orient(currentCell.direction());
                     }
                 }
                 // add cells to maze region until we hit a unconnected region or cannot carve anymore
 
                 // if a carved maze connects yet unconnected regions,
                 // add some of them and newly created maze to connected and remove from notConnected
-                if (destinations.size() > 0) {
-                    Collections.shuffle(destinations, r);
-                    destinations = destinations.subList(0, r.nextInt(destinations.size()) + 1);
-                    notConnected.removeAll(destinations);
-                    connected.addAll(destinations);
+                if (destinations.size() > 0 && previousCell != null) {
+//                    Collections.shuffle(destinations, r);
+//                    destinations = destinations.subList(0, r.nextInt(destinations.size()) + 1);
+//                    notConnected.removeAll(destinations);
+//                    connected.addAll(destinations);
+//                    connected.add(maze);
+//                    stage.regions().add(maze);
+                    // todo: make several connections
+                    Map.Entry<Direction, Region> entry = destinations.entrySet().stream().findAny().get();
+                    previousCell.orient(entry.getKey());
+                    notConnected.remove(entry.getValue());
+                    connected.add(entry.getValue());
                     connected.add(maze);
                     stage.regions().add(maze);
+
                 } else {
                     // maze was build but led nowhere
                     // erase it from stageGrid
-                    for (Cell cell : maze.cells()) {
-                        stageGrid[cell.y()][cell.x()] = null;
+                    for (Cell c : maze.cells()) {
+                        stageGrid[c.y()][c.x()] = null;
                     }
                 }
             }
@@ -110,7 +117,7 @@ public class StageGenerator {
         Region region = new Region(id);
         for (int x = 0; x < roomSizeX; x++) {
             for (int y = 0; y < roomSizeY; y++) {
-                Cell cell = new Cell().x(roomX + x).y(roomY + y).region(region);
+                Cell cell = new Cell().x(roomX + x).y(roomY + y).region(region).orientation(CellOrientation.BLOCK);
                 region.cells().add(cell);
                 stageGrid[roomY + y][roomX + x] = cell;
             }
@@ -155,12 +162,12 @@ public class StageGenerator {
         return adjacentAvailableCells.get(r.nextInt(adjacentAvailableCells.size()));
     }
 
-    static List<Region> findNearRegion(Cell newCell, Cell[][] stageGrid, Region startingRegion, Set<Region> notConnected) {
-        return getUpDownLeftRightCells(newCell.x(), newCell.y()).stream()
+    static Map<Direction, Region> findNearRegions(Cell newCell, Cell[][] stageGrid, Set<Region> notConnected) {
+        List<Cell> collected = getUpDownLeftRightCells(newCell.x(), newCell.y()).stream()
                 .filter(cell -> cell.insideStage(stageGrid))
                 .filter(cell -> stageGrid[cell.y()][cell.x()] != null) // there is a cell at the point (x,y)
-                .filter(cell -> notConnected.contains(stageGrid[cell.y()][cell.x()].region())) // we do not want to connect connected regions
-                .map(cell -> stageGrid[cell.y()][cell.x()].region()).collect(Collectors.toList());
+                .filter(cell -> notConnected.contains(stageGrid[cell.y()][cell.x()].region())).collect(Collectors.toList());// we do not want to connect connected regions
+        return collected.stream().collect(Collectors.toMap(Cell::direction, cell -> stageGrid[cell.y()][cell.x()].region()));
     }
 
     static Cell getStartCell(@Nonnull Region from, @Nonnull Cell[][] stageGrid, Random r) {

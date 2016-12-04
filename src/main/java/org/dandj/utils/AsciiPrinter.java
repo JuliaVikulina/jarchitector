@@ -5,8 +5,6 @@ import org.dandj.model.Stage;
 
 import javax.annotation.Nonnull;
 
-import static org.dandj.model.Direction.*;
-
 public class AsciiPrinter {
     static final String CHARS = "01234567890ABCDEFGHIJKLMOPQRSTUVWXYZabcdefghijklmopqrstuvwxyz+/|-=()[]{}~`!@#$%^&*";
     static final String BLOCK = "█";
@@ -44,36 +42,8 @@ public class AsciiPrinter {
         StringBuilder sb = new StringBuilder();
         for (Cell[] row : input.cells()) {
             for (Cell cell : row) {
-                if (cell != null) {
-                    if (cell.next() == null) {
-                        sb.append(BLOCK);
-                    } else if (cell.direction() == null) {
-                        switch (cell.next()) {
-                            case UP:
-                            case DOWN:
-                                sb.append(VERTICAL);
-                                break;
-                            case LEFT:
-                            case RIGHT:
-                                sb.append(HORIZONTAL);
-                                break;
-                        }
-                    } else {
-                        if (cell.direction() == UP && cell.next() == RIGHT || cell.direction() == LEFT && cell.next() == DOWN)
-                            sb.append(CORNER_UR);
-                        else if (cell.direction() == RIGHT && cell.next() == DOWN || cell.direction() == UP && cell.next() == LEFT)
-                            sb.append(CORNER_RD);
-                        else if (cell.direction() == DOWN && cell.next() == RIGHT || cell.direction() == LEFT && cell.next() == UP)
-                            sb.append(CORNER_DR);
-                        else if (cell.direction() == RIGHT && cell.next() == UP || cell.direction() == DOWN && cell.next() == LEFT)
-                            sb.append(CORNER_RU);
-                        else if (cell.direction() == RIGHT && cell.next() == RIGHT || cell.direction() == LEFT && cell.next() == LEFT)
-                            sb.append(HORIZONTAL);
-                        else if (cell.direction() == UP && cell.next() == UP || cell.direction() == DOWN && cell.next() == DOWN)
-                            sb.append(VERTICAL);
-                        else
-                            sb.append('?');
-                    }
+                if (cell != null && cell.orientation() != null) {
+                    sb.append(cell.orientation().c);
                 } else {
                     sb.append(' ');
                 }
