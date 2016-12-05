@@ -38,7 +38,7 @@ public class AsciiPrinter {
         return CHARS.charAt(id % CHARS.length());
     }
 
-    static String printStageWithBorders(@Nonnull Stage input) {
+    public static String printStageWithBorders(@Nonnull Stage input) {
         StringBuilder sb = new StringBuilder();
         for (Cell[] row : input.cells()) {
             for (Cell cell : row) {

@@ -60,7 +60,8 @@ public class StageGenerator {
                 Region maze = new Region(regionId++);
                 Map<Direction, Region> destinations = new HashMap<>();
                 //todo add check if there are empty cells in a stage
-                Cell currentCell = getStartCell(startingRegion, stageGrid, r);
+                Map<CellOrientation, Cell> revert = new HashMap<>();
+                Cell currentCell = getStartCell(startingRegion, stageGrid, r, revert);
                 if (currentCell == null)
                     // todo connect this region using junction
                     continue;
@@ -103,6 +104,10 @@ public class StageGenerator {
                 } else {
                     // maze was build but led nowhere
                     // erase it from stageGrid
+                    if (!revert.isEmpty()) {
+                        CellOrientation o = revert.keySet().stream().findAny().get();
+                        revert.get(o).orientation(o);
+                    }
                     for (Cell c : maze.cells()) {
                         stageGrid[c.y()][c.x()] = null;
                     }
@@ -170,13 +175,14 @@ public class StageGenerator {
                 .collect(Collectors.toMap(Cell::direction, cell -> stageGrid[cell.y()][cell.x()].region()));
     }
 
-    static Cell getStartCell(@Nonnull Region from, @Nonnull Cell[][] stageGrid, Random r) {
+    static Cell getStartCell(@Nonnull Region from, @Nonnull Cell[][] stageGrid, Random r, Map<CellOrientation, Cell> revert) {
         Cell startingCell = findValidStartingCell(from, stageGrid);
         if (startingCell == null)
             return null;
         List<Cell> adjacentCells = getAdjacentAvailableCells(startingCell.x(), startingCell.y(), stageGrid);
         Cell newMazeCell = adjacentCells.get(r.nextInt(adjacentCells.size()));
         if (startingCell.orientation() != CellOrientation.BLOCK) {
+            revert.put(startingCell.orientation(), startingCell);
             startingCell.branch(newMazeCell.direction());
         }
         return newMazeCell;
