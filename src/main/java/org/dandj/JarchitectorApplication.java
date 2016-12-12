@@ -19,7 +19,7 @@ public class JarchitectorApplication extends Application<JarchitectorConfigurati
 
     @Override
     public void initialize(final Bootstrap<JarchitectorConfiguration> bootstrap) {
-        bootstrap.addBundle(new AssetsBundle("/assets", "/", "index.html"));
+        bootstrap.addBundle(new AssetsBundle("/assets", "/ui", "index.html"));
         // TODO: application initialization
     }
 

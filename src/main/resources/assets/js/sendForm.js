@@ -12,15 +12,12 @@ $('#submit').click(function(){
     console.log(mess);
 
     $.ajax({
-        url: "http://192.168.1.46:8080/generate",
+        url: "http://localhost:8080/generate",
         type: 'POST',
         data: mess,
-                // data: $('#formdata').serialize(),
 
         async: false,
         cache: false,
-        // contentType: "application/x-www-form-urlencoded",
-        // processData: false,
         success: function (response) {
             console.log(JSON.stringify(response));
             // alert(response);
