@@ -9,8 +9,6 @@ import java.util.List;
 
 @Accessors(fluent = true)
 @Data
-@EqualsAndHashCode(exclude = "cells")
 public class Region {
-    private final int id;
     private List<Cell> cells = new ArrayList<>();
 }

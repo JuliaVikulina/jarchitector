@@ -1,6 +1,7 @@
 package org.dandj.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
@@ -12,6 +13,7 @@ import static org.dandj.model.Direction.*;
 @Accessors(fluent = true)
 @Data
 @ToString(exclude = "region")
+//@EqualsAndHashCode(exclude = "region")
 public class Cell {
 
     private int x;

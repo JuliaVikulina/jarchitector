@@ -6,46 +6,17 @@ import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.lang.Math.min;
 import static java.lang.Math.max;
+
 import static org.dandj.model.Direction.*;
 
 public class StageGenerator {
     public static Stage createStage(Stage stage, Random r) {
-
-
-        int xrange = stage.width();
-        int yrange = stage.height();
-
-        // simple two dimensional array to represent the layout
-        Cell[][] stageGrid = new Cell[yrange][];
-        for (int i = 0; i < yrange; i++) {
-            stageGrid[i] = new Cell[xrange];
-        }
-        stage.cells(stageGrid);
-        int regionId = 0;
-        createRoom:
+        initCells(stage);
         for (int i = 0; i < stage.roomTries(); i++) {
-
-            int roomSizeX = r.nextInt(stage.roomSizeXMax() - stage.roomSizeXMin() + 1) + stage.roomSizeXMin();
-            int roomSizeY = r.nextInt(stage.roomSizeYMax() - stage.roomSizeYMin() + 1) + stage.roomSizeYMin();
-
-            int roomX = r.nextInt(xrange - roomSizeX);
-            int roomY = r.nextInt(yrange - roomSizeY);
-
-            // check that new room does not overlap with existing ones
-            for (int y = 0; y < roomSizeY; y++) {
-                for (int x = 0; x < roomSizeX; x++) {
-                    if (stageGrid[roomY + y][roomX + x] != null) {
-                        continue createRoom;
-                    }
-                }
-            }
-            Region region = formRectangleRoom(stageGrid, roomSizeX, roomSizeY, roomX, roomY, regionId++);
-//            Region region = formRaggedRoom(stageGrid, roomSizeX, roomSizeY, roomX, roomY, i, regionId++);
-
-            stage.regions().add(region);
+            addRoom(stage, r);
         }
-
 
         if (stage.regions().size() > 1) {
             // carve corridors to regions:
@@ -57,11 +28,11 @@ public class StageGenerator {
             while (!notConnected.isEmpty()) {
                 // we carve a maze starting from any connected region
                 Region startingRegion = connected.get(r.nextInt(connected.size()));
-                Region maze = new Region(regionId++);
+                Region maze = new Region();
                 Map<Direction, Region> destinations = new HashMap<>();
                 //todo add check if there are empty cells in a stage
                 Map<CellOrientation, Cell> revert = new HashMap<>();
-                Cell currentCell = getStartCell(startingRegion, stageGrid, r, revert);
+                Cell currentCell = getStartCell(startingRegion, stage.cells(), r, revert);
                 if (currentCell == null)
                     // todo connect this region using junction
                     continue;
@@ -73,11 +44,11 @@ public class StageGenerator {
                             .direction(currentCell.direction())
                             .region(maze);
                     maze.cells().add(previousCell);
-                    stageGrid[previousCell.y()][previousCell.x()] = previousCell;
+                    stage.cells()[previousCell.y()][previousCell.x()] = previousCell;
                     // todo check if it not connected already
-                    destinations = findNearRegions(previousCell, stageGrid, notConnected);
+                    destinations = findNearRegions(previousCell, stage.cells(), notConnected);
                     if (destinations.isEmpty()) {
-                        currentCell = getNextCell(previousCell, stageGrid, stage.mazeStraightness(), r);
+                        currentCell = getNextCell(previousCell, stage.cells(), stage.mazeStraightness(), r);
                         if (currentCell != null)
                             previousCell.orient(currentCell.direction());
                     }
@@ -109,7 +80,7 @@ public class StageGenerator {
                         revert.get(o).orientation(o);
                     }
                     for (Cell c : maze.cells()) {
-                        stageGrid[c.y()][c.x()] = null;
+                        stage.cells()[c.y()][c.x()] = null;
                     }
                 }
             }
@@ -118,8 +89,39 @@ public class StageGenerator {
         return stage;
     }
 
-    private static Region formRectangleRoom(Cell[][] stageGrid, int roomSizeX, int roomSizeY, int roomX, int roomY, int id) {
-        Region region = new Region(id);
+    private static void addRoom(Stage stage, Random r) {
+        int roomSizeX = min(stage.width(), r.nextInt(stage.roomSizeXMax() - stage.roomSizeXMin() + 1) + stage.roomSizeXMin());
+        int roomSizeY = min(stage.height(), r.nextInt(stage.roomSizeYMax() - stage.roomSizeYMin() + 1) + stage.roomSizeYMin());
+
+        int roomX = r.nextInt(stage.width() - roomSizeX);
+        int roomY = r.nextInt(stage.height() - roomSizeY);
+
+        // check that new room does not overlap with existing ones
+        for (int y = 0; y < roomSizeY; y++) {
+            for (int x = 0; x < roomSizeX; x++) {
+                if (stage.cells()[roomY + y][roomX + x] != null) {
+                    return;
+                }
+            }
+        }
+        Region region = formRectangleRoom(stage.cells(), roomSizeX, roomSizeY, roomX, roomY);
+//            Region region = formRaggedRoom(stageGrid, roomSizeX, roomSizeY, roomX, roomY, i);
+
+        stage.regions().add(region);
+    }
+
+    private static Cell[][] initCells(Stage stage) {
+        // simple two dimensional array to represent the layout
+        Cell[][] stageGrid = new Cell[stage.height()][];
+        for (int i = 0; i < stage.height(); i++) {
+            stageGrid[i] = new Cell[stage.width()];
+        }
+        stage.cells(stageGrid);
+        return stageGrid;
+    }
+
+    private static Region formRectangleRoom(Cell[][] stageGrid, int roomSizeX, int roomSizeY, int roomX, int roomY) {
+        Region region = new Region();
         for (int x = 0; x < roomSizeX; x++) {
             for (int y = 0; y < roomSizeY; y++) {
                 Cell cell = new Cell().x(roomX + x).y(roomY + y).region(region).orientation(CellOrientation.BLOCK);
@@ -131,7 +133,7 @@ public class StageGenerator {
     }
 
     private static Region formRaggedRoom(Cell[][] stageGrid, int roomSizeX, int roomSizeY, int roomX, int roomY, int id, Random r) {
-        Region region = new Region(id);
+        Region region = new Region();
 
         int biasX = r.nextInt(max(roomSizeX / 2, 1));
         for (int x = biasX; x < roomSizeX - biasX; x++) {
