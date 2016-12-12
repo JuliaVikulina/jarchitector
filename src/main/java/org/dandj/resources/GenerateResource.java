@@ -1,5 +1,6 @@
 package org.dandj.resources;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dandj.core.generation.StageGenerator;
@@ -24,11 +25,10 @@ public class GenerateResource {
             seed = new Random().nextInt(Integer.MAX_VALUE);
         StageGenerator.createStage(stage, new Random(seed));
         ObjectMapper om = new ObjectMapper();
+        om.setVisibility(om.getSerializationConfig()
+                .getDefaultVisibilityChecker()
+                .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
+                .withGetterVisibility(JsonAutoDetect.Visibility.NONE));
         return om.writeValueAsString(stage);
-    }
-
-    @GET
-    public String test() {
-        return "all ok!";
     }
 }

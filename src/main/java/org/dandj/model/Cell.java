@@ -24,7 +24,7 @@ public class Cell {
 
     private CellOrientation orientation;
 
-    private Region region;
+    private transient Region region;
 
     /**
      * @return whether the tile is inside stage and empty or not
