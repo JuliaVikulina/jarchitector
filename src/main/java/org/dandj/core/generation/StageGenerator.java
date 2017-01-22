@@ -50,7 +50,7 @@ public class StageGenerator {
             maze.cells().add(previousCell);
             stage.cells()[previousCell.y()][previousCell.x()] = previousCell;
             // todo check if it not connected already
-            destinations = findNearRegions(previousCell, stage.cells(), notConnected);
+            destinations = findAdjacentRegions(previousCell, stage.cells(), notConnected);
             if (destinations.isEmpty()) {
                 currentCell = getNextCell(previousCell, stage.cells(), stage.mazeStraightness(), r);
                 if (currentCell != null)
@@ -165,7 +165,7 @@ public class StageGenerator {
         return adjacentAvailableCells.get(r.nextInt(adjacentAvailableCells.size()));
     }
 
-    static Map<Direction, Region> findNearRegions(Cell newCell, Cell[][] stageGrid, Set<Region> notConnected) {
+    static Map<Direction, Region> findAdjacentRegions(Cell newCell, Cell[][] stageGrid, Set<Region> notConnected) {
         return getUpDownLeftRightCells(newCell.x(), newCell.y()).stream()
                 .filter(cell1 -> cell1.insideStage(stageGrid))
                 .filter(cell1 -> stageGrid[cell1.y()][cell1.x()] != null) // there is a cell at the point (x,y)
