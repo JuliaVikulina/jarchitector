@@ -35,33 +35,28 @@ public class StageGenerator {
         Region maze = new Region();
         Map<Direction, Region> destinations = new HashMap<>();
         //todo add check if there are empty cells in a stage
-
+        // add cells to maze region until we hit a unconnected region or cannot carve anymore
         Cell currentCell = getStartCell(startingRegion, stage.cells(), r);
         if (currentCell == null)
             // todo connect this region using junction
             return;
-        Cell previousCell = null;
-        while (destinations.isEmpty() && currentCell != null) { // todo make protection from infinite loop
-            previousCell = new Cell()
-                    .x(currentCell.x())
-                    .y(currentCell.y())
-                    .direction(currentCell.direction())
-                    .region(maze);
-            maze.cells().add(previousCell);
-            stage.cells()[previousCell.y()][previousCell.x()] = previousCell;
+        boolean destinationFound = false;
+        while (!destinationFound && currentCell != null) { // todo make protection from infinite loop
+            maze.cells().add(currentCell);
+            currentCell.region(maze);
+            stage.cells()[currentCell.y()][currentCell.x()] = currentCell;
             // todo check if it not connected already
-            destinations = findAdjacentRegions(previousCell, stage.cells(), notConnected);
-            if (destinations.isEmpty()) {
-                currentCell = getNextCell(previousCell, stage.cells(), stage.mazeStraightness(), r);
-                if (currentCell != null)
-                    previousCell.orient(currentCell.direction());
+            destinations = findAdjacentRegions(currentCell, stage.cells(), notConnected);
+            destinationFound = destinations.isEmpty();
+
+            if (!destinationFound) {
+                currentCell = getNextCell(currentCell, stage.cells(), stage.mazeStraightness(), r);
             }
         }
-        // add cells to maze region until we hit a unconnected region or cannot carve anymore
 
         // if a carved maze connects yet unconnected regions,
         // add some of them and newly created maze to connected and remove from notConnected
-        if (destinations.size() > 0 && previousCell != null) {
+        if (destinations.size() > 0 && currentCell != null) {
 //                    Collections.shuffle(destinations, r);
 //                    destinations = destinations.subList(0, r.nextInt(destinations.size()) + 1);
 //                    notConnected.removeAll(destinations);
@@ -70,12 +65,10 @@ public class StageGenerator {
 //                    stage.regions().add(maze);
             // todo: make several connections
             Map.Entry<Direction, Region> entry = destinations.entrySet().stream().findAny().get();
-            previousCell.orient(entry.getKey());
             notConnected.remove(entry.getValue());
             connected.add(entry.getValue());
             connected.add(maze);
             stage.regions().add(maze);
-
         } else {
             // maze was build but led nowhere
             // erase it from stageGrid
@@ -124,8 +117,8 @@ public class StageGenerator {
                         .x(roomX + x)
                         .y(roomY + y)
                         .region(region)
-                        .orientation(getCellOrientation(x, y, roomSizeX, roomSizeY))
-                        .type(CellType.ROOM);
+                        .type(CellType.ROOM)
+                        .fragments(createCellfragments(x, y, roomSizeX, roomSizeY));
                 region.cells().add(cell);
                 stageGrid[roomY + y][roomX + x] = cell;
             }
@@ -133,18 +126,9 @@ public class StageGenerator {
         return region;
     }
 
-    private static CellOrientation getCellOrientation(final int x, final int y, final int roomSizeX, final int roomSizeY) {
-        if (x == 0 && y == 0) {
-            return CellOrientation.CELL_UL;
-        } else if (x == 0 && y == roomSizeY - 1) {
-            return CellOrientation.CELL_BL;
-        } else if (x == roomSizeX - 1 && y == 0) {
-            return CellOrientation.CELL_UR;
-        } else if (x == roomSizeX - 1 && y == roomSizeY - 1) {
-            return CellOrientation.CELL_BR;
-        } else {
-            return CellOrientation.CELL_FL;
-        }
+    private static Set<Fragment> createCellfragments(int x, int y, int roomSizeX, int roomSizeY) {
+// TODO
+        return null;
     }
 
     private static Region formRaggedRoom(Cell[][] stageGrid, int roomSizeX, int roomSizeY, int roomX, int roomY, int id, Random r) {
@@ -158,7 +142,6 @@ public class StageGenerator {
                         .x(roomX + x)
                         .y(roomY + y)
                         .region(region)
-                        .orientation(getCellOrientation(x, y, roomSizeX, roomSizeY))
                         .type(CellType.ROOM);
                 region.cells().add(cell);
                 stageGrid[roomY + y][roomX + x] = cell;
@@ -202,11 +185,7 @@ public class StageGenerator {
         if (startingCell == null)
             return null;
         List<Cell> adjacentCells = getAdjacentAvailableCells(startingCell.x(), startingCell.y(), stageGrid);
-        Cell newMazeCell = adjacentCells.get(r.nextInt(adjacentCells.size()));
-        if (startingCell.type() != CellType.ROOM) {
-            startingCell.branch(newMazeCell.direction());
-        }
-        return newMazeCell;
+        return adjacentCells.get(r.nextInt(adjacentCells.size()));
     }
 
     static Cell findValidStartingCell(@Nonnull Region from, @Nonnull Cell[][] stageGrid) {
