@@ -1,7 +1,6 @@
 package org.dandj.model;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
@@ -27,6 +26,8 @@ public class Cell {
     private CellOrientation orientation;
 
     private transient Region region;
+
+    private CellType type;
 
     /**
      * @return whether the tile is inside stage and empty or not

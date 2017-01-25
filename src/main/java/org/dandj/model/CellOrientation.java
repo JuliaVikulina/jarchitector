@@ -5,7 +5,15 @@ package org.dandj.model;
  */
 public enum CellOrientation {
 
-    BLOCK('█'),
+    CELL_UL('┌'), // upper left corner
+    CELL_UR('┐'), // upper right corner
+    CELL_UM('─'), // upper middle
+    CELL_BM('─'), // bottom middle
+    CELL_LM('│'), // upper middle
+    CELL_RM('│'), // bottom middle
+    CELL_BL('└'), // bottom left corner
+    CELL_BR('┘'), // bottom right corner
+    CELL_FL('░'), // floor
     HORIZONTAL('─'),
     VERTICAL('│'),
     CORNER_UR('┌'), // ur, ld

@@ -120,12 +120,31 @@ public class StageGenerator {
         Region region = new Region();
         for (int x = 0; x < roomSizeX; x++) {
             for (int y = 0; y < roomSizeY; y++) {
-                Cell cell = new Cell().x(roomX + x).y(roomY + y).region(region).orientation(CellOrientation.BLOCK);
+                Cell cell = new Cell()
+                        .x(roomX + x)
+                        .y(roomY + y)
+                        .region(region)
+                        .orientation(getCellOrientation(x, y, roomSizeX, roomSizeY))
+                        .type(CellType.ROOM);
                 region.cells().add(cell);
                 stageGrid[roomY + y][roomX + x] = cell;
             }
         }
         return region;
+    }
+
+    private static CellOrientation getCellOrientation(final int x, final int y, final int roomSizeX, final int roomSizeY) {
+        if (x == 0 && y == 0) {
+            return CellOrientation.CELL_UL;
+        } else if (x == 0 && y == roomSizeY - 1) {
+            return CellOrientation.CELL_BL;
+        } else if (x == roomSizeX - 1 && y == 0) {
+            return CellOrientation.CELL_UR;
+        } else if (x == roomSizeX - 1 && y == roomSizeY - 1) {
+            return CellOrientation.CELL_BR;
+        } else {
+            return CellOrientation.CELL_FL;
+        }
     }
 
     private static Region formRaggedRoom(Cell[][] stageGrid, int roomSizeX, int roomSizeY, int roomX, int roomY, int id, Random r) {
@@ -135,7 +154,12 @@ public class StageGenerator {
         for (int x = biasX; x < roomSizeX - biasX; x++) {
             int biasY = r.nextInt(max(roomSizeY / 2, 1));
             for (int y = biasY; y < roomSizeY - biasY; y++) {
-                Cell cell = new Cell().x(roomX + x).y(roomY + y).region(region);
+                Cell cell = new Cell()
+                        .x(roomX + x)
+                        .y(roomY + y)
+                        .region(region)
+                        .orientation(getCellOrientation(x, y, roomSizeX, roomSizeY))
+                        .type(CellType.ROOM);
                 region.cells().add(cell);
                 stageGrid[roomY + y][roomX + x] = cell;
             }
@@ -179,7 +203,7 @@ public class StageGenerator {
             return null;
         List<Cell> adjacentCells = getAdjacentAvailableCells(startingCell.x(), startingCell.y(), stageGrid);
         Cell newMazeCell = adjacentCells.get(r.nextInt(adjacentCells.size()));
-        if (startingCell.orientation() != CellOrientation.BLOCK) {
+        if (startingCell.type() != CellType.ROOM) {
             startingCell.branch(newMazeCell.direction());
         }
         return newMazeCell;
