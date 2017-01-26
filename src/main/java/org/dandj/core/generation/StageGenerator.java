@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.util.Arrays.asList;
 import static org.dandj.model.Direction.*;
+import static org.dandj.model.Fragment.*;
 
 public class StageGenerator {
     public static Stage createStage(Stage stage, Random r) {
@@ -37,11 +39,16 @@ public class StageGenerator {
         //todo add check if there are empty cells in a stage
         // add cells to maze region until we hit a unconnected region or cannot carve anymore
         Cell currentCell = getStartCell(startingRegion, stage.cells(), r);
+        Cell previousCell = null;
         if (currentCell == null)
-            // todo connect this region using junction
             return;
+        // todo connect this region using junction
         boolean destinationFound = false;
         while (!destinationFound && currentCell != null) { // todo make protection from infinite loop
+            if (previousCell != null) {
+                // we are inside the maze. let's create walls for previous cell
+                previousCell.fragments(createMazeWalls(currentCell.direction(), previousCell.direction()));
+            }
             maze.cells().add(currentCell);
             currentCell.region(maze);
             stage.cells()[currentCell.y()][currentCell.x()] = currentCell;
@@ -50,6 +57,7 @@ public class StageGenerator {
             destinationFound = destinations.isEmpty();
 
             if (!destinationFound) {
+                previousCell = currentCell;
                 currentCell = getNextCell(currentCell, stage.cells(), stage.mazeStraightness(), r);
             }
         }
@@ -65,6 +73,7 @@ public class StageGenerator {
 //                    stage.regions().add(maze);
             // todo: make several connections
             Map.Entry<Direction, Region> entry = destinations.entrySet().stream().findAny().get();
+            currentCell.fragments(createMazeWalls(entry.getKey(), currentCell.direction()));
             notConnected.remove(entry.getValue());
             connected.add(entry.getValue());
             connected.add(maze);
@@ -76,6 +85,27 @@ public class StageGenerator {
                 stage.cells()[c.y()][c.x()] = null;
             }
         }
+    }
+
+    private static Set<Fragment> createMazeWalls(Direction current, Direction previous) {
+        HashSet<Fragment> fragments = new HashSet<>();
+        if (previous == UP && current == UP || previous == DOWN && current == DOWN) {
+            fragments.addAll(asList(WALL_L, WALL_R, CORNER_DL_V, CORNER_DR_V, CORNER_UL_V, CORNER_UR_V));
+        } else if (previous == LEFT && current == LEFT || previous == RIGHT && current == RIGHT) {
+            fragments.addAll(asList(WALL_U, WALL_D, CORNER_DL_H, CORNER_DR_H, CORNER_UL_H, CORNER_UR_H));
+        } else if (previous == UP && current == RIGHT || previous == LEFT && current == DOWN) {
+            fragments.addAll(asList(WALL_L, WALL_U, CORNER_UL_INNER, CORNER_DR_OUTER, CORNER_UR_H, CORNER_DL_V));
+        } else if (previous == DOWN && current == LEFT || previous == RIGHT && current == UP) {
+            fragments.addAll(asList(WALL_D, WALL_R, CORNER_UL_OUTER, CORNER_UR_V, CORNER_DR_INNER, CORNER_DL_H));
+        } else if (previous == DOWN && current == RIGHT || previous == LEFT && current == UP) {
+            fragments.addAll(asList(WALL_L, WALL_D, CORNER_DL_INNER, CORNER_DR_H, CORNER_UL_V, CORNER_UR_OUTER));
+        } else if (previous == RIGHT && current == DOWN || previous == UP && current == LEFT) {
+            fragments.addAll(asList(WALL_U, WALL_R, CORNER_DL_OUTER, CORNER_DR_V, CORNER_UL_H, CORNER_UR_INNER));
+        } else {
+            throw new IllegalStateException("wtf: " + current + previous);
+        }
+        fragments.add(FLOOR);
+        return fragments;
     }
 
     private static void addRoom(Stage stage, Random r) {
@@ -118,7 +148,7 @@ public class StageGenerator {
                         .y(roomY + y)
                         .region(region)
                         .type(CellType.ROOM)
-                        .fragments(createCellfragments(x, y, roomSizeX, roomSizeY));
+                        .fragments(createRoomWalls(x, y, roomSizeX, roomSizeY));
                 region.cells().add(cell);
                 stageGrid[roomY + y][roomX + x] = cell;
             }
@@ -126,9 +156,35 @@ public class StageGenerator {
         return region;
     }
 
-    private static Set<Fragment> createCellfragments(int x, int y, int roomSizeX, int roomSizeY) {
-// TODO
-        return null;
+    private static Set<Fragment> createRoomWalls(int x, int y, int roomSizeX, int roomSizeY) {
+        Set<Fragment> fragments = new HashSet<>();
+        if (x == 0) {
+            fragments.add(WALL_L);
+        }
+        if (x == roomSizeX - 1) {
+            fragments.add(WALL_R);
+        }
+        if (y == 0) {
+            fragments.add(WALL_U);
+        }
+        if (y == roomSizeY - 1) {
+            fragments.add(WALL_D);
+        }
+        // Corners
+        if (x == 0 && y == 0) {
+            fragments.add(CORNER_UL_INNER);
+        }
+        if (x == roomSizeX - 1 && y == 0) {
+            fragments.add(CORNER_UR_INNER);
+        }
+        if (y == roomSizeY - 1 && x == roomSizeX - 1) {
+            fragments.add(CORNER_DR_INNER);
+        }
+        if (y == roomSizeY - 1 && x == 0) {
+            fragments.add(CORNER_DL_INNER);
+        }
+        fragments.add(FLOOR);
+        return fragments;
     }
 
     private static Region formRaggedRoom(Cell[][] stageGrid, int roomSizeX, int roomSizeY, int roomX, int roomY, int id, Random r) {
