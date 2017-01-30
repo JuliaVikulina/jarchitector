@@ -18,16 +18,16 @@ public class StageGenerator {
         for (int i = 0; i < stage.roomTries(); i++) {
             addRoom(stage, r);
         }
-        if (stage.regions().size() > 1) {
-            // carve corridors to regions:
-            Set<Region> notConnected = new HashSet<>(stage.regions());
-            List<Region> connected = new LinkedList<>();
-            notConnected.remove(stage.regions().get(0));
-            connected.add(stage.regions().get(0));
-            while (!notConnected.isEmpty()) {
-                connectRegions(stage, r, notConnected, connected);
-            }
-        }
+//        if (stage.regions().size() > 1) {
+//            // carve corridors to regions:
+//            Set<Region> notConnected = new HashSet<>(stage.regions());
+//            List<Region> connected = new LinkedList<>();
+//            notConnected.remove(stage.regions().get(0));
+//            connected.add(stage.regions().get(0));
+//            while (!notConnected.isEmpty()) {
+//                connectRegions(stage, r, notConnected, connected);
+//            }
+//        }
         return stage;
     }
 
@@ -124,7 +124,6 @@ public class StageGenerator {
             }
         }
         Region region = formRectangleRoom(stage.cells(), roomSizeX, roomSizeY, roomX, roomY);
-//            Region region = formRaggedRoom(stageGrid, roomSizeX, roomSizeY, roomX, roomY, i);
 
         stage.regions().add(region);
     }
@@ -183,6 +182,34 @@ public class StageGenerator {
         if (y == roomSizeY - 1 && x == 0) {
             fragments.add(CORNER_DL_INNER);
         }
+        // fillers
+        if (x == 0) {
+            if (y != roomSizeY - 1)
+                fragments.add(CORNER_DL_V);
+            if (y != 0)
+                fragments.add(CORNER_UL_V);
+        }
+
+        if (x == roomSizeX - 1) {
+            if (y != roomSizeY - 1)
+                fragments.add(CORNER_DR_V);
+            if (y != 0)
+                fragments.add(CORNER_UR_V);
+        }
+
+        if (y == 0) {
+            if (x != roomSizeX - 1)
+                fragments.add(CORNER_UR_H);
+            if (x != 0)
+                fragments.add(CORNER_UL_H);
+        }
+
+        if (y == roomSizeY - 1) {
+            if (x != roomSizeX - 1)
+                fragments.add(CORNER_DR_H);
+            if (x != 0)
+                fragments.add(CORNER_DL_H);
+        }
         fragments.add(FLOOR);
         return fragments;
     }
@@ -230,9 +257,9 @@ public class StageGenerator {
 
     static Map<Direction, Region> findAdjacentRegions(Cell newCell, Cell[][] stageGrid, Set<Region> notConnected) {
         return getUpDownLeftRightCells(newCell.x(), newCell.y()).stream()
-                .filter(cell1 -> cell1.insideStage(stageGrid))
-                .filter(cell1 -> stageGrid[cell1.y()][cell1.x()] != null) // there is a cell at the point (x,y)
-                .filter(cell1 -> notConnected.contains(stageGrid[cell1.y()][cell1.x()].region()))
+                .filter(cell -> cell.insideStage(stageGrid))
+                .filter(cell -> stageGrid[cell.y()][cell.x()] != null) // there is a cell at the point (x,y)
+                .filter(cell -> notConnected.contains(stageGrid[cell.y()][cell.x()].region()))
                 .collect(Collectors.toMap(Cell::direction, cell -> stageGrid[cell.y()][cell.x()].region()));
     }
 
