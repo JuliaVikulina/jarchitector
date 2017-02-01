@@ -8,6 +8,8 @@ import org.dandj.model.Stage;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.util.Random;
 
 @Path("/generate")
@@ -19,7 +21,7 @@ public class GenerateResource {
     public String generate(
             @FormParam("width") @DefaultValue("21") int width,
             @FormParam("height") @DefaultValue("22") int height,
-            @FormParam("seed") @DefaultValue("0") int seed) throws JsonProcessingException {
+            @FormParam("seed") @DefaultValue("0") int seed) throws IOException, ParserConfigurationException {
         Stage stage = new Stage().height(height).width(width);
         if (seed == 0)
             seed = new Random().nextInt(Integer.MAX_VALUE);

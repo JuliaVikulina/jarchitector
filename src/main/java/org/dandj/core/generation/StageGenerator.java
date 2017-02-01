@@ -1,8 +1,11 @@
 package org.dandj.core.generation;
 
 import org.dandj.model.*;
+import org.dandj.utils.SvgPrinter;
 
 import javax.annotation.Nonnull;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -13,25 +16,26 @@ import static org.dandj.model.Direction.*;
 import static org.dandj.model.Fragment.*;
 
 public class StageGenerator {
-    public static Stage createStage(Stage stage, Random r) {
+    public static Stage createStage(Stage stage, Random r) throws IOException, ParserConfigurationException {
         initCells(stage);
         for (int i = 0; i < stage.roomTries(); i++) {
             addRoom(stage, r);
         }
-//        if (stage.regions().size() > 1) {
-//            // carve corridors to regions:
-//            Set<Region> notConnected = new HashSet<>(stage.regions());
-//            List<Region> connected = new LinkedList<>();
-//            notConnected.remove(stage.regions().get(0));
-//            connected.add(stage.regions().get(0));
-//            while (!notConnected.isEmpty()) {
-//                connectRegions(stage, r, notConnected, connected);
-//            }
-//        }
+
+        if (stage.regions().size() > 1) {
+            // carve corridors to regions:
+            Set<Region> notConnected = new HashSet<>(stage.regions());
+            List<Region> connected = new LinkedList<>();
+            notConnected.remove(stage.regions().get(0));
+            connected.add(stage.regions().get(0));
+            while (!notConnected.isEmpty()) {
+                connectRegions(stage, r, notConnected, connected);
+            }
+        }
         return stage;
     }
 
-    private static void connectRegions(Stage stage, Random r, Set<Region> notConnected, List<Region> connected) {
+    private static void connectRegions(Stage stage, Random r, Set<Region> notConnected, List<Region> connected) throws IOException, ParserConfigurationException {
         // we carve a maze starting from any connected region
         Region startingRegion = connected.get(r.nextInt(connected.size()));
         Region maze = new Region();
@@ -49,12 +53,14 @@ public class StageGenerator {
                 // we are inside the maze. let's create walls for previous cell
                 previousCell.fragments(createMazeWalls(currentCell.direction(), previousCell.direction()));
             }
+            currentCell.type(CellType.MAZE);
+            currentCell.fragments().add(FLOOR);
             maze.cells().add(currentCell);
             currentCell.region(maze);
             stage.cells()[currentCell.y()][currentCell.x()] = currentCell;
             // todo check if it not connected already
             destinations = findAdjacentRegions(currentCell, stage.cells(), notConnected);
-            destinationFound = destinations.isEmpty();
+            destinationFound = !destinations.isEmpty();
 
             if (!destinationFound) {
                 previousCell = currentCell;

@@ -29,30 +29,46 @@ public class SvgPrinter {
     private static Collection<Fragment> TALL = Arrays.asList(WALL_L, WALL_R, FLOOR);
     private static Collection<Fragment> WIDE = Arrays.asList(WALL_U, WALL_D, FLOOR);
 
-    private static Color GRID_COLOR = Color.GRAY;
-    private static Color WALL_COLOR = Color.CYAN;
-    private static Color FLOOR_COLOR = Color.pink;
+    private static Color GRID_COLOR = Color.decode("#4286f4");
+    private static Color WALL_COLOR = Color.decode("#b9b9c6");
+    private static Color FLOOR_COLOR = Color.decode("#ccff99");
+    private static Color FONT_COLOR = Color.decode("#003300");
 
-    public static void printAsSvg(Stage stage) throws IOException, ParserConfigurationException {
+    public static void printStageAsSvg(Stage stage) throws IOException, ParserConfigurationException {
         SVGGraphics2D svg = createSvg();
-
         drawGrid(svg, stage.width(), stage.height(), stage.resolution());
-
-        for (Cell[] row : stage.cells()) {
-            for (Cell cell : row) {
-                if (cell != null)
-                    cell.fragments().forEach(fragment -> drawFragment(svg, fragment, cell.x(), cell.y(), stage.resolution()));
-            }
-        }
+        stage.regions().forEach(region ->
+                region.cells().forEach(cell ->
+                        cell.fragments().forEach(fragment ->
+                                drawFragment(svg, fragment, cell.x(), cell.y(), stage.resolution()))));
         svg.stream(new FileWriter("stage.svg"), true);
     }
 
+    public static void printCellsAsSvg(Stage stage) throws IOException, ParserConfigurationException {
+        SVGGraphics2D svg = createSvg();
+        drawGrid(svg, stage.width(), stage.height(), stage.resolution());
+        for (Cell[] row : stage.cells())
+            for (Cell cell : row)
+                if (cell != null)
+                    cell.fragments().forEach(fragment -> drawFragment(svg, fragment, cell.x(), cell.y(), stage.resolution()));
+        svg.stream(new FileWriter("cells.svg"), true);
+    }
+
     private static void drawGrid(SVGGraphics2D svg, int width, int height, int r) {
-        svg.setColor(GRID_COLOR);
         for (int y = 0; y < height + 1; y++) {
+            svg.setColor(GRID_COLOR);
+            if (y % 10 == 0) {
+                svg.setColor(FONT_COLOR);
+                svg.drawString("" + y, width * r, y * r);
+            }
             svg.drawLine(0, y * r, width * r, y * r);
         }
         for (int x = 0; x < width + 1; x++) {
+            svg.setColor(GRID_COLOR);
+            if (x % 10 == 0) {
+                svg.setColor(FONT_COLOR);
+                svg.drawString("" + x, x * r, height * r);
+            }
             svg.drawLine(x * r, 0, x * r, height * r);
         }
     }
