@@ -15,32 +15,46 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static java.awt.Color.*;
 import static org.dandj.model.Fragment.*;
 
 public class SvgPrinter {
-    static Collection<Fragment> TOP_ROW = Arrays.asList(CORNER_UR_INNER, CORNER_UR_OUTER, CORNER_UR_V, CORNER_UR_H, WALL_U, CORNER_UL_INNER, CORNER_UL_OUTER, CORNER_UL_V, CORNER_UL_H);
-    static Collection<Fragment> MIDDLE_ROW = Arrays.asList(WALL_L, FLOOR, WALL_R);
-    static Collection<Fragment> BOTTOM_ROW = Arrays.asList(CORNER_DR_INNER, CORNER_DR_OUTER, CORNER_DR_V, CORNER_DR_H, WALL_D, CORNER_DL_INNER, CORNER_DL_OUTER, CORNER_DL_V, CORNER_DL_H);
+    private static Collection<Fragment> TOP_ROW = Arrays.asList(CORNER_UR_INNER, CORNER_UR_OUTER, CORNER_UR_V, CORNER_UR_H, WALL_U, CORNER_UL_INNER, CORNER_UL_OUTER, CORNER_UL_V, CORNER_UL_H);
+    private static Collection<Fragment> MIDDLE_ROW = Arrays.asList(WALL_L, FLOOR, WALL_R);
+    private static Collection<Fragment> BOTTOM_ROW = Arrays.asList(CORNER_DR_INNER, CORNER_DR_OUTER, CORNER_DR_V, CORNER_DR_H, WALL_D, CORNER_DL_INNER, CORNER_DL_OUTER, CORNER_DL_V, CORNER_DL_H);
 
-    static Collection<Fragment> LEFT_COLUMN = Arrays.asList(CORNER_UL_H, CORNER_UL_V, CORNER_UL_INNER, CORNER_UL_OUTER, CORNER_DL_H, CORNER_DL_INNER, CORNER_DL_OUTER, CORNER_DL_V, WALL_L);
-    static Collection<Fragment> MIDDLE_COLUMN = Arrays.asList(WALL_U, FLOOR, WALL_D);
-    static Collection<Fragment> RIGHT_COLUMN = Arrays.asList(CORNER_UR_H, CORNER_UR_V, CORNER_UR_INNER, CORNER_UR_OUTER, CORNER_DR_H, CORNER_DR_INNER, CORNER_DR_OUTER, CORNER_DR_V, WALL_R);
+    private static Collection<Fragment> LEFT_COLUMN = Arrays.asList(CORNER_UL_H, CORNER_UL_V, CORNER_UL_INNER, CORNER_UL_OUTER, CORNER_DL_H, CORNER_DL_INNER, CORNER_DL_OUTER, CORNER_DL_V, WALL_L);
+    private static Collection<Fragment> MIDDLE_COLUMN = Arrays.asList(WALL_U, FLOOR, WALL_D);
+    private static Collection<Fragment> RIGHT_COLUMN = Arrays.asList(CORNER_UR_H, CORNER_UR_V, CORNER_UR_INNER, CORNER_UR_OUTER, CORNER_DR_H, CORNER_DR_INNER, CORNER_DR_OUTER, CORNER_DR_V, WALL_R);
 
-    static Collection<Fragment> TALL = Arrays.asList(WALL_L, WALL_R, FLOOR);
-    static Collection<Fragment> WIDE = Arrays.asList(WALL_U, WALL_D, FLOOR);
+    private static Collection<Fragment> TALL = Arrays.asList(WALL_L, WALL_R, FLOOR);
+    private static Collection<Fragment> WIDE = Arrays.asList(WALL_U, WALL_D, FLOOR);
+
+    private static Color GRID_COLOR = Color.GRAY;
+    private static Color WALL_COLOR = Color.CYAN;
+    private static Color FLOOR_COLOR = Color.pink;
 
     public static void printAsSvg(Stage stage) throws IOException, ParserConfigurationException {
-        SVGGraphics2D svgGenerator = createSvg();
+        SVGGraphics2D svg = createSvg();
 
-        svgGenerator.setPaint(red);
+        drawGrid(svg, stage.width(), stage.height(), stage.resolution());
+
         for (Cell[] row : stage.cells()) {
             for (Cell cell : row) {
                 if (cell != null)
-                    cell.fragments().forEach(fragment -> drawFragment(svgGenerator, fragment, cell.x(), cell.y(), stage.resolution()));
+                    cell.fragments().forEach(fragment -> drawFragment(svg, fragment, cell.x(), cell.y(), stage.resolution()));
             }
         }
-        svgGenerator.stream(new FileWriter("stage.svg"), true);
+        svg.stream(new FileWriter("stage.svg"), true);
+    }
+
+    private static void drawGrid(SVGGraphics2D svg, int width, int height, int r) {
+        svg.setColor(GRID_COLOR);
+        for (int y = 0; y < height + 1; y++) {
+            svg.drawLine(0, y * r, width * r, y * r);
+        }
+        for (int x = 0; x < width + 1; x++) {
+            svg.drawLine(x * r, 0, x * r, height * r);
+        }
     }
 
     private static void drawFragment(SVGGraphics2D svg, Fragment f, int cellX, int cellY, int resolution) {
@@ -67,9 +81,9 @@ public class SvgPrinter {
         if (WIDE.contains(f))
             width = big;
         if (f == FLOOR)
-            svg.setColor(PINK);
+            svg.setColor(FLOOR_COLOR);
         else
-            svg.setColor(BLUE);
+            svg.setColor(WALL_COLOR);
         svg.fill(new Rectangle(
                 cellX * resolution + x,
                 cellY * resolution + y,
