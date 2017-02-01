@@ -1,7 +1,6 @@
 package org.dandj.core.generation;
 
 import org.dandj.model.*;
-import org.dandj.utils.SvgPrinter;
 
 import javax.annotation.Nonnull;
 import javax.xml.parsers.ParserConfigurationException;

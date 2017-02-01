@@ -28,11 +28,12 @@ public class SvgPrinter {
 
     private static Collection<Fragment> TALL = Arrays.asList(WALL_L, WALL_R, FLOOR);
     private static Collection<Fragment> WIDE = Arrays.asList(WALL_U, WALL_D, FLOOR);
+    private static Collection<Fragment> CORNERS = Arrays.asList(CORNER_UR_INNER, CORNER_UR_OUTER, CORNER_DR_INNER, CORNER_DR_OUTER, CORNER_UL_INNER, CORNER_UL_OUTER, CORNER_DL_INNER, CORNER_DL_OUTER);
 
-    private static Color GRID_COLOR = Color.decode("#4286f4");
-    private static Color WALL_COLOR = Color.decode("#b9b9c6");
-    private static Color FLOOR_COLOR = Color.decode("#ccff99");
-    private static Color FONT_COLOR = Color.decode("#003300");
+    private static Color WALL_COLOR = Color.decode("#494E6B");
+    private static Color FLOOR_COLOR = Color.decode("#98878F");
+    private static Color GRID_COLOR = Color.decode("#985e6d");
+    private static Color FONT_COLOR = Color.decode("#192231");
 
     public static void printStageAsSvg(Stage stage) throws IOException, ParserConfigurationException {
         SVGGraphics2D svg = createSvg();
@@ -73,11 +74,11 @@ public class SvgPrinter {
         }
     }
 
-    private static void drawFragment(SVGGraphics2D svg, Fragment f, int cellX, int cellY, int resolution) {
+    private static void drawFragment(SVGGraphics2D svg, Fragment f, int cellX, int cellY, int r) {
         int x = 0;
         int y = 0;
-        int small = resolution / 4;
-        int big = resolution / 2;
+        int small = r / 4;
+        int big = r / 2;
         int width = small;
         int height = small;
         if (TOP_ROW.contains(f))
@@ -100,11 +101,47 @@ public class SvgPrinter {
             svg.setColor(FLOOR_COLOR);
         else
             svg.setColor(WALL_COLOR);
-        svg.fill(new Rectangle(
-                cellX * resolution + x,
-                cellY * resolution + y,
-                width,
-                height));
+        if (CORNERS.contains(f)) {
+            int[] polyX = new int[3];
+            int[] polyY = new int[3];
+            if (f == CORNER_UL_INNER || f == CORNER_DR_OUTER) {
+                polyX[0] = cellX * r + x;
+                polyX[1] = cellX * r + x + width;
+                polyX[2] = cellX * r + x + width;
+                polyY[0] = cellY * r + y + height;
+                polyY[1] = cellY * r + y + height;
+                polyY[2] = cellY * r + y;
+            } else if (f == CORNER_UR_INNER || f == CORNER_DL_OUTER) {
+                polyX[0] = cellX * r + x;
+                polyX[1] = cellX * r + x;
+                polyX[2] = cellX * r + x + width;
+                polyY[0] = cellY * r + y;
+                polyY[1] = cellY * r + y + height;
+                polyY[2] = cellY * r + y + height;
+            } else if (f == CORNER_DR_INNER || f == CORNER_UL_OUTER) {
+                polyX[0] = cellX * r + x;
+                polyX[1] = cellX * r + x;
+                polyX[2] = cellX * r + x + width;
+                polyY[0] = cellY * r + y;
+                polyY[1] = cellY * r + y + height;
+                polyY[2] = cellY * r + y;
+            } else if (f == CORNER_DL_INNER || f == CORNER_UR_OUTER) {
+                polyX[0] = cellX * r + x;
+                polyX[1] = cellX * r + x + width;
+                polyX[2] = cellX * r + x + width;
+                polyY[0] = cellY * r + y;
+                polyY[1] = cellY * r + y + height;
+                polyY[2] = cellY * r + y;
+            }
+
+            svg.fillPolygon(polyX, polyY, 3);
+        } else {
+            svg.fill(new Rectangle(
+                    cellX * r + x,
+                    cellY * r + y,
+                    width,
+                    height));
+        }
     }
 
     private static SVGGraphics2D createSvg() throws ParserConfigurationException {
