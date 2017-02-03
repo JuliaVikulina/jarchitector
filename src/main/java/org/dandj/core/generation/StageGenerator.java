@@ -21,7 +21,7 @@ public class StageGenerator {
         return stage;
     }
 
-    public static void connectRegionsWithRandomMaze(Stage stage, Random r) {
+    static void connectRegionsWithRandomMaze(Stage stage, Random r) {
         if (stage.regions().size() <= 1)
             return;
         // carve corridors to regions:
@@ -29,9 +29,17 @@ public class StageGenerator {
         List<Region> connected = new LinkedList<>();
         notConnected.remove(stage.regions().get(0));
         connected.add(stage.regions().get(0));
-        while (!notConnected.isEmpty()) {
+        while (!notConnected.isEmpty() && stageHasEmptyCells(stage)) {
             connectRegions(stage, r, notConnected, connected);
         }
+    }
+
+    private static boolean stageHasEmptyCells(Stage stage) {
+        for (Cell[] row : stage.cells())
+            for (Cell cell : row)
+                if (cell == null)
+                    return true;
+        return false;
     }
 
     private static void connectRegions(Stage stage, Random r, Set<Region> notConnected, List<Region> connected) {
@@ -112,7 +120,7 @@ public class StageGenerator {
         return fragments;
     }
 
-    static void addRoom(Stage stage, Random r) {
+    private static void addRoom(Stage stage, Random r) {
         int roomSizeX = min(stage.width(), r.nextInt(stage.roomSizeXMax() - stage.roomSizeXMin() + 1) + stage.roomSizeXMin());
         int roomSizeY = min(stage.height(), r.nextInt(stage.roomSizeYMax() - stage.roomSizeYMin() + 1) + stage.roomSizeYMin());
 

@@ -16,11 +16,11 @@ import static org.junit.Assert.assertEquals;
 public class StageGeneratorTest {
     private Cell cells[][];
     private final int SEED = 42;
-    private final int SIZE = 3;
     private Stage stage;
 
     @Before
     public void setUp() {
+        int SIZE = 3;
         cells = new Cell[SIZE][];
         cells[0] = new Cell[SIZE];
         cells[1] = new Cell[SIZE];
@@ -68,8 +68,8 @@ public class StageGeneratorTest {
 
     @Test
     public void testTwoRoomsConnectedByMaze() {
-        StageGenerator.addRoom(stage, 3, 1, 0, 0);
-        StageGenerator.addRoom(stage, 3, 1, 0, 2);
+        StageGenerator.addRoom(stage, 1, 1, 0, 0);
+        StageGenerator.addRoom(stage, 1, 1, 2, 2);
         connectRegionsWithRandomMaze(stage, new Random(SEED));
         assertEquals(3, stage.regions().size());
     }
