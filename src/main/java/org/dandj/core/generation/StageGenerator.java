@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.Arrays.asList;
 import static org.dandj.model.Direction.*;
@@ -68,8 +67,9 @@ public class StageGenerator {
         }
 
         // if a carved maze connects yet unconnected regions,
-        // add some of them and newly created maze to connected and remove from notConnected
-        if (destinations.size() > 0 && currentCell != null) {
+        // add some of them and newly created maze to connected and remove from notConnected.
+        // currentCell will never be null here, but check is required
+        if (destinations.size() > 0 && currentCell != null && destinations.entrySet().stream().findAny().isPresent()) {
 //                    Collections.shuffle(destinations, r);
 //                    destinations = destinations.subList(0, r.nextInt(destinations.size()) + 1);
 //                    notConnected.removeAll(destinations);
@@ -119,7 +119,10 @@ public class StageGenerator {
 
         int roomX = r.nextInt(stage.width() - roomSizeX);
         int roomY = r.nextInt(stage.height() - roomSizeY);
+        addRoom(stage, roomSizeX, roomSizeY, roomX, roomY);
+    }
 
+    private static void addRoom(Stage stage, int roomSizeX, int roomSizeY, int roomX, int roomY) {
         // check that new room does not overlap with existing ones
         for (int y = 0; y < roomSizeY; y++) {
             for (int x = 0; x < roomSizeX; x++) {
@@ -129,7 +132,6 @@ public class StageGenerator {
             }
         }
         Region region = formRectangleRoom(stage.cells(), roomSizeX, roomSizeY, roomX, roomY);
-
         stage.regions().add(region);
     }
 
@@ -219,26 +221,7 @@ public class StageGenerator {
         return fragments;
     }
 
-    private static Region formRaggedRoom(Cell[][] stageGrid, int roomSizeX, int roomSizeY, int roomX, int roomY, int id, Random r) {
-        Region region = new Region();
-
-        int biasX = r.nextInt(max(roomSizeX / 2, 1));
-        for (int x = biasX; x < roomSizeX - biasX; x++) {
-            int biasY = r.nextInt(max(roomSizeY / 2, 1));
-            for (int y = biasY; y < roomSizeY - biasY; y++) {
-                Cell cell = new Cell()
-                        .x(roomX + x)
-                        .y(roomY + y)
-                        .region(region)
-                        .type(CellType.ROOM);
-                region.cells().add(cell);
-                stageGrid[roomY + y][roomX + x] = cell;
-            }
-        }
-        return region;
-    }
-
-    static Cell getNextCell(Cell currentCell, Cell[][] stageGrid, float mazeStraightness, Random r) {
+    private static Cell getNextCell(Cell currentCell, Cell[][] stageGrid, float mazeStraightness, Random r) {
         List<Cell> adjacentAvailableCells = getAdjacentAvailableCells(currentCell.x(), currentCell.y(), stageGrid);
         if (adjacentAvailableCells.isEmpty()) {
             return null;
@@ -260,7 +243,7 @@ public class StageGenerator {
         return adjacentAvailableCells.get(r.nextInt(adjacentAvailableCells.size()));
     }
 
-    static Map<Direction, Region> findAdjacentRegions(Cell newCell, Cell[][] stageGrid, Set<Region> notConnected) {
+    private static Map<Direction, Region> findAdjacentRegions(Cell newCell, Cell[][] stageGrid, Set<Region> notConnected) {
         return getUpDownLeftRightCells(newCell.x(), newCell.y()).stream()
                 .filter(cell -> cell.insideStage(stageGrid))
                 .filter(cell -> stageGrid[cell.y()][cell.x()] != null) // there is a cell at the point (x,y)
@@ -268,7 +251,7 @@ public class StageGenerator {
                 .collect(Collectors.toMap(Cell::direction, cell -> stageGrid[cell.y()][cell.x()].region()));
     }
 
-    static Cell getStartCell(@Nonnull Region from, @Nonnull Cell[][] stageGrid, Random r) {
+    private static Cell getStartCell(@Nonnull Region from, @Nonnull Cell[][] stageGrid, Random r) {
         Cell startingCell = findValidStartingCell(from, stageGrid);
         if (startingCell == null)
             return null;
@@ -276,7 +259,7 @@ public class StageGenerator {
         return adjacentCells.get(r.nextInt(adjacentCells.size()));
     }
 
-    static Cell findValidStartingCell(@Nonnull Region from, @Nonnull Cell[][] stageGrid) {
+    private static Cell findValidStartingCell(@Nonnull Region from, @Nonnull Cell[][] stageGrid) {
         for (Cell cell : from.cells()) {
             if (!getAdjacentAvailableCells(cell.x(), cell.y(), stageGrid).isEmpty()) {
                 return cell;
