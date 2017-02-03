@@ -12,6 +12,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.rmi.server.ExportException;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -35,14 +36,19 @@ public class SvgPrinter {
     private static Color GRID_COLOR = Color.decode("#985e6d");
     private static Color FONT_COLOR = Color.decode("#192231");
 
-    public static void printStageAsSvg(Stage stage) throws IOException, ParserConfigurationException {
-        SVGGraphics2D svg = createSvg();
-        drawGrid(svg, stage.width(), stage.height(), stage.resolution());
-        stage.regions().forEach(region ->
-                region.cells().forEach(cell ->
-                        cell.fragments().forEach(fragment ->
-                                drawFragment(svg, fragment, cell.x(), cell.y(), stage.resolution()))));
-        svg.stream(new FileWriter("stage.svg"), true);
+    public static void printStageAsSvg(Stage stage) {
+        try {
+            SVGGraphics2D svg = createSvg();
+            drawGrid(svg, stage.width(), stage.height(), stage.resolution());
+            stage.regions().forEach(region ->
+                    region.cells().forEach(cell ->
+                            cell.fragments().forEach(fragment ->
+                                    drawFragment(svg, fragment, cell.x(), cell.y(), stage.resolution()))));
+            svg.stream(new FileWriter("stage.svg"), true);
+        } catch (IOException | ParserConfigurationException e) {
+            System.out.println("OH MY GOOOOOD" + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public static void printCellsAsSvg(Stage stage) throws IOException, ParserConfigurationException {

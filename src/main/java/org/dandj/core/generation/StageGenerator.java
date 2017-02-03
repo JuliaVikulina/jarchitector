@@ -3,8 +3,6 @@ package org.dandj.core.generation;
 import org.dandj.model.*;
 
 import javax.annotation.Nonnull;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -14,32 +12,33 @@ import static org.dandj.model.Direction.*;
 import static org.dandj.model.Fragment.*;
 
 public class StageGenerator {
-    public static Stage createStage(Stage stage, Random r) throws IOException, ParserConfigurationException {
+    public static Stage createStage(Stage stage, Random r) {
         initCells(stage);
         for (int i = 0; i < stage.roomTries(); i++) {
             addRoom(stage, r);
         }
-
-        if (stage.regions().size() > 1) {
-            // carve corridors to regions:
-            Set<Region> notConnected = new HashSet<>(stage.regions());
-            List<Region> connected = new LinkedList<>();
-            notConnected.remove(stage.regions().get(0));
-            connected.add(stage.regions().get(0));
-            while (!notConnected.isEmpty()) {
-                connectRegions(stage, r, notConnected, connected);
-            }
-        }
+        connectRegionsWithRandomMaze(stage, r);
         return stage;
     }
 
-    private static void connectRegions(Stage stage, Random r, Set<Region> notConnected, List<Region> connected) throws IOException, ParserConfigurationException {
+    public static void connectRegionsWithRandomMaze(Stage stage, Random r) {
+        if (stage.regions().size() <= 1)
+            return;
+        // carve corridors to regions:
+        Set<Region> notConnected = new HashSet<>(stage.regions());
+        List<Region> connected = new LinkedList<>();
+        notConnected.remove(stage.regions().get(0));
+        connected.add(stage.regions().get(0));
+        while (!notConnected.isEmpty()) {
+            connectRegions(stage, r, notConnected, connected);
+        }
+    }
+
+    private static void connectRegions(Stage stage, Random r, Set<Region> notConnected, List<Region> connected) {
         // we carve a maze starting from any connected region
         Region startingRegion = connected.get(r.nextInt(connected.size()));
         Region maze = new Region();
         Map<Direction, Region> destinations = new HashMap<>();
-        //todo add check if there are empty cells in a stage
-        // add cells to maze region until we hit a unconnected region or cannot carve anymore
         Cell currentCell = getStartCell(startingRegion, stage.cells(), r);
         Cell previousCell = null;
         if (currentCell == null)
@@ -113,16 +112,16 @@ public class StageGenerator {
         return fragments;
     }
 
-    private static void addRoom(Stage stage, Random r) {
+    static void addRoom(Stage stage, Random r) {
         int roomSizeX = min(stage.width(), r.nextInt(stage.roomSizeXMax() - stage.roomSizeXMin() + 1) + stage.roomSizeXMin());
         int roomSizeY = min(stage.height(), r.nextInt(stage.roomSizeYMax() - stage.roomSizeYMin() + 1) + stage.roomSizeYMin());
 
-        int roomX = r.nextInt(stage.width() - roomSizeX);
-        int roomY = r.nextInt(stage.height() - roomSizeY);
+        int roomX = r.nextInt(stage.width() - roomSizeX + 1);
+        int roomY = r.nextInt(stage.height() - roomSizeY + 1);
         addRoom(stage, roomSizeX, roomSizeY, roomX, roomY);
     }
 
-    private static void addRoom(Stage stage, int roomSizeX, int roomSizeY, int roomX, int roomY) {
+    static void addRoom(Stage stage, int roomSizeX, int roomSizeY, int roomX, int roomY) {
         // check that new room does not overlap with existing ones
         for (int y = 0; y < roomSizeY; y++) {
             for (int x = 0; x < roomSizeX; x++) {
@@ -135,7 +134,7 @@ public class StageGenerator {
         stage.regions().add(region);
     }
 
-    private static Cell[][] initCells(Stage stage) {
+    static Cell[][] initCells(Stage stage) {
         // simple two dimensional array to represent the layout
         Cell[][] stageGrid = new Cell[stage.height()][];
         for (int i = 0; i < stage.height(); i++) {

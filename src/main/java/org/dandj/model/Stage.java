@@ -16,7 +16,7 @@ public class Stage {
     private int roomSizeYMax = 6;
     private int roomTries = 5;
     private float mazeStraightness = 0.1f;
-    private int resolution;
+    private int resolution = 16;
     private int width;
     private int height;
 
