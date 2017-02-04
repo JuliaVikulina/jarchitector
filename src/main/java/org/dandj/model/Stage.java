@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Accessors(fluent = true)
@@ -21,7 +22,7 @@ public class Stage {
     private int height;
 
     // result
-    private List<Region> regions = new ArrayList<>();
+    private Collection<Region> regions = new ArrayList<>();
 
     private transient Cell cells[][];
 }

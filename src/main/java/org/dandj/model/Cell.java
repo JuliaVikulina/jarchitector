@@ -11,7 +11,6 @@ import java.util.Set;
 @Accessors(fluent = true)
 @Data
 @ToString(exclude = "region")
-//@EqualsAndHashCode(exclude = "region")
 public class Cell {
     private int x;
 
