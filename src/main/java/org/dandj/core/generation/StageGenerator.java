@@ -47,10 +47,11 @@ public class StageGenerator {
         Region startingRegion = connected.get(r.nextInt(connected.size()));
         Region maze = new Region();
         Map<Direction, Region> destinations = new HashMap<>();
-        Cell currentCell = getStartCell(startingRegion, stage.cells(), r);
-        Cell previousCell = null;
-        if (currentCell == null)
+        Junction starting = getStartPosition(startingRegion, stage.cells(), r);
+        if (starting == null)
             return;
+        Cell currentCell = starting.to();
+        Cell previousCell = null;
         // todo connect this region using junction
         boolean destinationFound = false;
         while (!destinationFound && currentCell != null) { // todo make protection from infinite loop
@@ -77,15 +78,10 @@ public class StageGenerator {
         // add some of them and newly created maze to connected and remove from notConnected.
         // currentCell will never be null here, but check is required
         if (destinations.size() > 0 && currentCell != null && destinations.entrySet().stream().findAny().isPresent()) {
-//                    Collections.shuffle(destinations, r);
-//                    destinations = destinations.subList(0, r.nextInt(destinations.size()) + 1);
-//                    notConnected.removeAll(destinations);
-//                    connected.addAll(destinations);
-//                    connected.add(maze);
-//                    stage.regions().add(maze);
             // todo: make several connections
             Map.Entry<Direction, Region> entry = destinations.entrySet().stream().findAny().get();
             currentCell.fragments(createMazeWalls(entry.getKey(), currentCell.direction()));
+            formJunction(starting);
             notConnected.remove(entry.getValue());
             connected.add(entry.getValue());
             connected.add(maze);
@@ -95,6 +91,54 @@ public class StageGenerator {
             // erase it from stageGrid
             for (Cell c : maze.cells()) {
                 stage.cells()[c.y()][c.x()] = null;
+            }
+        }
+    }
+
+    private static void formJunction(Junction junction) {
+        Set<Fragment> walls = junction.from().fragments();
+        if (junction.to().direction() == UP) {
+            walls.remove(WALL_U);
+            if (walls.contains(WALL_L)) {
+                walls.remove(CORNER_UL_INNER);
+                walls.add(CORNER_UL_V);
+            }
+            if (walls.contains(WALL_R)) {
+                walls.remove(CORNER_UR_INNER);
+                walls.add(CORNER_UR_V);
+            }
+        }
+        if (junction.to().direction() == RIGHT) {
+            walls.remove(WALL_R);
+            if (walls.contains(WALL_U)) {
+                walls.remove(CORNER_UR_INNER);
+                walls.add(CORNER_UR_H);
+            }
+            if (walls.contains(WALL_D)) {
+                walls.remove(CORNER_DR_INNER);
+                walls.add(CORNER_DR_H);
+            }
+        }
+        if (junction.to().direction() == DOWN) {
+            walls.remove(WALL_D);
+            if (walls.contains(WALL_L)) {
+                walls.remove(CORNER_DL_INNER);
+                walls.add(CORNER_DL_V);
+            }
+            if (walls.contains(WALL_R)) {
+                walls.remove(CORNER_DR_INNER);
+                walls.add(CORNER_DR_V);
+            }
+        }
+        if (junction.to().direction() == LEFT) {
+            walls.remove(WALL_L);
+            if (walls.contains(WALL_U)) {
+                walls.remove(CORNER_UL_INNER);
+                walls.add(CORNER_UL_H);
+            }
+            if (walls.contains(WALL_D)) {
+                walls.remove(CORNER_DL_INNER);
+                walls.add(CORNER_DL_H);
             }
         }
     }
@@ -258,12 +302,14 @@ public class StageGenerator {
                 .collect(Collectors.toMap(Cell::direction, cell -> stageGrid[cell.y()][cell.x()].region()));
     }
 
-    private static Cell getStartCell(@Nonnull Region from, @Nonnull Cell[][] stageGrid, Random r) {
+    private static Junction getStartPosition(@Nonnull Region from, @Nonnull Cell[][] stageGrid, Random r) {
         Cell startingCell = findValidStartingCell(from, stageGrid);
         if (startingCell == null)
             return null;
         List<Cell> adjacentCells = getAdjacentAvailableCells(startingCell.x(), startingCell.y(), stageGrid);
-        return adjacentCells.get(r.nextInt(adjacentCells.size()));
+        return new Junction()
+                .from(startingCell)
+                .to(adjacentCells.get(r.nextInt(adjacentCells.size())));
     }
 
     private static Cell findValidStartingCell(@Nonnull Region from, @Nonnull Cell[][] stageGrid) {
