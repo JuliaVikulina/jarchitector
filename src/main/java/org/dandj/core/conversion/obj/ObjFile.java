@@ -4,6 +4,9 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * spec : http://www.martinreddy.net/gfx/3d/OBJ.spec
+ */
 public class ObjFile {
     private static final String COMMENT = "#";
     private static final String MTLLIB = "mtllib ";
@@ -16,18 +19,18 @@ public class ObjFile {
     private static final String SMOOTH = "s ";
 
     private List<String> comment = new ArrayList<>();
-    private ObjMaterial mtllib;
+    private ObjMaterialLibrary mtllib;
     private List<ObjGeometry> objects = new ArrayList<>();
     private ObjGeometry currentObject;
 
-    private ObjFile(InputStream stream) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+    private ObjFile(File fileName) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(fileName));
         String line;
         while ((line = reader.readLine()) != null) {
             if (line.trim().startsWith(COMMENT))
                 comment.add(line);
             else if (line.startsWith(MTLLIB))
-                mtllib = new ObjMaterial(strip(line, MTLLIB));
+                mtllib = new ObjMaterialLibrary(strip(line, MTLLIB), fileName.getParent());
             else if (line.startsWith(OBJECT)) {
                 currentObject = new ObjGeometry(strip(line, OBJECT));
                 objects.add(currentObject);
@@ -45,10 +48,6 @@ public class ObjFile {
                 currentObject.addFace(strip(line, FACE));
             else throw new IllegalStateException("Not recognized command:\n" + line);
         }
-    }
-
-    ObjFile(File file) throws IOException {
-        this(new FileInputStream(file));
     }
 
     public static String strip(String line, String token) {

@@ -1,17 +1,20 @@
 package org.dandj.core.conversion.obj;
 
-/**
- * Created by daniil on 05.02.17.
- */
+import lombok.Data;
+
+@Data
 public class ObjMaterial {
-    private String mtllibLine;
+    private final String name;
+    private Float specular;
+    private Float opticalDensity;
+    private Float specularExponent;
+    private Float dissolve;
+    private Integer illuminationMode;
+    private Vertex3d ambientColor;
+    private Vertex3d diffuseColor;
+    private Vertex3d specularColor;
 
-    public ObjMaterial(String mtllibLine) {
-        this.mtllibLine = mtllibLine;
-    }
-
-    @Override
-    public String toString() {
-        return mtllibLine;
+    public ObjMaterial(String name) {
+        this.name = name;
     }
 }
