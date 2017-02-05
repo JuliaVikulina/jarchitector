@@ -13,4 +13,9 @@ import lombok.experimental.Accessors;
 public class Junction {
     Cell from;
     Cell to;
+    Direction direction;
+
+    public Junction reverse() {
+        return new Junction().from(to).to(from()).direction(direction.reverse());
+    }
 }

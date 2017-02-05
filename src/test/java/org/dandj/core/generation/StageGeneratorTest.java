@@ -57,5 +57,6 @@ public class StageGeneratorTest {
         StageGenerator.addRoom(stage, 3, 1, 0, 2);
         connectRegionsByTwoSets(stage, new Random(SEED));
         assertEquals(2, stage.regions().size());
+        assertEquals(1, stage.junctions().size());
     }
 }

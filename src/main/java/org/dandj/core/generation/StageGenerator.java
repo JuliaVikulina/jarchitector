@@ -25,12 +25,12 @@ public class StageGenerator {
         if (stage.regions().size() <= 1)
             return;
         // carve corridors to regions:
-        Set<Region> notConnected = new HashSet<>(stage.regions());
+        List<Region> notConnected = new LinkedList<>(stage.regions());
         List<Region> connected = new LinkedList<>();
         Region region = stage.regions().stream().findFirst().get();
         notConnected.remove(region);
         connected.add(region);
-        while (!notConnected.isEmpty() && stageHasEmptyCells(stage)) {
+        while (!notConnected.isEmpty()) {
             connectRegions(stage, r, notConnected, connected);
         }
     }
@@ -43,7 +43,19 @@ public class StageGenerator {
         return false;
     }
 
-    private static void connectRegions(Stage stage, Random r, Set<Region> notConnected, List<Region> connected) {
+    private static void connectRegions(Stage stage, Random r, List<Region> notConnected, List<Region> connected) {
+        if (!stageHasEmptyCells(stage)) {
+            // pick random unconnected region, pick a border cell from it and make a door outwards
+            Region region = notConnected.get(r.nextInt(notConnected.size()));
+            Junction junction = getAnyJunctionToDifferentRegion(region, r, connected, stage.cells());
+            if (junction == null)
+                return; // this is LITERALLY impossible (currently)
+            stage.junctions().add(formJunction(junction));
+            formJunction(junction.reverse());
+            notConnected.remove(region);
+            connected.add(region);
+            return;
+        }
         // we carve a maze starting from any connected region
         Region startingRegion = connected.get(r.nextInt(connected.size()));
         Region maze = new Region();
@@ -63,7 +75,6 @@ public class StageGenerator {
             maze.cells().add(currentCell);
             currentCell.region(maze);
             stage.cells()[currentCell.y()][currentCell.x()] = currentCell;
-            // todo check if it not connected already
             destinations = findAdjacentRegions(currentCell, stage.cells(), notConnected);
             if (destinations.isEmpty()) {
                 previousCell = currentCell;
@@ -77,9 +88,9 @@ public class StageGenerator {
         if (destinations.size() > 0 && currentCell != null) {
             // todo: make several connections
             Junction ending = destinations.get(0);
-            currentCell.fragments(createMazeWalls(reverse(ending.from().direction()), currentCell.direction()));
-            stage.junctions().add(formJunction(starting, starting.to().direction()));
-            stage.junctions().add(formJunction(ending, ending.from().direction()));
+            currentCell.fragments(createMazeWalls(ending.direction().reverse(), currentCell.direction()));
+            stage.junctions().add(formJunction(starting));
+            stage.junctions().add(formJunction(ending));
             notConnected.remove(ending.from().region());
             connected.add(ending.from().region());
             connected.add(maze);
@@ -91,6 +102,24 @@ public class StageGenerator {
                 stage.cells()[c.y()][c.x()] = null;
             }
         }
+    }
+
+    /**
+     * pick any junction that will lead to another (connected) region
+     */
+    private static Junction getAnyJunctionToDifferentRegion(Region region, Random r, List<Region> connected, Cell[][] cells) {
+        List<Cell> shuffled = region.cells();
+        Collections.shuffle(shuffled, r);
+        for (Cell cell : shuffled) {
+            for (Cell adjacent : getUpDownLeftRightCells(cell.x(), cell.y()).stream().filter(c -> c.insideStage(cells)).collect(Collectors.toList())) {
+                Cell targetCell = cells[adjacent.y()][adjacent.x()];
+                if (targetCell != null && targetCell.region() != null && connected.contains(targetCell.region())) {
+                    // bingo!
+                    return new Junction().from(cell).to(targetCell).direction(adjacent.direction());
+                }
+            }
+        }
+        return null;
     }
 
     private static Direction reverse(Direction direction) {
@@ -107,9 +136,9 @@ public class StageGenerator {
         throw new IllegalStateException("unknown direction:" + direction);
     }
 
-    private static Junction formJunction(Junction junction, Direction direction) {
+    private static Junction formJunction(Junction junction) {
         Set<Fragment> walls = junction.from().fragments();
-        if (direction == UP) {
+        if (junction.direction() == UP) {
             walls.remove(WALL_U);
             if (walls.contains(WALL_L)) {
                 walls.remove(CORNER_UL_INNER);
@@ -126,7 +155,7 @@ public class StageGenerator {
                 walls.add(CORNER_UR_OUTER);
             }
         }
-        if (direction == RIGHT) {
+        if (junction.direction() == RIGHT) {
             walls.remove(WALL_R);
             if (walls.contains(WALL_U)) {
                 walls.remove(CORNER_UR_INNER);
@@ -143,7 +172,7 @@ public class StageGenerator {
                 walls.add(CORNER_DR_OUTER);
             }
         }
-        if (direction == DOWN) {
+        if (junction.direction() == DOWN) {
             walls.remove(WALL_D);
             if (walls.contains(WALL_L)) {
                 walls.remove(CORNER_DL_INNER);
@@ -160,7 +189,7 @@ public class StageGenerator {
                 walls.add(CORNER_DR_OUTER);
             }
         }
-        if (direction == LEFT) {
+        if (junction.direction() == LEFT) {
             walls.remove(WALL_L);
             if (walls.contains(WALL_U)) {
                 walls.remove(CORNER_UL_INNER);
@@ -331,13 +360,13 @@ public class StageGenerator {
         return adjacentAvailableCells.get(r.nextInt(adjacentAvailableCells.size()));
     }
 
-    private static List<Junction> findAdjacentRegions(Cell newCell, Cell[][] stageGrid, Set<Region> notConnected) {
+    private static List<Junction> findAdjacentRegions(Cell newCell, Cell[][] stageGrid, List<Region> notConnected) {
         return getUpDownLeftRightCells(newCell.x(), newCell.y()).stream()
                 .filter(cell -> cell.insideStage(stageGrid))
                 .filter(cell -> stageGrid[cell.y()][cell.x()] != null) // there is a cell at the point (x,y)
                 .filter(cell -> notConnected.contains(stageGrid[cell.y()][cell.x()].region())) // connect only unconnected regions
-                .map(cell -> stageGrid[cell.y()][cell.x()].direction(reverse(cell.direction()))) // get real cells with directions towards new cell
-                .map(cell -> new Junction().to(newCell).from(cell))
+//                .map(cell -> stageGrid[cell.y()][cell.x()].direction(cell.direction().reverse())) // get real cells with directions towards new cell
+                .map(cell -> new Junction().to(newCell).from(stageGrid[cell.y()][cell.x()]).direction(cell.direction().reverse()))
                 .collect(Collectors.toList());
     }
 
@@ -346,9 +375,11 @@ public class StageGenerator {
         if (startingCell == null)
             return null;
         List<Cell> adjacentCells = getAdjacentAvailableCells(startingCell.x(), startingCell.y(), stageGrid);
+        Cell targetCell = adjacentCells.get(r.nextInt(adjacentCells.size()));
         return new Junction()
                 .from(startingCell)
-                .to(adjacentCells.get(r.nextInt(adjacentCells.size())));
+                .to(targetCell)
+                .direction(targetCell.direction());
     }
 
     private static Cell findValidStartingCell(@Nonnull Region from, @Nonnull Cell[][] stageGrid) {
