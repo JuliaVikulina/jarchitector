@@ -8,6 +8,7 @@ import java.util.ArrayList;
  */
 public class Face3d {
     ArrayList<FaceNode> surface;
+    Integer smoothGroup;
 
     @Override
     public String toString() {
