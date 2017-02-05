@@ -10,7 +10,7 @@ import java.util.List;
 import static org.dandj.core.generation.StageGenerator.getAdjacentAvailableCells;
 import static org.dandj.core.generation.StageGenerator.getUpDownLeftRightCells;
 
-public class StageGeneratorUtilsTest {
+public class StageGeneratorUtilTest {
     private static final int SIZE = 3;
     private Cell cells[][];
 

@@ -7,8 +7,15 @@ import java.util.ArrayList;
  * Created by Denolia on 11/12/16.
  */
 public class Face3d {
-    ArrayList<FaceNode> surface;
+    ArrayList<FaceNode> surface = new ArrayList<>();
     Integer smoothGroup;
+
+    public Face3d(String[] faces, Integer smooth) {
+        smoothGroup = smooth;
+        for (String face : faces) {
+            surface.add(new FaceNode(face.split("/")));
+        }
+    }
 
     @Override
     public String toString() {

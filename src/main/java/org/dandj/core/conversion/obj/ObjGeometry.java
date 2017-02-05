@@ -2,26 +2,32 @@ package org.dandj.core.conversion.obj;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Objects;
+
+import static java.lang.String.format;
 
 /**
  * File ${FILE}
  * Created by Denolia on 11/12/16.
  */
 public class ObjGeometry {
-    String material;
+    private String material;
 
-    String name;
+    private String name;
 
-    ArrayList<Vertex3d> vertices = new ArrayList<>();
+    private ArrayList<Vertex3d> vertices = new ArrayList<>();
 
     // texture coordinate
-    ArrayList<Vertex2d> uv = new ArrayList<>();
+    private ArrayList<Vertex2d> uv = new ArrayList<>();
 
-    ArrayList<Vertex3d> normal = new ArrayList<>();
+    private ArrayList<Vertex3d> normal = new ArrayList<>();
 
-    ArrayList<Face3d> faces = new ArrayList<>();
+    private ArrayList<Face3d> faces = new ArrayList<>();
 
-    public ObjGeometry(String name) {
+    // used for import/export only!
+    private transient Integer smooth;
+
+    ObjGeometry(String name) {
         this.name = name;
     }
 
@@ -29,41 +35,50 @@ public class ObjGeometry {
         out.println("o " + name);
         if (vertices != null)
             vertices.forEach(v ->
-                    out.println("v " + v.x + " " + v.y + " " + v.z));
+                    out.println(format("v %f %f %f", v.x, v.y, v.z)));
         if (uv != null)
             uv.forEach(vt ->
-                    out.println("vt " + vt.x + " " + vt.y));
+                    out.println(format("vt %f %f", vt.x, vt.y)));
         if (normal != null)
             normal.forEach(vn ->
-                    out.println("vn " + vn.x + " " + vn.y + " " + vn.z));
+                    out.println(format("vn %f %f %f", vn.x, vn.y, vn.z)));
         out.println("usemtl " + (material != null ? material : "None"));
-        out.println("s off"); // todo use smooth group
-        if (faces != null)
-            faces.forEach(face3d ->
-                    out.println("f " + face3d));
+        if (faces != null && !faces.isEmpty()) {
+            smooth = faces.get(0).smoothGroup;
+            out.println("s " + (smooth != null ? smooth : "off"));
+            faces.forEach(face3d -> {
+                if (!Objects.equals(face3d.smoothGroup, smooth))
+                    out.println("s " + (smooth != null ? smooth : "off"));
+                out.println("f " + face3d);
+            });
+        }
     }
 
-    public void addVertex(String line) {
-
+    void addVertex(String line) {
+        vertices.add(new Vertex3d(line.split(" ")));
     }
 
-    public void addNormal(String line) {
-
+    void addNormal(String line) {
+        normal.add(new Vertex3d(line.split(" ")));
     }
 
-    public void addTexCoord(String line) {
-
+    void addTexCoord(String line) {
+        uv.add(new Vertex2d(line.split(" ")));
     }
 
-    public void setMaterial(String line) {
-
+    void setMaterial(String line) {
+        material = line;
     }
 
-    public void setSmooth(String smooth) {
-
+    void setSmooth(String line) {
+        try {
+            smooth = Integer.parseInt(line);
+        } catch (NumberFormatException e) {
+            smooth = null;
+        }
     }
 
-    public void addFace(String line) {
-
+    void addFace(String line) {
+        faces.add(new Face3d(line.split(" "), smooth));
     }
 }

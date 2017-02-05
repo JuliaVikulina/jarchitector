@@ -2,22 +2,16 @@ package org.dandj.core.conversion.obj;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 public class ObjFileTest {
     @Test
-    public void strip() throws Exception {
-        assertEquals("Cone", ObjFile.strip("o Cone", "o "));
-    }
-
-    @Test
-    public void stripMissingToken() {
-        assertNull(ObjFile.strip("asdf", "no!"));
-    }
-
-    @Test
-    public void stripNull() {
-        assertNull(ObjFile.strip(null, null));
+    public void testImport() throws Exception {
+        ObjFile f = new ObjFile(new File("simple-wall-set2.obj"));
+        StringWriter out = new StringWriter();
+        f.serialize(new PrintWriter(out));
+        System.out.println(out.toString());
     }
 }

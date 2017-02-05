@@ -1,39 +1,37 @@
 package org.dandj.core.conversion.obj;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ObjFile {
-    private final String COMMENT = "#";
-    private final String MTLLIB = "mtllib ";
-    private final String OBJECT = "o ";
-    private final String VERTEX = "v ";
-    private final String NORMAL = "vn ";
-    private final String TEXCOORD = "vt ";
-    private final String FACE = "f ";
-    private final String MATERIAL = "usemtl ";
-    private final String SMOOTH = "s ";
+    private static final String COMMENT = "#";
+    private static final String MTLLIB = "mtllib ";
+    private static final String OBJECT = "o ";
+    private static final String VERTEX = "v ";
+    private static final String NORMAL = "vn ";
+    private static final String TEXCOORD = "vt ";
+    private static final String FACE = "f ";
+    private static final String MATERIAL = "usemtl ";
+    private static final String SMOOTH = "s ";
 
-    StringBuilder comment = new StringBuilder();
-    ObjMaterial mtllib;
-    List<ObjGeometry> objects = new ArrayList<>();
-    ObjGeometry currentObject;
+    private List<String> comment = new ArrayList<>();
+    private ObjMaterial mtllib;
+    private List<ObjGeometry> objects = new ArrayList<>();
+    private ObjGeometry currentObject;
 
-    public ObjFile(File file) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(file));
+    private ObjFile(InputStream stream) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         String line;
         while ((line = reader.readLine()) != null) {
             if (line.trim().startsWith(COMMENT))
-                comment.append(line).append('\n');
+                comment.add(line);
             else if (line.startsWith(MTLLIB))
                 mtllib = new ObjMaterial(strip(line, MTLLIB));
-            else if (line.startsWith(OBJECT))
+            else if (line.startsWith(OBJECT)) {
                 currentObject = new ObjGeometry(strip(line, OBJECT));
-            else if (line.startsWith(VERTEX))
+                objects.add(currentObject);
+            } else if (line.startsWith(VERTEX))
                 currentObject.addVertex(strip(line, VERTEX));
             else if (line.startsWith(NORMAL))
                 currentObject.addNormal(strip(line, NORMAL));
@@ -49,9 +47,19 @@ public class ObjFile {
         }
     }
 
+    ObjFile(File file) throws IOException {
+        this(new FileInputStream(file));
+    }
+
     public static String strip(String line, String token) {
         if (line == null || token == null || !line.contains(token))
             return null;
         return line.substring(line.indexOf(token) + token.length(), line.length());
+    }
+
+    public void serialize(PrintWriter out) throws IOException {
+        comment.forEach(out::println);
+        out.println(MTLLIB + mtllib);
+        objects.forEach(o -> o.serialize(out));
     }
 }
