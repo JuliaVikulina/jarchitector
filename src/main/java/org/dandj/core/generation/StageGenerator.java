@@ -78,8 +78,8 @@ public class StageGenerator {
             // todo: make several connections
             Junction ending = destinations.get(0);
             currentCell.fragments(createMazeWalls(reverse(ending.from().direction()), currentCell.direction()));
-            formJunction(starting, starting.to().direction());
-            formJunction(ending, ending.from().direction());
+            stage.junctions().add(formJunction(starting, starting.to().direction()));
+            stage.junctions().add(formJunction(ending, ending.from().direction()));
             notConnected.remove(ending.from().region());
             connected.add(ending.from().region());
             connected.add(maze);
@@ -107,7 +107,7 @@ public class StageGenerator {
         throw new IllegalStateException("unknown direction:" + direction);
     }
 
-    private static void formJunction(Junction junction, Direction direction) {
+    private static Junction formJunction(Junction junction, Direction direction) {
         Set<Fragment> walls = junction.from().fragments();
         if (direction == UP) {
             walls.remove(WALL_U);
@@ -177,6 +177,7 @@ public class StageGenerator {
                 walls.add(CORNER_DL_OUTER);
             }
         }
+        return junction;
     }
 
     private static Set<Fragment> createMazeWalls(Direction current, Direction previous) {

@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Accessors(fluent = true)
 @Data
-@ToString(exclude = "region")
+@ToString(exclude = {"region","fragments"})
 public class Cell {
     private int x;
 

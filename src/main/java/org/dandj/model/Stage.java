@@ -10,6 +10,7 @@ import java.util.List;
 @Accessors(fluent = true)
 @Data
 public class Stage {
+    private String name;
     // requirements
     private int roomSizeXMin = 3;
     private int roomSizeXMax = 6;
@@ -23,6 +24,6 @@ public class Stage {
 
     // result
     private Collection<Region> regions = new ArrayList<>();
-
+    private Collection<Junction> junctions = new ArrayList<>();
     private transient Cell cells[][];
 }

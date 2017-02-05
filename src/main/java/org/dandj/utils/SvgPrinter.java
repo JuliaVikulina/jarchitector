@@ -3,6 +3,7 @@ package org.dandj.utils;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.dandj.model.Cell;
 import org.dandj.model.Fragment;
+import org.dandj.model.Junction;
 import org.dandj.model.Stage;
 import org.w3c.dom.Document;
 
@@ -12,7 +13,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.rmi.server.ExportException;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -35,20 +35,35 @@ public class SvgPrinter {
     private static Color FLOOR_COLOR = Color.decode("#98878F");
     private static Color GRID_COLOR = Color.decode("#985e6d");
     private static Color FONT_COLOR = Color.decode("#192231");
+    private static Color DOOR_COLOR = Color.decode("#277455");
 
     public static void printStageAsSvg(Stage stage) {
         try {
             SVGGraphics2D svg = createSvg();
             drawGrid(svg, stage.width(), stage.height(), stage.resolution());
+            stage.junctions().forEach(junction -> drawJunction(svg, junction, stage.resolution()));
             stage.regions().forEach(region ->
                     region.cells().forEach(cell ->
                             cell.fragments().forEach(fragment ->
                                     drawFragment(svg, fragment, cell.x(), cell.y(), stage.resolution()))));
-            svg.stream(new FileWriter("stage.svg"), true);
+            svg.stream(new FileWriter("target/" + stage.name() + ".svg"), true);
         } catch (IOException | ParserConfigurationException e) {
             System.out.println("OH MY GOOOOOD" + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private static void drawJunction(SVGGraphics2D svg, Junction junction, int r) {
+        svg.setColor(DOOR_COLOR);
+        if (junction.from().x() == junction.to().x()) { // vertical case
+            int x = junction.from().x() * r;
+            int y = Math.max(junction.from().y(), junction.to().y()) * r - r / 8;
+            svg.fillRect(x, y, r, r / 4);
+        } else if (junction.from().y() == junction.to().y()) { // horizontal case
+            int y = junction.from().y() * r;
+            int x = Math.max(junction.from().x(), junction.to().x()) * r - r / 8;
+            svg.fillRect(x, y, r / 4, r);
+        } else throw new IllegalStateException("Junction with non adjacent tiles");
     }
 
     public static void printCellsAsSvg(Stage stage) throws IOException, ParserConfigurationException {

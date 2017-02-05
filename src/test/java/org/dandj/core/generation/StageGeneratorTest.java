@@ -1,71 +1,45 @@
 package org.dandj.core.generation;
 
 
-import org.dandj.model.Cell;
-import org.dandj.model.Direction;
 import org.dandj.model.Stage;
 import org.dandj.utils.SvgPrinter;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
+import org.junit.rules.TestName;
 
-import java.util.List;
 import java.util.Random;
 
-import static org.dandj.core.generation.StageGenerator.*;
+import static org.dandj.core.generation.StageGenerator.connectRegionsByTwoSets;
+import static org.dandj.core.generation.StageGenerator.createStage;
 import static org.junit.Assert.assertEquals;
 
 public class StageGeneratorTest {
     private final int SEED = 42;
-    private Cell cells[][];
+    private static final int SIZE = 3;
+
     private Stage stage;
+
+    @Rule
+    public TestName testName = new TestName();
 
     @Before
     public void setUp() {
-        int SIZE = 3;
-        cells = new Cell[SIZE][];
-        cells[0] = new Cell[SIZE];
-        cells[1] = new Cell[SIZE];
-        cells[2] = new Cell[SIZE];
 
-        stage = new Stage().width(SIZE).height(SIZE);
+        stage = new Stage().width(SIZE).height(SIZE).name(testName.getMethodName());
         StageGenerator.initCells(stage);
     }
 
-    @Test
-    public void testGetUpDownLeftRightTiles() {
-        List<Cell> tiles = getUpDownLeftRightCells(0, 0);
-        assert tiles.get(0).x() == -1;
-        assert tiles.get(1).x() == 0;
-        assert tiles.get(2).x() == 0;
-        assert tiles.get(3).x() == 1;
-
-        assert tiles.get(0).y() == 0;
-        assert tiles.get(1).y() == -1;
-        assert tiles.get(2).y() == 1;
-        assert tiles.get(3).y() == 0;
-
-        assert tiles.get(0).direction() == Direction.LEFT;
-        assert tiles.get(1).direction() == Direction.UP;
-        assert tiles.get(2).direction() == Direction.DOWN;
-        assert tiles.get(3).direction() == Direction.RIGHT;
-    }
-
-    @Test
-    public void testGetAdjacentAvailableTiles() {
-        cells[1][0] = new Cell().x(0).y(0);
-        List<Cell> tiles = getAdjacentAvailableCells(0, 0, cells);
-        assert tiles.size() == 1;
-        assert tiles.get(0).x() == 1;
-        assert tiles.get(0).y() == 0;
+    @After
+    public void drawStage() {
+        SvgPrinter.printStageAsSvg(stage);
     }
 
     @Test
     public void testSingleRoom() {
-        int size = 3;
-        stage.roomSizeYMin(size).roomSizeXMin(size)
-                .roomSizeYMax(size).roomSizeXMax(size);
+        stage.roomSizeYMin(SIZE).roomSizeXMin(SIZE)
+                .roomSizeYMax(SIZE).roomSizeXMax(SIZE);
         assertEquals(1, createStage(stage, new Random(SEED)).regions().size());
     }
 
@@ -75,10 +49,9 @@ public class StageGeneratorTest {
         StageGenerator.addRoom(stage, 1, 1, 2, 2);
         connectRegionsByTwoSets(stage, new Random(SEED));
         assertEquals(3, stage.regions().size());
-        SvgPrinter.printStageAsSvg(stage);
     }
 
-    @Test(timeout = 100)
+    @Test
     public void testTwoAdjacentRooms() {
         StageGenerator.addRoom(stage, 3, 2, 0, 0);
         StageGenerator.addRoom(stage, 3, 1, 0, 2);
