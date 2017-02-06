@@ -13,6 +13,7 @@ public class ObjMaterial {
     private Vertex3d ambientColor;
     private Vertex3d diffuseColor;
     private Vertex3d specularColor;
+    private Vertex3d emissionColor;
 
     public ObjMaterial(String name) {
         this.name = name;

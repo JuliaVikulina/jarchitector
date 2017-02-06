@@ -1,8 +1,8 @@
 package org.dandj.core.generation;
 
 
+import org.dandj.core.conversion.SvgPrinter;
 import org.dandj.model.Stage;
-import org.dandj.utils.SvgPrinter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -16,13 +16,11 @@ import static org.dandj.core.generation.StageGenerator.createStage;
 import static org.junit.Assert.assertEquals;
 
 public class StageGeneratorTest {
-    private final int SEED = 42;
     private static final int SIZE = 3;
-
-    private Stage stage;
-
+    private final int SEED = 42;
     @Rule
     public TestName testName = new TestName();
+    private Stage stage;
 
     @Before
     public void setUp() {

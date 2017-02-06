@@ -1,5 +1,7 @@
 package org.dandj.core.conversion.obj;
 
+import lombok.Data;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.List;
 /**
  * spec : http://www.martinreddy.net/gfx/3d/OBJ.spec
  */
+@Data
 public class ObjFile {
     private static final String COMMENT = "#";
     private static final String MTLLIB = "mtllib ";
@@ -23,10 +26,15 @@ public class ObjFile {
     private List<ObjGeometry> objects = new ArrayList<>();
     private ObjGeometry currentObject;
 
-    private ObjFile(File fileName) throws IOException {
+    public ObjFile() {
+    }
+
+    public ObjFile(File fileName) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
         String line;
         while ((line = reader.readLine()) != null) {
+            if (line.trim().isEmpty())
+                continue;
             if (line.trim().startsWith(COMMENT))
                 comment.add(line);
             else if (line.startsWith(MTLLIB))
@@ -43,7 +51,7 @@ public class ObjFile {
             else if (line.startsWith(MATERIAL))
                 currentObject.setMaterial(strip(line, MATERIAL));
             else if (line.startsWith(SMOOTH))
-                currentObject.setSmooth(strip(line, SMOOTH));
+                currentObject.setSmoothGroup(strip(line, SMOOTH));
             else if (line.startsWith(FACE))
                 currentObject.addFace(strip(line, FACE));
             else throw new IllegalStateException("Not recognized command:\n" + line);

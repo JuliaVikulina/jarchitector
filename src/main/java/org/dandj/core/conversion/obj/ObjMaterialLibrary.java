@@ -17,6 +17,7 @@ public class ObjMaterialLibrary {
     private static final String AMBIENT_COLOR = "Ka ";
     private static final String DIFFUSE_COLOR = "Kd ";
     private static final String SPECULAR_COLOR = "Ks ";
+    private static final String EMISSION_COLOR = "Ke ";
     private static final String SPECULAR_EXP = "Ns ";
     private static final String OPTICAL_DENSITY = "Ni ";
     private static final String DISSOLVE = "d ";
@@ -47,6 +48,8 @@ public class ObjMaterialLibrary {
         BufferedReader reader = new BufferedReader(new FileReader(new File(absolutePath, name)));
         String line;
         while ((line = reader.readLine()) != null) {
+            if (line.trim().isEmpty())
+                continue;
             if (line.startsWith(COMMENT))
                 comment.add(line);
             else if (line.startsWith(NEWMAT)) {
@@ -60,6 +63,8 @@ public class ObjMaterialLibrary {
                 currentMaterial.setAmbientColor(new Vertex3d(strip(line, AMBIENT_COLOR).split(" ")));
             else if (line.startsWith(SPECULAR_EXP))
                 currentMaterial.setSpecular(parseFloat(strip(line, SPECULAR_EXP)));
+            else if (line.startsWith(EMISSION_COLOR))
+                currentMaterial.setEmissionColor(new Vertex3d(strip(line, EMISSION_COLOR).split(" ")));
             else if (line.startsWith(DISSOLVE))
                 currentMaterial.setDissolve(parseFloat(strip(line, DISSOLVE)));
             else if (line.startsWith(OPTICAL_DENSITY))

@@ -1,4 +1,4 @@
-package org.dandj.utils;
+package org.dandj.core.conversion;
 
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.dandj.model.Cell;

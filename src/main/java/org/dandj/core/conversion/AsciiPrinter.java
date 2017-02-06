@@ -1,4 +1,4 @@
-package org.dandj.utils;
+package org.dandj.core.conversion;
 
 public class AsciiPrinter {
 
