@@ -18,16 +18,23 @@ public class Vertex3d {
         this.z = z;
     }
 
-    public Vertex3d(String[] line) {
-        x = Double.parseDouble(line[0]);
-        y = Double.parseDouble(line[1]);
-        z = Double.parseDouble(line[2]);
+    public Vertex3d(String line) {
+        String[] split = line.split(" ");
+        x = Double.parseDouble(split[0]);
+        y = Double.parseDouble(split[1]);
+        z = Double.parseDouble(split[2]);
     }
 
     public Vertex3d(Vertex3d v) {
         x = v.x;
         y = v.y;
         z = v.z;
+    }
+
+    public Vertex3d(Vertex2d v) {
+        x = v.x;
+        y = v.y;
+        z = 0;
     }
 
     public Vertex3d add(Vertex3d op) {

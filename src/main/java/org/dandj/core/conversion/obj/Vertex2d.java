@@ -21,9 +21,10 @@ public class Vertex2d {
         this.y = v.y;
     }
 
-    public Vertex2d(String[] line) {
-        x = Double.parseDouble(line[0]);
-        y = Double.parseDouble(line[1]);
+    public Vertex2d(String line) {
+        String[] split = line.split(" ");
+        x = Double.parseDouble(split[0]);
+        y = Double.parseDouble(split[1]);
     }
 
     public Vertex2d add(Vertex2d v) {
