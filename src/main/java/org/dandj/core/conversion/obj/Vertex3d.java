@@ -1,16 +1,20 @@
 package org.dandj.core.conversion.obj;
 
-import lombok.Value;
+import lombok.Data;
+
+import javax.annotation.Nonnull;
+import java.io.PrintWriter;
 
 /**
  * File ${FILE}
  * Created by Denolia on 11/12/16.
  */
-@Value
+@Data
 public class Vertex3d {
-    private double x;
-    private double y;
-    private double z;
+    private final double x;
+    private final double y;
+    private final double z;
+    private int index;
 
     public Vertex3d(double x, double y, double z) {
         this.x = x;
@@ -32,8 +36,8 @@ public class Vertex3d {
     }
 
     public Vertex3d(Vertex2d v) {
-        x = v.x;
-        y = v.y;
+        x = v.getX();
+        y = v.getY();
         z = 0;
     }
 
@@ -54,4 +58,12 @@ public class Vertex3d {
         return new Vertex3d(x * cos - y * sin, y * cos + x * sin, z);
     }
 
+    public void serialize(@Nonnull PrintWriter out, @Nonnull String type) {
+        out.println(String.format("%s %f %f %f", type, x, y, z));
+    }
+
+    @Override
+    public String toString() {
+        return "(" + x + ", " + y + ", " + z + ')';
+    }
 }

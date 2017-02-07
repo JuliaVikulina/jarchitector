@@ -43,6 +43,9 @@ public class ObjMaterialLibrary {
     private ObjMaterial currentMaterial;
     private List<String> comment = new ArrayList<>();
 
+    public ObjMaterialLibrary(String name) {
+        this.name = name;
+    }
     public ObjMaterialLibrary(String name, String absolutePath) throws IOException {
         this.name = name;
         BufferedReader reader = new BufferedReader(new FileReader(new File(absolutePath, name)));
@@ -56,15 +59,15 @@ public class ObjMaterialLibrary {
                 currentMaterial = new ObjMaterial(strip(line, NEWMAT));
                 materials.add(currentMaterial);
             } else if (line.startsWith(SPECULAR_COLOR))
-                currentMaterial.setSpecularColor(new Vertex3d(strip(line, SPECULAR_COLOR).split(" ")));
+                currentMaterial.setSpecularColor(new Vertex3d(strip(line, SPECULAR_COLOR)));
             else if (line.startsWith(DIFFUSE_COLOR))
-                currentMaterial.setDiffuseColor(new Vertex3d(strip(line, DIFFUSE_COLOR).split(" ")));
+                currentMaterial.setDiffuseColor(new Vertex3d(strip(line, DIFFUSE_COLOR)));
             else if (line.startsWith(AMBIENT_COLOR))
-                currentMaterial.setAmbientColor(new Vertex3d(strip(line, AMBIENT_COLOR).split(" ")));
+                currentMaterial.setAmbientColor(new Vertex3d(strip(line, AMBIENT_COLOR)));
             else if (line.startsWith(SPECULAR_EXP))
                 currentMaterial.setSpecular(parseDouble(strip(line, SPECULAR_EXP)));
             else if (line.startsWith(EMISSION_COLOR))
-                currentMaterial.setEmissionColor(new Vertex3d(strip(line, EMISSION_COLOR).split(" ")));
+                currentMaterial.setEmissionColor(new Vertex3d(strip(line, EMISSION_COLOR)));
             else if (line.startsWith(DISSOLVE))
                 currentMaterial.setDissolve(parseDouble(strip(line, DISSOLVE)));
             else if (line.startsWith(OPTICAL_DENSITY))
