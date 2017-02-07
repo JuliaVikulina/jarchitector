@@ -8,10 +8,10 @@ import lombok.Value;
  */
 @Value
 public class Vertex2d {
-    public float x;
-    public float y;
+    public double x;
+    public double y;
 
-    public Vertex2d(float x, float y) {
+    public Vertex2d(double x, double y) {
         this.x = x;
         this.y = y;
     }
@@ -22,16 +22,22 @@ public class Vertex2d {
     }
 
     public Vertex2d(String[] line) {
-        x = Float.parseFloat(line[0]);
-        y = Float.parseFloat(line[1]);
+        x = Double.parseDouble(line[0]);
+        y = Double.parseDouble(line[1]);
     }
 
     public Vertex2d add(Vertex2d v) {
         return new Vertex2d(this.x + v.x, this.y + v.y);
     }
 
-    public Vertex2d mult(float f) {
+    public Vertex2d mult(double f) {
         return new Vertex2d(this.x * f, this.y * f);
+    }
+
+    public Vertex2d rotate(double a) {
+        double cos = Math.cos(a);
+        double sin = Math.sin(a);
+        return new Vertex2d(x * cos - y * sin, y * cos + x * sin);
     }
 
 }

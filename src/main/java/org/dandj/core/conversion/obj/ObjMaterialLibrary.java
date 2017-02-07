@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static java.lang.Float.parseFloat;
+import static java.lang.Double.parseDouble;
 import static org.dandj.core.conversion.obj.ObjFile.strip;
 
 public class ObjMaterialLibrary {
@@ -62,13 +62,13 @@ public class ObjMaterialLibrary {
             else if (line.startsWith(AMBIENT_COLOR))
                 currentMaterial.setAmbientColor(new Vertex3d(strip(line, AMBIENT_COLOR).split(" ")));
             else if (line.startsWith(SPECULAR_EXP))
-                currentMaterial.setSpecular(parseFloat(strip(line, SPECULAR_EXP)));
+                currentMaterial.setSpecular(parseDouble(strip(line, SPECULAR_EXP)));
             else if (line.startsWith(EMISSION_COLOR))
                 currentMaterial.setEmissionColor(new Vertex3d(strip(line, EMISSION_COLOR).split(" ")));
             else if (line.startsWith(DISSOLVE))
-                currentMaterial.setDissolve(parseFloat(strip(line, DISSOLVE)));
+                currentMaterial.setDissolve(parseDouble(strip(line, DISSOLVE)));
             else if (line.startsWith(OPTICAL_DENSITY))
-                currentMaterial.setOpticalDensity(parseFloat(strip(line, OPTICAL_DENSITY)));
+                currentMaterial.setOpticalDensity(parseDouble(strip(line, OPTICAL_DENSITY)));
             else if (line.startsWith(ILLUM))
                 currentMaterial.setIlluminationMode(Integer.parseInt(strip(line, ILLUM)));
             else throw new IllegalStateException("Not recognized command:\n" + line);

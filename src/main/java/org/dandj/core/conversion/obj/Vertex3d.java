@@ -8,20 +8,20 @@ import lombok.Value;
  */
 @Value
 public class Vertex3d {
-    private float x;
-    private float y;
-    private float z;
+    private double x;
+    private double y;
+    private double z;
 
-    public Vertex3d(float x, float y, float z) {
+    public Vertex3d(double x, double y, double z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
     public Vertex3d(String[] line) {
-        x = Float.parseFloat(line[0]);
-        y = Float.parseFloat(line[1]);
-        z = Float.parseFloat(line[2]);
+        x = Double.parseDouble(line[0]);
+        y = Double.parseDouble(line[1]);
+        z = Double.parseDouble(line[2]);
     }
 
     public Vertex3d(Vertex3d v) {
@@ -37,12 +37,14 @@ public class Vertex3d {
                 z + op.z);
     }
 
-    public Vertex3d mult(float f) {
+    public Vertex3d mult(double f) {
         return new Vertex3d(x * f, y * f, z * f);
     }
 
-//    public Vertex3d rotate(float a) {
-//        return new Vertex3d(x * Math.si);
-//    }
+    public Vertex3d rotate(double a) {
+        double cos = Math.cos(a);
+        double sin = Math.sin(a);
+        return new Vertex3d(x * cos - y * sin, y * cos + x * sin, z);
+    }
 
 }

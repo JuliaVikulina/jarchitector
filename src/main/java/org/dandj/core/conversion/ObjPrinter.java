@@ -1,6 +1,8 @@
 package org.dandj.core.conversion;
 
 import org.dandj.core.conversion.obj.ObjFile;
+import org.dandj.model.Cell;
+import org.dandj.model.Fragment;
 import org.dandj.model.Stage;
 
 import java.io.File;
@@ -15,7 +17,14 @@ public class ObjPrinter {
         ObjFile tileSet = new ObjFile(new File("simple-wall-set2.obj"));
         ObjFile result = new ObjFile();
         result.setMtllib(tileSet.getMtllib());
+        stage.regions().forEach(region ->
+                region.cells().forEach(cell ->
+                        cell.fragments().forEach(fragment ->
+                                drawFragment(fragment, cell, result, tileSet)
+                        )));
+    }
 
-        // 2. distribute fragments
+    private static void drawFragment(Fragment fragment, Cell cell, ObjFile result, ObjFile tileSet) {
+
     }
 }
