@@ -29,4 +29,8 @@ public class Face3d {
     public void moveTo(double x, double y) {
         nodes.forEach(node -> node.moveTo(x, y));
     }
+
+    public void rotate(double radians) {
+        nodes.forEach(node -> node.rotate(radians));
+    }
 }

@@ -89,6 +89,10 @@ public class ObjGeometry {
         faces.forEach(face3d -> face3d.moveTo(x, y));
     }
 
+    public void rotate(double radians) {
+        faces.forEach(face3d -> face3d.rotate(radians));
+    }
+
     public ObjGeometry duplicate() {
         ObjGeometry geometry = new ObjGeometry(name + UUID.randomUUID());
         geometry.material = material;

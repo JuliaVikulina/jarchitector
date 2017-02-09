@@ -37,4 +37,9 @@ public class FaceNode {
     public void moveTo(double x, double y) {
         vertex = new Vertex3d(vertex.getX() + x, vertex.getY() + y, vertex.getZ());
     }
+
+    public void rotate(double radians) {
+        vertex = vertex.rotate(radians);
+        normal = normal.rotate(radians);
+    }
 }

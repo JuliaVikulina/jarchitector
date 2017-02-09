@@ -14,9 +14,9 @@ import java.io.PrintWriter;
  */
 public class ObjPrinter {
     public static void printAsObj(Stage stage) throws IOException {
-        ObjFile tileSet = new ObjFile(new File("cubes.obj"));
+        ObjFile tileSet = new ObjFile(new File("test-tileset.obj"));
         TileSetManager tileSetManager = new TileSetManager();
-        tileSetManager.addTileSet(tileSet);
+        tileSetManager.addTileSet(tileSet, 0.2);
         ObjFile result = new ObjFile();
         result.setMtllib(tileSet.getMtllib());
         stage.regions().forEach(region ->
@@ -26,6 +26,8 @@ public class ObjPrinter {
                         )
                 )
         );
-        result.serialize(new PrintWriter(new FileWriter("result.obj")));
+        try (PrintWriter out = new PrintWriter(new FileWriter("result.obj"))) {
+            result.serialize(out);
+        }
     }
 }
