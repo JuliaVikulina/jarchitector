@@ -5,6 +5,7 @@ import lombok.Data;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * File ${FILE}
@@ -39,11 +40,11 @@ public class ObjGeometry {
                 n.getVertex().setIndex(++offset.vertex);
                 vertices.add(n.getVertex());
             }
-            if (n.getUv().getIndex() == 0) {
+            if (n.getUv() != null && n.getUv().getIndex() == 0) {
                 n.getUv().setIndex(++offset.uv);
                 uvs.add(n.getUv());
             }
-            if (n.getNormal().getIndex() == 0) {
+            if (n.getNormal() != null && n.getNormal().getIndex() == 0) {
                 n.getNormal().setIndex(++offset.normal);
                 normals.add(n.getNormal());
             }
@@ -70,7 +71,8 @@ public class ObjGeometry {
 
     void addFace(String line, ArrayList<Vertex3d> vertices, ArrayList<Vertex2d> texCoords, ArrayList<Vertex3d> normals) {
         String[] faceIndices = line.split(" ");
-        Face3d face = new Face3d(smoothGroup);
+        Face3d face = new Face3d();
+        face.setSmoothGroup(smoothGroup);
         for (String chunk : faceIndices) {
             String[] indices = chunk.split("/");
             FaceNode faceNode = new FaceNode(vertices.get(Integer.parseInt(indices[0]) - 1));
@@ -81,5 +83,16 @@ public class ObjGeometry {
             face.getNodes().add(faceNode);
         }
         faces.add(face);
+    }
+
+    public void moveTo(double x, double y) {
+        faces.forEach(face3d -> face3d.moveTo(x, y));
+    }
+
+    public ObjGeometry duplicate() {
+        ObjGeometry geometry = new ObjGeometry(name + UUID.randomUUID());
+        geometry.material = material;
+        faces.forEach(face3d -> geometry.faces.add(face3d.duplicate()));
+        return geometry;
     }
 }
