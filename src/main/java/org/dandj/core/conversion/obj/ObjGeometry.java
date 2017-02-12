@@ -13,7 +13,7 @@ import java.util.UUID;
  */
 @Data
 public class ObjGeometry {
-    private String material;
+    private ObjMaterial material;
 
     private String name;
 
@@ -21,7 +21,6 @@ public class ObjGeometry {
 
     // used for import/export only!
     private transient Integer smoothGroup;
-
 
     public ObjGeometry(String name) {
         this.name = name;
@@ -52,12 +51,12 @@ public class ObjGeometry {
         vertices.forEach(v -> v.serialize(out, "v"));
         uvs.forEach(u -> u.serialize(out, "vt"));
         normals.forEach(n -> n.serialize(out, "vn"));
-        out.println("usemtl " + material);
+        out.println("usemtl " + material.getName());
         out.println("s off"); //todo implement smooth groups
         faces.forEach(f -> f.serialize(out));
     }
 
-    void setMaterial(String line) {
+    void setMaterial(ObjMaterial line) {
         material = line;
     }
 

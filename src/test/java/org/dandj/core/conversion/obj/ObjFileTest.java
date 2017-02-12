@@ -10,11 +10,11 @@ import java.io.StringWriter;
 public class ObjFileTest {
     @Test
     public void testImport() throws Exception {
-        ObjFile f = new ObjFile(new File("simple-wall-set2.obj"));
+        ObjFile f = new ObjFile(new File("tiles/test-tile-1/test-tileset.obj"));
         StringWriter out = new StringWriter();
         f.serialize(new PrintWriter(out));
         System.out.println(out.toString());
-        try (FileWriter fileWriter = new FileWriter("simple-wall-set22.obj")) {
+        try (FileWriter fileWriter = new FileWriter("ObjFileTest-result.obj")) {
             fileWriter.write(out.toString());
         }
     }

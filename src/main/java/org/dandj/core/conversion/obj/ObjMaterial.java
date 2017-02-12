@@ -2,6 +2,8 @@ package org.dandj.core.conversion.obj;
 
 import lombok.Data;
 
+import java.io.File;
+
 @Data
 public class ObjMaterial {
     private final String name;
@@ -14,6 +16,7 @@ public class ObjMaterial {
     private Vertex3d diffuseColor;
     private Vertex3d specularColor;
     private Vertex3d emissionColor;
+    private File diffuseMap;
 
     public ObjMaterial(String name) {
         this.name = name;

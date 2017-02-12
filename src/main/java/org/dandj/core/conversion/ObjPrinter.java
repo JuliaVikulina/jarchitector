@@ -14,7 +14,7 @@ import java.io.PrintWriter;
  */
 public class ObjPrinter {
     public static void printAsObj(Stage stage) throws IOException {
-        ObjFile tileSet = new ObjFile(new File("test-tileset.obj"));
+        ObjFile tileSet = new ObjFile(new File("tiles/test-tile-1/test-tileset.obj"));
         TileSetManager tileSetManager = new TileSetManager();
         tileSetManager.addTileSet(tileSet, 0.2);
         ObjFile result = new ObjFile();
@@ -26,7 +26,7 @@ public class ObjPrinter {
                         )
                 )
         );
-        try (PrintWriter out = new PrintWriter(new FileWriter("result.obj"))) {
+        try (PrintWriter out = new PrintWriter(new FileWriter("tiles/test-tile-1/result.obj"))) {
             result.serialize(out);
         }
     }

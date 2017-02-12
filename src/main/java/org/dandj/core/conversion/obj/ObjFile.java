@@ -28,13 +28,13 @@ public class ObjFile {
     public ObjFile() {
     }
 
-    public ObjFile(File fileName) throws IOException {
+    public ObjFile(File file) throws IOException {
         ObjGeometry currentObject = null;
         ArrayList<Vertex3d> vertices = new ArrayList<>();
         ArrayList<Vertex2d> texCoords = new ArrayList<>();
         ArrayList<Vertex3d> normals = new ArrayList<>();
 
-        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+        BufferedReader reader = new BufferedReader(new FileReader(file));
         String line;
         while ((line = reader.readLine()) != null) {
             if (line.trim().isEmpty())
@@ -42,7 +42,7 @@ public class ObjFile {
             if (line.trim().startsWith(COMMENT))
                 comment.add(line);
             else if (line.startsWith(MTLLIB))
-                mtllib = new ObjMaterialLibrary(strip(line, MTLLIB));
+                mtllib = new ObjMaterialLibrary(strip(line, MTLLIB), file.getParent());
             else if (line.startsWith(OBJECT)) {
                 currentObject = new ObjGeometry(strip(line, OBJECT));
                 objects.add(currentObject);
@@ -53,12 +53,12 @@ public class ObjFile {
             else if (line.startsWith(NORMAL))
                 normals.add(new Vertex3d(strip(line, NORMAL)));
             else if (line.startsWith(MATERIAL) && currentObject != null)
-                currentObject.setMaterial(strip(line, MATERIAL));
+                currentObject.setMaterial(mtllib.getMaterials().get(strip(line, MATERIAL)));
             else if (line.startsWith(SMOOTH) && currentObject != null)
                 currentObject.setSmoothGroup(strip(line, SMOOTH));
             else if (line.startsWith(FACE) && currentObject != null)
                 currentObject.addFace(strip(line, FACE), vertices, texCoords, normals);
-            else throw new IllegalStateException("Not recognized command:\n" + line);
+            else System.err.println("Not recognized command:\n" + line);
         }
     }
 
