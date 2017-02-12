@@ -1,7 +1,7 @@
-# Blender MTL File: 'simple-wall-set2.blend'
+# Blender MTL File: 'test-tileset.blend'
 # Material Count: 2
 
-newmtl floor
+newmtl floor_material
 Ns 96.078431
 Ka 1.000000 1.000000 1.000000
 Kd 0.640000 0.640000 0.640000
@@ -10,8 +10,9 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
+map_Kd floor.jpg
 
-newmtl wall
+newmtl wall_material
 Ns 96.078431
 Ka 1.000000 1.000000 1.000000
 Kd 0.640000 0.640000 0.640000
@@ -20,3 +21,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
+map_Kd wall.jpg

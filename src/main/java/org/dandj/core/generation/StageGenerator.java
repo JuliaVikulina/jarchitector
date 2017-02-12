@@ -114,26 +114,11 @@ public class StageGenerator {
             for (Cell adjacent : getUpDownLeftRightCells(cell.x(), cell.y()).stream().filter(c -> c.insideStage(cells)).collect(Collectors.toList())) {
                 Cell targetCell = cells[adjacent.y()][adjacent.x()];
                 if (targetCell != null && targetCell.region() != null && connected.contains(targetCell.region())) {
-                    // bingo!
                     return new Junction().from(cell).to(targetCell).direction(adjacent.direction());
                 }
             }
         }
         return null;
-    }
-
-    private static Direction reverse(Direction direction) {
-        switch (direction) {
-            case UP:
-                return DOWN;
-            case DOWN:
-                return UP;
-            case LEFT:
-                return RIGHT;
-            case RIGHT:
-                return LEFT;
-        }
-        throw new IllegalStateException("unknown direction:" + direction);
     }
 
     private static Junction formJunction(Junction junction) {
@@ -365,7 +350,6 @@ public class StageGenerator {
                 .filter(cell -> cell.insideStage(stageGrid))
                 .filter(cell -> stageGrid[cell.y()][cell.x()] != null) // there is a cell at the point (x,y)
                 .filter(cell -> notConnected.contains(stageGrid[cell.y()][cell.x()].region())) // connect only unconnected regions
-//                .map(cell -> stageGrid[cell.y()][cell.x()].direction(cell.direction().reverse())) // get real cells with directions towards new cell
                 .map(cell -> new Junction().to(newCell).from(stageGrid[cell.y()][cell.x()]).direction(cell.direction().reverse()))
                 .collect(Collectors.toList());
     }
