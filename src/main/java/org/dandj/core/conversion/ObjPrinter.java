@@ -13,12 +13,14 @@ import java.io.PrintWriter;
  * Created by daniil on 06.02.17.
  */
 public class ObjPrinter {
-    public static void printAsObj(Stage stage) throws IOException {
+    public static void printAsObj(Stage stage, File destFolder) throws IOException {
         ObjFile tileSet = new ObjFile(new File("tiles/test-tile-1/test-tileset.obj"));
         TileSetManager tileSetManager = new TileSetManager();
         tileSetManager.addTileSet(tileSet, 0.2);
         ObjFile result = new ObjFile();
         result.setMtllib(tileSet.getMtllib());
+        destFolder.mkdir();
+        result.getMtllib().serialize(destFolder);
         stage.regions().forEach(region ->
                 region.cells().forEach(cell ->
                         cell.fragments().forEach(fragment ->
@@ -26,7 +28,7 @@ public class ObjPrinter {
                         )
                 )
         );
-        try (PrintWriter out = new PrintWriter(new FileWriter("tiles/test-tile-1/result.obj"))) {
+        try (PrintWriter out = new PrintWriter(new FileWriter(new File(destFolder, stage.name() + ".obj")))) {
             result.serialize(out);
         }
     }

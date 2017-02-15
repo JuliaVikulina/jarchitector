@@ -2,10 +2,7 @@ package org.dandj.core.conversion.obj;
 
 import lombok.Data;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,16 +13,16 @@ import static org.dandj.core.conversion.obj.ObjFile.strip;
 
 @Data
 public class ObjMaterialLibrary {
-    private static final String COMMENT = "#";
-    private static final String NEWMAT = "newmtl ";
-    private static final String AMBIENT_COLOR = "Ka ";
-    private static final String DIFFUSE_COLOR = "Kd ";
-    private static final String DIFFUSE_MAP = "map_Kd ";
-    private static final String SPECULAR_COLOR = "Ks ";
-    private static final String EMISSION_COLOR = "Ke ";
-    private static final String SPECULAR_EXP = "Ns ";
-    private static final String OPTICAL_DENSITY = "Ni ";
-    private static final String DISSOLVE = "d ";
+    public static final String COMMENT = "#";
+    public static final String NEWMAT = "newmtl ";
+    public static final String AMBIENT_COLOR = "Ka ";
+    public static final String DIFFUSE_COLOR = "Kd ";
+    public static final String DIFFUSE_MAP = "map_Kd ";
+    public static final String SPECULAR_COLOR = "Ks ";
+    public static final String EMISSION_COLOR = "Ke ";
+    public static final String SPECULAR_EXP = "Ns ";
+    public static final String OPTICAL_DENSITY = "Ni ";
+    public static final String DISSOLVE = "d ";
 
     /*
         0. Color on and Ambient off
@@ -40,7 +37,7 @@ public class ObjMaterialLibrary {
         9. Transparency: Glass on, Reflection: Ray trace off
         10. Casts shadows onto invisible surfaces
      */
-    private static final String ILLUM = "illum ";
+    public static final String ILLUM = "illum ";
 
     private String name;
     private Map<String, ObjMaterial> materials = new HashMap<>();
@@ -70,7 +67,7 @@ public class ObjMaterialLibrary {
             else if (line.startsWith(AMBIENT_COLOR))
                 currentMaterial.setAmbientColor(new Vertex3d(strip(line, AMBIENT_COLOR)));
             else if (line.startsWith(SPECULAR_EXP))
-                currentMaterial.setSpecular(parseDouble(strip(line, SPECULAR_EXP)));
+                currentMaterial.setSpecularExponent(parseDouble(strip(line, SPECULAR_EXP)));
             else if (line.startsWith(EMISSION_COLOR))
                 currentMaterial.setEmissionColor(new Vertex3d(strip(line, EMISSION_COLOR)));
             else if (line.startsWith(DISSOLVE))
@@ -81,6 +78,14 @@ public class ObjMaterialLibrary {
                 currentMaterial.setIlluminationMode(Integer.parseInt(strip(line, ILLUM)));
             else System.err.println("Not recognized command:\n" + line);
 
+        }
+    }
+
+    public void serialize(File folderName) throws IOException {
+        try (PrintWriter out = new PrintWriter(new FileWriter(new File(folderName, name)))) {
+            materials.values().forEach(m ->
+                    m.serialize(out, folderName)
+            );
         }
     }
 
