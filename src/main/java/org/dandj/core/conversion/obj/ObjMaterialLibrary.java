@@ -44,6 +44,10 @@ public class ObjMaterialLibrary {
     private Map<String, ObjMaterial> materials = new HashMap<>();
     private List<String> comment = new ArrayList<>();
 
+    public ObjMaterialLibrary(String name) {
+        this.name = name;
+    }
+
     public ObjMaterialLibrary(String name, String absolutePath) throws IOException {
         ObjMaterial currentMaterial = null;
         this.name = name;

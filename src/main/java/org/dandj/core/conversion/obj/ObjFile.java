@@ -62,6 +62,10 @@ public class ObjFile {
         }
     }
 
+    public ObjFile(String materialLibName) {
+        mtllib = new ObjMaterialLibrary(materialLibName);
+    }
+
     public static String strip(String line, String token) {
         if (line != null && token != null && line.contains(token))
             return line.substring(line.indexOf(token) + token.length(), line.length());

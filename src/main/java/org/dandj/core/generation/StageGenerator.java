@@ -58,7 +58,7 @@ public class StageGenerator {
         }
         // we carve a maze starting from any connected region
         Region startingRegion = connected.get(r.nextInt(connected.size()));
-        Region maze = new Region();
+        Region maze = new Region("maze");
         List<Junction> destinations = new ArrayList<>();
         Junction starting = getStartPosition(startingRegion, stage.cells(), r);
         if (starting == null)
@@ -248,7 +248,7 @@ public class StageGenerator {
     }
 
     private static Region formRectangleRoom(Cell[][] stageGrid, int roomSizeX, int roomSizeY, int roomX, int roomY) {
-        Region region = new Region();
+        Region region = new Region("room");
         for (int x = 0; x < roomSizeX; x++) {
             for (int y = 0; y < roomSizeY; y++) {
                 Cell cell = new Cell()

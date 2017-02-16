@@ -13,5 +13,6 @@ import java.util.UUID;
 @EqualsAndHashCode(exclude = "cells")
 public class Region {
     private final UUID id = UUID.randomUUID();
+    private final String style;
     private List<Cell> cells = new ArrayList<>();
 }

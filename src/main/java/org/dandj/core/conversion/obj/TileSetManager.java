@@ -2,25 +2,24 @@ package org.dandj.core.conversion.obj;
 
 import org.dandj.model.Fragment;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by daniil on 09.02.17.
- */
 public class TileSetManager {
 
-    Map<Fragment, ObjGeometry> fragmentMap = new HashMap<>();
+    private Map<String, Map<Fragment, ObjGeometry>> tileSetMap = new HashMap<>();
 
-    public ObjGeometry createFragment(Fragment f, double x, double y) {
-        ObjGeometry result = fragmentMap.get(f).duplicate();
+    public ObjGeometry createFragment(@Nonnull String style, Fragment f, double x, double y) {
+        ObjGeometry result = tileSetMap.get(style).get(f).duplicate();
         result.moveTo(x, y);
         return result;
     }
 
-    public void addTileSet(ObjFile tileSet, double wallThickness) {
+    public void addTileSet(ObjFile tileSet, String style, double wallThickness) {
         double halfWidth = wallThickness / 2;
         double middle = 0.5;
+        Map<Fragment, ObjGeometry> fragmentMap = new HashMap<>();
         tileSet.getObjects().forEach(o -> {
             if (o.getName().startsWith("wall")) {
                 ObjGeometry wallLeft = o.duplicate();
@@ -105,5 +104,6 @@ public class TileSetManager {
                 fragmentMap.put(Fragment.CORNER_DL_H, downLeftHorizontal);
             }
         });
+        tileSetMap.put(style, fragmentMap);
     }
 }
