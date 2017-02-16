@@ -22,6 +22,7 @@ public class ObjMaterial {
     private Vertex3d specularColor = new Vertex3d(0.5, 0.5, 0.5);
     private Vertex3d emissionColor = new Vertex3d(0, 0, 0);
     private File diffuseMap;
+    private File bumpMap;
 
     public ObjMaterial(String name) {
         this.name = name;
@@ -41,6 +42,14 @@ public class ObjMaterial {
             out.println(DIFFUSE_MAP + diffuseMap.getName());
             try (FileOutputStream f = new FileOutputStream(new File(folderName, diffuseMap.getName()))) {
                 Files.copy(diffuseMap.toPath(), f);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (bumpMap != null) {
+            out.println(BUMP_MAP + bumpMap.getName());
+            try (FileOutputStream f = new FileOutputStream(new File(folderName, bumpMap.getName()))) {
+                Files.copy(bumpMap.toPath(), f);
             } catch (IOException e) {
                 e.printStackTrace();
             }

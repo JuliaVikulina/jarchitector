@@ -18,6 +18,7 @@ public class ObjMaterialLibrary {
     public static final String AMBIENT_COLOR = "Ka ";
     public static final String DIFFUSE_COLOR = "Kd ";
     public static final String DIFFUSE_MAP = "map_Kd ";
+    public static final String BUMP_MAP = "map_Bump ";
     public static final String SPECULAR_COLOR = "Ks ";
     public static final String EMISSION_COLOR = "Ke ";
     public static final String SPECULAR_EXP = "Ns ";
@@ -64,6 +65,8 @@ public class ObjMaterialLibrary {
                 currentMaterial.setDiffuseColor(new Vertex3d(strip(line, DIFFUSE_COLOR)));
             else if (line.startsWith(DIFFUSE_MAP))
                 currentMaterial.setDiffuseMap(new File(new File(absolutePath), strip(line, DIFFUSE_MAP)));
+            else if (line.startsWith(BUMP_MAP))
+                currentMaterial.setBumpMap(new File(new File(absolutePath), strip(line, BUMP_MAP)));
             else if (line.startsWith(AMBIENT_COLOR))
                 currentMaterial.setAmbientColor(new Vertex3d(strip(line, AMBIENT_COLOR)));
             else if (line.startsWith(SPECULAR_EXP))
