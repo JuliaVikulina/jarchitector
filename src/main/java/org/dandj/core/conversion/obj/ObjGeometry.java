@@ -70,7 +70,7 @@ public class ObjGeometry {
         }
     }
 
-    void addFace(String line, ArrayList<Vertex3d> vertices, ArrayList<Vertex2d> texCoords, ArrayList<Vertex3d> normals) {
+    void addFace(String line, List<Vertex3d> vertices, List<Vertex2d> texCoords, List<Vertex3d> normals) {
         String[] faceIndices = line.split(" ");
         Face3d face = new Face3d();
         face.setSmoothGroup(smoothGroup);
