@@ -14,7 +14,7 @@ public class ObjFileTest {
      */
     @Test
     public void testImport() throws Exception {
-
+        ObjFile f = new ObjFile(new File("tiles/test-tile-1/test-tileset.obj"));
     }
 
     /**
