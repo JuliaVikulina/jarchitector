@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 
-import static org.dandj.core.conversion.obj.ObjMaterialLibrary.*;
+import static org.dandj.core.conversion.obj.ObjConstants.*;
 
 @Data
 public class ObjMaterial {
@@ -38,7 +38,7 @@ public class ObjMaterial {
         out.println(String.format("%s%f", OPTICAL_DENSITY, opticalDensity));
         out.println(String.format("%s%f", DISSOLVE, dissolve));
         out.println(String.format("%s%d", ILLUM, illuminationMode));
-        if (diffuseMap != null) {
+        if (diffuseMap != null && !new File(folderName, diffuseMap.getName()).exists()) {
             out.println(DIFFUSE_MAP + diffuseMap.getName());
             try (FileOutputStream f = new FileOutputStream(new File(folderName, diffuseMap.getName()))) {
                 Files.copy(diffuseMap.toPath(), f);
@@ -46,7 +46,7 @@ public class ObjMaterial {
                 e.printStackTrace();
             }
         }
-        if (bumpMap != null) {
+        if (bumpMap != null && !new File(folderName, bumpMap.getName()).exists()) {
             out.println(BUMP_MAP + bumpMap.getName());
             try (FileOutputStream f = new FileOutputStream(new File(folderName, bumpMap.getName()))) {
                 Files.copy(bumpMap.toPath(), f);

@@ -6,20 +6,12 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.dandj.core.conversion.obj.ObjConstants.*;
 /**
  * spec : http://www.martinreddy.net/gfx/3d/OBJ.spec
  */
 @Data
 public class ObjFile {
-    private static final String COMMENT = "#";
-    private static final String MTLLIB = "mtllib ";
-    private static final String OBJECT = "o ";
-    private static final String VERTEX = "v ";
-    private static final String NORMAL = "vn ";
-    private static final String TEXCOORD = "vt ";
-    private static final String FACE = "f ";
-    private static final String MATERIAL = "usemtl ";
-    private static final String SMOOTH = "s ";
 
     private List<String> comment = new ArrayList<>();
     private ObjMaterialLibrary mtllib;

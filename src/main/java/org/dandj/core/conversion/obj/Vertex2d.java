@@ -46,7 +46,7 @@ public class Vertex2d {
     }
 
     public void serialize(@Nonnull PrintWriter out, @Nonnull String type) {
-        out.println(String.format("%s %f %f", type, x, y));
+        out.println(String.format("%s%f %f", type, x, y));
     }
 
     @Override

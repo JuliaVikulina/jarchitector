@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.dandj.core.conversion.obj.ObjConstants.*;
+
 /**
  * File ${FILE}
  * Created by Denolia on 11/12/16.
@@ -29,7 +31,7 @@ public class ObjGeometry {
     public void serialize(PrintWriter out, IndexOffset offset) {
         if (faces.isEmpty())
             return;
-        out.println("o " + name);
+        out.println(OBJECT + name);
         List<Vertex3d> vertices = new ArrayList<>();
         List<Vertex2d> uvs = new ArrayList<>();
         List<Vertex3d> normals = new ArrayList<>();
@@ -48,11 +50,11 @@ public class ObjGeometry {
                 normals.add(n.getNormal());
             }
         }));
-        vertices.forEach(v -> v.serialize(out, "v"));
-        uvs.forEach(u -> u.serialize(out, "vt"));
-        normals.forEach(n -> n.serialize(out, "vn"));
-        out.println("usemtl " + material.getName());
-        out.println("s off"); //todo implement smooth groups
+        vertices.forEach(v -> v.serialize(out, VERTEX));
+        uvs.forEach(u -> u.serialize(out, TEXCOORD));
+        normals.forEach(n -> n.serialize(out, NORMAL));
+        out.println(MATERIAL + material.getName());
+        out.println(SMOOTH + "off"); //todo implement smooth groups
         faces.forEach(f -> f.serialize(out));
     }
 

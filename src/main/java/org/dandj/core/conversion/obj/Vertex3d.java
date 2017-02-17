@@ -59,7 +59,7 @@ public class Vertex3d {
     }
 
     public void serialize(@Nonnull PrintWriter out, @Nonnull String type) {
-        out.println(String.format("%s %f %f %f", type, x, y, z));
+        out.println(String.format("%s%f %f %f", type, x, y, z));
     }
 
     @Override

@@ -9,36 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.Double.parseDouble;
+import static org.dandj.core.conversion.obj.ObjConstants.*;
 import static org.dandj.core.conversion.obj.ObjFile.strip;
 
 @Data
 public class ObjMaterialLibrary {
-    public static final String COMMENT = "#";
-    public static final String NEWMAT = "newmtl ";
-    public static final String AMBIENT_COLOR = "Ka ";
-    public static final String DIFFUSE_COLOR = "Kd ";
-    public static final String DIFFUSE_MAP = "map_Kd ";
-    public static final String BUMP_MAP = "map_Bump ";
-    public static final String SPECULAR_COLOR = "Ks ";
-    public static final String EMISSION_COLOR = "Ke ";
-    public static final String SPECULAR_EXP = "Ns ";
-    public static final String OPTICAL_DENSITY = "Ni ";
-    public static final String DISSOLVE = "d ";
-
-    /*
-        0. Color on and Ambient off
-        1. Color on and Ambient on
-        2. Highlight on
-        3. Reflection on and Ray trace on
-        4. Transparency: Glass on, Reflection: Ray trace on
-        5. Reflection: Fresnel on and Ray trace on
-        6. Transparency: Refraction on, Reflection: Fresnel off and Ray trace on
-        7. Transparency: Refraction on, Reflection: Fresnel on and Ray trace on
-        8. Reflection on and Ray trace off
-        9. Transparency: Glass on, Reflection: Ray trace off
-        10. Casts shadows onto invisible surfaces
-     */
-    public static final String ILLUM = "illum ";
 
     private String name;
     private Map<String, ObjMaterial> materials = new HashMap<>();
