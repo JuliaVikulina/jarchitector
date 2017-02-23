@@ -55,7 +55,7 @@ public class ObjFile {
     }
 
     public ObjFile(String materialLibName) {
-        mtllib = new ObjMaterialLibrary(materialLibName);
+        mtllib = new ObjMaterialLibrary(materialLibName + ".mtl");
     }
 
     public static String strip(String line, String token) {

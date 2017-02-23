@@ -41,7 +41,7 @@ public class ObjFileTest {
             ObjMaterial sampleMaterial = new ObjMaterial("sampleMaterial");
             geometry.setMaterial(sampleMaterial);
             objFile.getObjects().add(geometry);
-            ObjMaterialLibrary sampleMtlib = new ObjMaterialLibrary("sampleMtlib");
+            ObjMaterialLibrary sampleMtlib = new ObjMaterialLibrary("sampleMtlib.mtl");
             sampleMtlib.getMaterials().put("someTestKey", sampleMaterial);
             objFile.setMtllib(sampleMtlib);
         }
