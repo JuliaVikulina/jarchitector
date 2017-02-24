@@ -5,7 +5,6 @@ import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @Accessors(fluent = true)
 @Data
@@ -14,8 +13,8 @@ public class Stage {
     // requirements
     private int roomSizeXMin = 3;
     private int roomSizeXMax = 6;
-    private int roomSizeYMin = 2;
-    private int roomSizeYMax = 6;
+    private int roomSizeZMin = 2;
+    private int roomSizeZMax = 6;
     private int roomTries = 5;
     private float mazeStraightness = 0.1f;
     private int resolution = 16;

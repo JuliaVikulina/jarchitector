@@ -8,16 +8,16 @@ import static org.junit.Assert.assertNull;
 public class ObjFileUtilTest {
     @Test
     public void strip() throws Exception {
-        assertEquals("Cone", ObjFile.strip("o Cone", "o "));
+        assertEquals("Cone", ObjImportExport.strip("o Cone", "o "));
     }
 
     @Test
     public void stripMissingToken() {
-        assertNull(ObjFile.strip("asdf", "no!"));
+        assertNull(ObjImportExport.strip("asdf", "no!"));
     }
 
     @Test
     public void stripNull() {
-        assertNull(ObjFile.strip(null, null));
+        assertNull(ObjImportExport.strip(null, null));
     }
 }

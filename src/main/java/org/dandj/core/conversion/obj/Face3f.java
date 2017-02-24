@@ -2,7 +2,6 @@ package org.dandj.core.conversion.obj;
 
 import lombok.Data;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
@@ -10,27 +9,22 @@ import java.util.ArrayList;
  * Created by Denolia on 11/12/16.
  */
 @Data
-public class Face3d {
+public class Face3f {
     private Integer smoothGroup;
     private ArrayList<FaceNode> nodes = new ArrayList<>();
 
-    public void serialize(PrintWriter out) {
-        out.print("f");
-        nodes.forEach(n -> n.serialize(out));
-        out.println();
-    }
 
-    public Face3d duplicate() {
-        Face3d clone = new Face3d();
+    public Face3f duplicate() {
+        Face3f clone = new Face3f();
         nodes.forEach(node -> clone.nodes.add(node.duplicate()));
         return clone;
     }
 
-    public void moveTo(double x, double y) {
+    public void moveTo(float x, float y) {
         nodes.forEach(node -> node.moveTo(x, y));
     }
 
-    public void rotate(double radians) {
+    public void rotate(float radians) {
         nodes.forEach(node -> node.rotate(radians));
     }
 }

@@ -1,8 +1,8 @@
 package org.dandj.core.conversion.obj;
 
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import lombok.Data;
-
-import java.io.PrintWriter;
 
 /**
  * File ${FILE}
@@ -10,36 +10,31 @@ import java.io.PrintWriter;
  */
 @Data
 public class FaceNode {
-    private Vertex3d vertex;
-    private Vertex2d uv;
-    private Vertex3d normal;
+    private Vector3f vertex;
+    private Vector2f uv;
+    private Vector3f normal;
 
-    public FaceNode(Vertex3d vertex) {
+    public FaceNode(Vector3f vertex) {
         this.vertex = vertex;
     }
 
-    public void serialize(PrintWriter out) {
-        String node = " " + vertex.getIndex()
-                + '/' + (uv != null && uv.getIndex() != 0 ? uv.getIndex() : "")
-                + '/' + (normal != null && normal.getIndex() != 0 ? normal.getIndex() : "");
-        out.print(node);
-    }
 
     public FaceNode duplicate() {
-        FaceNode faceNode = new FaceNode(new Vertex3d(vertex));
+        FaceNode faceNode = new FaceNode(new Vector3f(vertex));
         if (uv != null)
-            faceNode.uv = new Vertex2d(uv);
+            faceNode.uv = new Vector2f(uv);
         if (normal != null)
-            faceNode.normal = new Vertex3d(normal);
+            faceNode.normal = new Vector3f(normal);
         return faceNode;
     }
 
-    public void moveTo(double x, double y) {
-        vertex = new Vertex3d(vertex.getX() + x, vertex.getY() + y, vertex.getZ());
+    public void moveTo(float x, float y) {
+        vertex = new Vector3f(vertex.getX() + x, vertex.getY() + y, vertex.getZ());
     }
 
-    public void rotate(double radians) {
-        vertex = vertex.rotate(radians);
-        normal = normal.rotate(radians);
+    public void rotate(float radians) {
+        // TODO IMPLEMENT ROTATION
+//        vertex = vertex.rotate(radians);
+//        normal = normal.rotate(radians);
     }
 }
