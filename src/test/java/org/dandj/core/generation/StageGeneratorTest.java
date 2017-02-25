@@ -1,7 +1,6 @@
 package org.dandj.core.generation;
 
 
-import org.dandj.core.conversion.SvgPrinter;
 import org.dandj.model.Stage;
 import org.junit.After;
 import org.junit.Before;
@@ -31,13 +30,13 @@ public class StageGeneratorTest {
 
     @After
     public void drawStage() {
-        SvgPrinter.printStageAsSvg(stage);
+//        SvgPrinter.printStageAsSvg(stage);
     }
 
     @Test
     public void testSingleRoom() {
-        stage.roomSizeYMin(SIZE).roomSizeXMin(SIZE)
-                .roomSizeYMax(SIZE).roomSizeXMax(SIZE);
+        stage.roomSizeZMin(SIZE).roomSizeXMin(SIZE)
+                .roomSizeZMax(SIZE).roomSizeXMax(SIZE);
         assertEquals(1, createStage(stage, new Random(SEED)).regions().size());
     }
 

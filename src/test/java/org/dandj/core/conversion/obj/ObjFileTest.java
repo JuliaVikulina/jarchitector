@@ -48,7 +48,7 @@ public class ObjFileTest {
             objFile.setMtllib(sampleMtlib);
         }
         StringWriter out = new StringWriter();
-        ObjImportExport.serializeObject(objFile, new PrintWriter(out));
+        ObjImportExport.serializeObjfile(objFile, new PrintWriter(out));
         String expected = new String(IOUtils.readFully(this.getClass().getResourceAsStream("test.obj"), -1, true));
         assertEquals(expected, out.toString());
     }
@@ -60,7 +60,7 @@ public class ObjFileTest {
     public void testImportExportEqual() throws Exception {
         ObjFile f = ObjImportExport.parseObj(new File("tiles/test-tile-1/test-tileset.obj"));
         StringWriter out = new StringWriter();
-        ObjImportExport.serializeObject(f, new PrintWriter(out));
+        ObjImportExport.serializeObjfile(f, new PrintWriter(out));
         System.out.println(out.toString());
         try (FileWriter fileWriter = new FileWriter("ObjFileTest-result.obj")) {
             fileWriter.write(out.toString());

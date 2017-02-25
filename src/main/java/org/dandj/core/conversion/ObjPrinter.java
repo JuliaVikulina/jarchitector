@@ -38,7 +38,7 @@ public class ObjPrinter {
         }
 
         try (PrintWriter out = new PrintWriter(new FileWriter(new File(destFolder, stage.name() + ".obj")))) {
-            ObjImportExport.serializeObject(result, out);
+            ObjImportExport.serializeObjfile(result, out);
         }
     }
 }

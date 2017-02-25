@@ -13,7 +13,8 @@ public class TileSetManager {
 
     public ObjGeometry createFragment(@Nonnull String style, Fragment f, float x, float y) {
         ObjGeometry result = tileSetMap.get(style).get(f).duplicate();
-        result.moveTo(x, y);
+        if (result != null)
+            result.moveTo(x, y);
         return result;
     }
 

@@ -7,7 +7,6 @@ import com.jme3.math.Vector3f;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.List;
 
 import static java.lang.Double.parseDouble;
 import static org.dandj.core.conversion.obj.ObjConstants.*;
@@ -48,50 +47,38 @@ public class ObjImportExport {
         out.println(String.format("%s%f %f", type, v.getX(), v.getY()));
     }
 
-    static void serializeFace3f(Face3f f, PrintWriter out) {
-        out.print("f");
-        f.getNodes().forEach(n -> serializeFaceNode(n, out));
-        out.println();
-    }
-
-    static void serializeFaceNode(FaceNode fn, PrintWriter out) {
-        String node = " " + fn.getVertex().getIndex()
-                + '/' + (fn.getUv() != null && fn.getUv().getIndex() != 0 ? fn.getUv().getIndex() : "")
-                + '/' + (fn.getNormal() != null && fn.getNormal().getIndex() != 0 ? fn.getNormal().getIndex() : "");
-        out.print(node);
-    }
-
     static void serializeGeometry(ObjGeometry g, PrintWriter out, IndexOffset offset) {
         if (g.getFaces().isEmpty())
             return;
         out.println(OBJECT + g.getName());
-        List<Vector3f> vertices = new ArrayList<>();
-        List<Vector2f> uvs = new ArrayList<>();
-        List<Vector3f> normals = new ArrayList<>();
-
-        g.getFaces().forEach(f -> f.getNodes().forEach(n -> {
-            if (n.getVertex().getIndex() == 0) {
-                n.getVertex().setIndex(++offset.vertex);
-                vertices.add(n.getVertex());
-            }
-            if (n.getUv() != null && n.getUv().getIndex() == 0) {
-                n.getUv().setIndex(++offset.uv);
-                uvs.add(n.getUv());
-            }
-            if (n.getNormal() != null && n.getNormal().getIndex() == 0) {
-                n.getNormal().setIndex(++offset.normal);
-                normals.add(n.getNormal());
-            }
-        }));
-        vertices.forEach(v -> serializeVector3(v, out, VERTEX));
-        uvs.forEach(u -> serializeVector2(u, out, TEXCOORD));
-        normals.forEach(n -> serializeVector3(n, out, NORMAL));
-        out.println(MATERIAL + g.getMaterial().getName());
-        out.println(SMOOTH + "off"); //todo implement smooth groups
-        g.getFaces().forEach(f -> serializeFace3f(f, out));
+        StringWriter buff = new StringWriter();
+        PrintWriter faceBuffer = new PrintWriter(buff);
+        faceBuffer.println(MATERIAL + g.getMaterial().getName());
+        faceBuffer.println(SMOOTH + "off"); //todo implement smooth groups
+        g.getFaces().forEach(f -> {
+            faceBuffer.print("f");
+            f.getNodes().forEach(n -> {
+                serializeVector3(n.getVertex(), out, "v ");
+                offset.vertex++;
+                faceBuffer.print(" " + offset.vertex + "/");
+                if (n.getUv() != null) {
+                    serializeVector2(n.getUv(), out, "vt ");
+                    offset.uv++;
+                    faceBuffer.print(offset.uv);
+                }
+                faceBuffer.print("/");
+                if (n.getNormal() != null) {
+                    serializeVector3(n.getVertex(), out, "vn ");
+                    offset.normal++;
+                    faceBuffer.print(offset.normal);
+                }
+                faceBuffer.print(" ");
+            });
+            faceBuffer.println();
+        });
     }
 
-    public static void serializeObject(ObjFile objFile, PrintWriter out) throws IOException {
+    public static void serializeObjfile(ObjFile objFile, PrintWriter out) throws IOException {
         objFile.getComment().forEach(out::println);
         out.println(MTLLIB + objFile.getMtllib());
         final IndexOffset offset = new IndexOffset();
