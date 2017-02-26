@@ -51,31 +51,42 @@ public class ObjImportExport {
         if (g.getFaces().isEmpty())
             return;
         out.println(OBJECT + g.getName());
-        StringWriter buff = new StringWriter();
-        PrintWriter faceBuffer = new PrintWriter(buff);
-        faceBuffer.println(MATERIAL + g.getMaterial().getName());
-        faceBuffer.println(SMOOTH + "off"); //todo implement smooth groups
+
+        StringWriter vBuff = new StringWriter();
+        PrintWriter vPrinter = new PrintWriter(vBuff);
+        StringWriter vtBuff = new StringWriter();
+        PrintWriter vtPrinter = new PrintWriter(vtBuff);
+        StringWriter vnBuff = new StringWriter();
+        PrintWriter vnPrinter = new PrintWriter(vnBuff);
+
+        StringWriter faceBuff = new StringWriter();
+        PrintWriter facePrinter = new PrintWriter(faceBuff);
+        facePrinter.println(MATERIAL + g.getMaterial().getName());
+        facePrinter.println(SMOOTH + "off"); //todo implement smooth groups
         g.getFaces().forEach(f -> {
-            faceBuffer.print("f");
+            facePrinter.print("f");
             f.getNodes().forEach(n -> {
-                serializeVector3(n.getVertex(), out, "v ");
+                serializeVector3(n.getVertex(), vPrinter, "v ");
                 offset.vertex++;
-                faceBuffer.print(" " + offset.vertex + "/");
+                facePrinter.print(" " + offset.vertex + "/");
                 if (n.getUv() != null) {
-                    serializeVector2(n.getUv(), out, "vt ");
+                    serializeVector2(n.getUv(), vtPrinter, "vt ");
                     offset.uv++;
-                    faceBuffer.print(offset.uv);
+                    facePrinter.print(offset.uv);
                 }
-                faceBuffer.print("/");
+                facePrinter.print("/");
                 if (n.getNormal() != null) {
-                    serializeVector3(n.getVertex(), out, "vn ");
+                    serializeVector3(n.getNormal(), vnPrinter, "vn ");
                     offset.normal++;
-                    faceBuffer.print(offset.normal);
+                    facePrinter.print(offset.normal);
                 }
-                faceBuffer.print(" ");
             });
-            faceBuffer.println();
+            facePrinter.println();
         });
+        out.print(vBuff);
+        out.print(vtBuff);
+        out.print(vnBuff);
+        out.print(faceBuff);
     }
 
     public static void serializeObjfile(ObjFile objFile, PrintWriter out) throws IOException {

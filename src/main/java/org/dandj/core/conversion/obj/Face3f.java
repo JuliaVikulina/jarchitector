@@ -20,8 +20,8 @@ public class Face3f {
         return clone;
     }
 
-    public void moveTo(float x, float y) {
-        nodes.forEach(node -> node.moveTo(x, y));
+    public void moveTo(float x, float z) {
+        nodes.forEach(node -> node.moveTo(x, z));
     }
 
     public void rotate(float radians) {

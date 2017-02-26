@@ -55,8 +55,8 @@ public class ObjGeometry {
         faces.add(face);
     }
 
-    public void moveTo(float x, float y) {
-        faces.forEach(face3F -> face3F.moveTo(x, y));
+    public void moveTo(float x, float z) {
+        faces.forEach(face3F -> face3F.moveTo(x, z));
     }
 
     public void rotate(float radians) {

@@ -28,8 +28,8 @@ public class FaceNode {
         return faceNode;
     }
 
-    public void moveTo(float x, float y) {
-        vertex = new Vector3f(vertex.getX() + x, vertex.getY() + y, vertex.getZ());
+    public void moveTo(float x, float z) {
+        vertex = new Vector3f(vertex.getX() + x, vertex.getY(), vertex.getZ() + z);
     }
 
     public void rotate(float radians) {
