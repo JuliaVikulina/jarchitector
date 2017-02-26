@@ -31,24 +31,24 @@ public class StageGeneratorUtilTest {
         assert tiles.get(2).getX() == 0;
         assert tiles.get(3).getX() == 1;
 
-        assert tiles.get(0).y() == 0;
-        assert tiles.get(1).y() == -1;
-        assert tiles.get(2).y() == 1;
-        assert tiles.get(3).y() == 0;
+        assert tiles.get(0).getZ() == 0;
+        assert tiles.get(1).getZ() == -1;
+        assert tiles.get(2).getZ() == 1;
+        assert tiles.get(3).getZ() == 0;
 
-        assert tiles.get(0).direction() == Direction.LEFT;
-        assert tiles.get(1).direction() == Direction.UP;
-        assert tiles.get(2).direction() == Direction.DOWN;
-        assert tiles.get(3).direction() == Direction.RIGHT;
+        assert tiles.get(0).getDirection() == Direction.LEFT;
+        assert tiles.get(1).getDirection() == Direction.UP;
+        assert tiles.get(2).getDirection() == Direction.DOWN;
+        assert tiles.get(3).getDirection() == Direction.RIGHT;
     }
 
     @Test
     public void testGetAdjacentAvailableTiles() {
-        cells[1][0] = new Cell().getX(0).y(0);
+        cells[1][0] = new Cell(0, 0, Direction.DOWN);
         List<Cell> tiles = getAdjacentAvailableCells(0, 0, cells);
         assert tiles.size() == 1;
         assert tiles.get(0).getX() == 1;
-        assert tiles.get(0).y() == 0;
+        assert tiles.get(0).getZ() == 0;
     }
 
 }

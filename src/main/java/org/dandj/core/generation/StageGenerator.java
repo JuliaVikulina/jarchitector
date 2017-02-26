@@ -121,6 +121,9 @@ public class StageGenerator {
         return null;
     }
 
+    /**
+     * TODO: generalize method to make fragments for any set of cells
+     */
     private static Junction formJunction(Junction junction) {
         Set<Fragment> walls = junction.from().getFragments();
         if (junction.direction() == UP) {
