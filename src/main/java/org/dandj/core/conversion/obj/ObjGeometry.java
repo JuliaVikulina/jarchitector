@@ -59,8 +59,8 @@ public class ObjGeometry {
         faces.forEach(face3F -> face3F.moveTo(x, z));
     }
 
-    public void rotate(float radians) {
-        faces.forEach(face3F -> face3F.rotate(radians));
+    public void rotateY(float radians) {
+        faces.forEach(face3F -> face3F.rotateY(radians));
     }
 
     public ObjGeometry duplicate() {

@@ -24,7 +24,7 @@ public class Face3f {
         nodes.forEach(node -> node.moveTo(x, z));
     }
 
-    public void rotate(float radians) {
-        nodes.forEach(node -> node.rotate(radians));
+    public void rotateY(float radians) {
+        nodes.forEach(node -> node.rotateY(radians));
     }
 }

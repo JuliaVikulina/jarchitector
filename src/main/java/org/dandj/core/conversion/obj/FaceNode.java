@@ -1,5 +1,6 @@
 package org.dandj.core.conversion.obj;
 
+import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import lombok.Data;
@@ -32,9 +33,10 @@ public class FaceNode {
         vertex = new Vector3f(vertex.getX() + x, vertex.getY(), vertex.getZ() + z);
     }
 
-    public void rotate(float radians) {
-        // TODO IMPLEMENT ROTATION
-//        vertex = vertex.rotate(radians);
-//        normal = normal.rotate(radians);
+    public void rotateY(float radians) {
+        Matrix3f rot = new Matrix3f();
+        rot.fromAngleNormalAxis(radians, Vector3f.UNIT_Y);
+        vertex = rot.mult(vertex);
+        normal = rot.mult(normal);
     }
 }
