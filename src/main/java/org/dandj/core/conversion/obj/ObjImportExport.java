@@ -185,31 +185,37 @@ public class ObjImportExport {
         }
     }
 
+    static String serializeColorRBGA(ColorRGBA color) {
+        return String.format("%f %f %f", color.getRed(), color.getGreen(), color.getBlue());
+    }
+
     public static void serializeMaterial(ObjMaterial m, PrintWriter out, File folderName) {
         out.println(NEWMAT + m.getName());
         out.println(String.format("%s%f", SPECULAR_EXP, m.getSpecularExponent()));
-        out.println(AMBIENT_COLOR + m.getAmbientColor());
-        out.println(DIFFUSE_COLOR + m.getDiffuseColor());
-        out.println(SPECULAR_COLOR + m.getSpecularColor());
-        out.println(EMISSION_COLOR + m.getEmissionColor());
+        out.println(AMBIENT_COLOR + serializeColorRBGA(m.getAmbientColor()));
+        out.println(DIFFUSE_COLOR + serializeColorRBGA(m.getDiffuseColor()));
+        out.println(SPECULAR_COLOR + serializeColorRBGA(m.getSpecularColor()));
+        out.println(EMISSION_COLOR + serializeColorRBGA(m.getEmissionColor()));
         out.println(String.format("%s%f", OPTICAL_DENSITY, m.getOpticalDensity()));
         out.println(String.format("%s%f", DISSOLVE, m.getDissolve()));
         out.println(String.format("%s%d", ILLUM, m.getIlluminationMode()));
-        if (m.getDiffuseMap() != null && !new File(folderName, m.getDiffuseMap().getName()).exists()) {
+        if (m.getDiffuseMap() != null && m.getDiffuseMap().exists()) {
             out.println(DIFFUSE_MAP + m.getDiffuseMap().getName());
-            try (FileOutputStream f = new FileOutputStream(new File(folderName, m.getDiffuseMap().getName()))) {
-                Files.copy(m.getDiffuseMap().toPath(), f);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            if (!new File(folderName, m.getDiffuseMap().getName()).exists())
+                try (FileOutputStream f = new FileOutputStream(new File(folderName, m.getDiffuseMap().getName()))) {
+                    Files.copy(m.getDiffuseMap().toPath(), f);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
         }
-        if (m.getBumpMap() != null && !new File(folderName, m.getBumpMap().getName()).exists()) {
+        if (m.getBumpMap() != null && m.getBumpMap().exists()) {
             out.println(BUMP_MAP + m.getBumpMap().getName());
-            try (FileOutputStream f = new FileOutputStream(new File(folderName, m.getBumpMap().getName()))) {
-                Files.copy(m.getBumpMap().toPath(), f);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            if (!new File(folderName, m.getBumpMap().getName()).exists())
+                try (FileOutputStream f = new FileOutputStream(new File(folderName, m.getBumpMap().getName()))) {
+                    Files.copy(m.getBumpMap().toPath(), f);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
         }
         out.println();
     }
