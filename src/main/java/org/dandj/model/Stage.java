@@ -20,6 +20,7 @@ public class Stage {
     private int resolution = 16;
     private int width;
     private int height;
+    private boolean mergeObjects;
 
     // result
     private Collection<Region> regions = new ArrayList<>();

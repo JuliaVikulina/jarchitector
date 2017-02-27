@@ -10,9 +10,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Created by daniil on 06.02.17.
@@ -32,13 +35,30 @@ public class ObjPrinter {
                 )
         );
         try (PrintWriter out = new PrintWriter(new FileWriter(new File(destFolder, stage.name() + ".mtl")))) {
-            new HashSet<>(result.getObjects().stream().map(ObjGeometry::getMaterial).collect(toList())).forEach(
+            (result.getObjects().stream().map(ObjGeometry::getMaterial).collect(toSet())).forEach(
                     objMaterial -> ObjImportExport.serializeMaterial(objMaterial, out, destFolder)
             );
         }
-
+        if (stage.mergeObjects()) {
+            mergeBasedOnMaterials(result);
+        }
         try (PrintWriter out = new PrintWriter(new FileWriter(new File(destFolder, stage.name() + ".obj")))) {
             ObjImportExport.serializeObjfile(result, out);
         }
+    }
+
+    private static void mergeBasedOnMaterials(ObjFile result) {
+        Collection<ObjGeometry> geometries = result.getObjects();
+        Map<String, ObjGeometry> addedMaterials = new HashMap<>();
+        geometries.forEach(geom -> {
+                    if (!addedMaterials.containsKey(geom.getMaterial().getName())) {
+                        addedMaterials.put(geom.getMaterial().getName(), geom);
+                    } else {
+                        ObjGeometry existing = addedMaterials.get(geom.getMaterial().getName());
+                        existing.getFaces().addAll(geom.getFaces());
+                    }
+                }
+        );
+        result.setObjects(new ArrayList<>(addedMaterials.values()));
     }
 }
