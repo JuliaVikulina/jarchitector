@@ -1,5 +1,6 @@
 package org.dandj.core.conversion;
 
+import com.jme3.math.FastMath;
 import org.dandj.core.conversion.obj.ObjFile;
 import org.dandj.core.conversion.obj.ObjGeometry;
 import org.dandj.core.conversion.obj.ObjImportExport;
@@ -25,6 +26,7 @@ public class ObjPrinter {
         TileSetManager tileSetManager = new TileSetManager();
         tileSetManager.addTileSet(ObjImportExport.parseObj(new File("tiles/qtile-tech-4/qtile-tech-4.obj")), "maze", 0.1f);
         tileSetManager.addTileSet(ObjImportExport.parseObj(new File("tiles/qtile-tech-2/qtile-tech-2.obj")), "room", 0.1f);
+        tileSetManager.addJunction(ObjImportExport.parseObj(new File("tiles/qdoor-tech1/qdoor-tech1.obj")));
         ObjFile result = new ObjFile(stage.name());
         destFolder.mkdirs();
         stage.regions().forEach(region ->
@@ -34,6 +36,20 @@ public class ObjPrinter {
                         )
                 )
         );
+        stage.junctions().forEach(junction -> {
+            float x;
+            float y;
+            float angle = FastMath.HALF_PI; // by default, doors are aligned by z axis
+            if (junction.from().getX() == junction.to().getX()) { // vertical case
+                x = junction.from().getX() + 0.5f;
+                y = Math.max(junction.from().getZ(), junction.to().getZ());
+            } else if (junction.from().getZ() == junction.to().getZ()) { // horizontal case
+                y = junction.from().getZ() + 0.5f;
+                x = Math.max(junction.from().getX(), junction.to().getX());
+                angle = 0;
+            } else throw new IllegalStateException("Junction with non adjacent tiles");
+            result.getObjects().add(tileSetManager.createJunction(x, y, angle));
+        });
         try (PrintWriter out = new PrintWriter(new FileWriter(new File(destFolder, stage.name() + ".mtl")))) {
             (result.getObjects().stream().map(ObjGeometry::getMaterial).collect(toSet())).forEach(
                     objMaterial -> ObjImportExport.serializeMaterial(objMaterial, out, destFolder)

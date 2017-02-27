@@ -15,6 +15,9 @@ import static org.dandj.model.Fragment.*;
 public class TileSetManager {
     private long objectCounter = 0;
     private Map<String, Map<Fragment, ObjGeometry>> tileSetMap = new HashMap<>();
+    private ObjGeometry door;
+    private ObjGeometry gates;
+    private ObjGeometry trigger;
 
     public ObjGeometry createFragment(String name, @Nonnull String style, Fragment f, float x, float y) {
         ObjGeometry result = tileSetMap.get(style).get(f).duplicate(name + f.name() + objectCounter++);
@@ -122,5 +125,23 @@ public class TileSetManager {
             }
         });
         tileSetMap.put(style, fragmentMap);
+    }
+
+    public void addJunction(ObjFile objFile) {
+        objFile.getObjects().forEach(o -> {
+            if (o.getName().startsWith("door"))
+                door = o;
+            else if (o.getName().startsWith("gates"))
+                gates = o;
+            else if (o.getName().startsWith("trigger"))
+                trigger = o;
+        });
+    }
+
+    public ObjGeometry createJunction(float x, float y, float angle) {
+        ObjGeometry newJunction = gates.duplicate("junction" + objectCounter++);
+        newJunction.rotateY(angle);
+        newJunction.moveTo(x, y);
+        return newJunction;
     }
 }
