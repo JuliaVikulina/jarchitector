@@ -1,7 +1,7 @@
 # Blender MTL File: 'qtile-tech-2.blend'
 # Material Count: 2
 
-newmtl floor_material2
+newmtl floor_material
 Ns 96.078431
 Ka 1.000000 1.000000 1.000000
 Kd 0.640000 0.640000 0.640000
@@ -13,7 +13,7 @@ illum 2
 map_Kd sfloor4_4.tga
 map_Bump sfloor4_4_norm.tga
 
-newmtl wall_material2
+newmtl wall_material
 Ns 96.078431
 Ka 1.000000 1.000000 1.000000
 Kd 0.640000 0.640000 0.640000

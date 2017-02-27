@@ -5,105 +5,120 @@ import org.dandj.model.Fragment;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toList;
+import static org.dandj.model.Fragment.*;
 
 public class TileSetManager {
-
+    private long objectCounter = 0;
     private Map<String, Map<Fragment, ObjGeometry>> tileSetMap = new HashMap<>();
 
     public ObjGeometry createFragment(@Nonnull String style, Fragment f, float x, float y) {
-        ObjGeometry result = tileSetMap.get(style).get(f).duplicate(f);
+        ObjGeometry result = tileSetMap.get(style).get(f).duplicate(f.name() + objectCounter++);
         if (result != null)
             result.moveTo(x, y);
         return result;
     }
 
     public void addTileSet(ObjFile tileSet, String style, float wallThickness) {
+        Set<String> existingMaterialNames = new HashSet<>();
+        tileSetMap.values().forEach(m ->
+                existingMaterialNames.addAll(m.values().stream().map(o ->
+                        o.getMaterial().getName()).collect(toList())));
         float halfWidth = wallThickness / 2;
         float middle = 0.5f;
         Map<Fragment, ObjGeometry> fragmentMap = new HashMap<>();
         tileSet.getObjects().forEach(o -> {
+            if (existingMaterialNames.contains(o.getMaterial().getName())) {
+                while (existingMaterialNames.contains(o.getMaterial().getName() + objectCounter)) {
+                    objectCounter++;
+                }
+                o.getMaterial().setName(o.getMaterial().getName() + objectCounter);
+            }
             if (o.getName().startsWith("wall")) {
-                ObjGeometry wallLeft = o.duplicate(Fragment.WALL_L);
+                ObjGeometry wallLeft = o.duplicate(WALL_L.name());
                 wallLeft.moveTo(halfWidth, middle);
-                fragmentMap.put(Fragment.WALL_L, wallLeft);
+                fragmentMap.put(WALL_L, wallLeft);
 
-                ObjGeometry wallUp = o.duplicate(Fragment.WALL_U);
+                ObjGeometry wallUp = o.duplicate(WALL_U.name());
                 wallUp.rotateY(-FastMath.HALF_PI);
                 wallUp.moveTo(middle, halfWidth);
-                fragmentMap.put(Fragment.WALL_U, wallUp);
+                fragmentMap.put(WALL_U, wallUp);
 
-                ObjGeometry wallRight = o.duplicate(Fragment.WALL_R);
+                ObjGeometry wallRight = o.duplicate(WALL_R.name());
                 wallRight.rotateY(-FastMath.PI);
                 wallRight.moveTo(1 - halfWidth, middle);
-                fragmentMap.put(Fragment.WALL_R, wallRight);
+                fragmentMap.put(WALL_R, wallRight);
 
-                ObjGeometry wallDown = o.duplicate(Fragment.WALL_D);
+                ObjGeometry wallDown = o.duplicate(WALL_D.name());
                 wallDown.rotateY(FastMath.HALF_PI);
                 wallDown.moveTo(middle, 1 - halfWidth);
-                fragmentMap.put(Fragment.WALL_D, wallDown);
+                fragmentMap.put(WALL_D, wallDown);
             } else if (o.getName().startsWith("corner-inner") || o.getName().startsWith("corner-outer")) {
                 boolean inner = o.getName().startsWith("corner-inner");
-                ObjGeometry upLeft = o.duplicate(inner ? Fragment.CORNER_UL_INNER : Fragment.CORNER_UL_OUTER);
+                ObjGeometry upLeft = o.duplicate((inner ? CORNER_UL_INNER : CORNER_UL_OUTER).name());
                 upLeft.moveTo(halfWidth, halfWidth);
-                fragmentMap.put(inner ? Fragment.CORNER_UL_INNER : Fragment.CORNER_UL_OUTER, upLeft);
+                fragmentMap.put(inner ? CORNER_UL_INNER : CORNER_UL_OUTER, upLeft);
 
-                ObjGeometry upRight = o.duplicate(inner ? Fragment.CORNER_UR_INNER : Fragment.CORNER_UR_OUTER);
+                ObjGeometry upRight = o.duplicate((inner ? CORNER_UR_INNER : CORNER_UR_OUTER).name());
                 upRight.rotateY(-FastMath.HALF_PI);
                 upRight.moveTo(1 - halfWidth, halfWidth);
-                fragmentMap.put(inner ? Fragment.CORNER_UR_INNER : Fragment.CORNER_UR_OUTER, upRight);
+                fragmentMap.put(inner ? CORNER_UR_INNER : CORNER_UR_OUTER, upRight);
 
-                ObjGeometry downRight = o.duplicate(inner ? Fragment.CORNER_DR_INNER : Fragment.CORNER_DR_OUTER);
+                ObjGeometry downRight = o.duplicate((inner ? CORNER_DR_INNER : CORNER_DR_OUTER).name());
                 downRight.rotateY(-FastMath.PI);
                 downRight.moveTo(1 - halfWidth, 1 - halfWidth);
-                fragmentMap.put(inner ? Fragment.CORNER_DR_INNER : Fragment.CORNER_DR_OUTER, downRight);
+                fragmentMap.put(inner ? CORNER_DR_INNER : CORNER_DR_OUTER, downRight);
 
-                ObjGeometry downLeft = o.duplicate(inner ? Fragment.CORNER_DL_INNER : Fragment.CORNER_DL_OUTER);
+                ObjGeometry downLeft = o.duplicate((inner ? CORNER_DL_INNER : CORNER_DL_OUTER).name());
                 downLeft.rotateY(FastMath.HALF_PI);
                 downLeft.moveTo(halfWidth, 1 - halfWidth);
-                fragmentMap.put(inner ? Fragment.CORNER_DL_INNER : Fragment.CORNER_DL_OUTER, downLeft);
+                fragmentMap.put(inner ? CORNER_DL_INNER : CORNER_DL_OUTER, downLeft);
             } else if (o.getName().startsWith("floor")) {
-                ObjGeometry floor = o.duplicate(Fragment.FLOOR);
+                ObjGeometry floor = o.duplicate(FLOOR.name());
                 floor.moveTo(middle, middle);
-                fragmentMap.put(Fragment.FLOOR, floor);
+                fragmentMap.put(FLOOR, floor);
             } else if (o.getName().startsWith("filler")) {
-                ObjGeometry upLeftVertical = o.duplicate(Fragment.CORNER_UL_V);
+                ObjGeometry upLeftVertical = o.duplicate(CORNER_UL_V.name());
                 upLeftVertical.moveTo(halfWidth, halfWidth);
-                fragmentMap.put(Fragment.CORNER_UL_V, upLeftVertical);
+                fragmentMap.put(CORNER_UL_V, upLeftVertical);
 
-                ObjGeometry upLeftHorizontal = o.duplicate(Fragment.CORNER_UL_H);
+                ObjGeometry upLeftHorizontal = o.duplicate(CORNER_UL_H.name());
                 upLeftHorizontal.rotateY(-FastMath.HALF_PI);
                 upLeftHorizontal.moveTo(halfWidth, halfWidth);
-                fragmentMap.put(Fragment.CORNER_UL_H, upLeftHorizontal);
+                fragmentMap.put(CORNER_UL_H, upLeftHorizontal);
 
-                ObjGeometry upRightVertical = o.duplicate(Fragment.CORNER_UR_V);
+                ObjGeometry upRightVertical = o.duplicate(CORNER_UR_V.name());
                 upRightVertical.rotateY(-FastMath.PI);
                 upRightVertical.moveTo(1 - halfWidth, halfWidth);
-                fragmentMap.put(Fragment.CORNER_UR_V, upRightVertical);
+                fragmentMap.put(CORNER_UR_V, upRightVertical);
 
-                ObjGeometry upRightHorizontal = o.duplicate(Fragment.CORNER_UR_H);
+                ObjGeometry upRightHorizontal = o.duplicate(CORNER_UR_H.name());
                 upRightHorizontal.rotateY(-FastMath.HALF_PI);
                 upRightHorizontal.moveTo(1 - halfWidth, halfWidth);
-                fragmentMap.put(Fragment.CORNER_UR_H, upRightHorizontal);
+                fragmentMap.put(CORNER_UR_H, upRightHorizontal);
 
-                ObjGeometry downRightVertical = o.duplicate(Fragment.CORNER_DR_V);
+                ObjGeometry downRightVertical = o.duplicate(CORNER_DR_V.name());
                 downRightVertical.rotateY(-FastMath.PI);
                 downRightVertical.moveTo(1 - halfWidth, 1 - halfWidth);
-                fragmentMap.put(Fragment.CORNER_DR_V, downRightVertical);
+                fragmentMap.put(CORNER_DR_V, downRightVertical);
 
-                ObjGeometry downRightHorizontal = o.duplicate(Fragment.CORNER_DR_H);
+                ObjGeometry downRightHorizontal = o.duplicate(CORNER_DR_H.name());
                 downRightHorizontal.rotateY(FastMath.HALF_PI);
                 downRightHorizontal.moveTo(1 - halfWidth, 1 - halfWidth);
-                fragmentMap.put(Fragment.CORNER_DR_H, downRightHorizontal);
+                fragmentMap.put(CORNER_DR_H, downRightHorizontal);
 
-                ObjGeometry downLeftVertical = o.duplicate(Fragment.CORNER_DL_V);
+                ObjGeometry downLeftVertical = o.duplicate(CORNER_DL_V.name());
                 downLeftVertical.moveTo(halfWidth, 1 - halfWidth);
-                fragmentMap.put(Fragment.CORNER_DL_V, downLeftVertical);
+                fragmentMap.put(CORNER_DL_V, downLeftVertical);
 
-                ObjGeometry downLeftHorizontal = o.duplicate(Fragment.CORNER_DL_H);
+                ObjGeometry downLeftHorizontal = o.duplicate(CORNER_DL_H.name());
                 downLeftHorizontal.rotateY(FastMath.HALF_PI);
                 downLeftHorizontal.moveTo(halfWidth, 1 - halfWidth);
-                fragmentMap.put(Fragment.CORNER_DL_H, downLeftHorizontal);
+                fragmentMap.put(CORNER_DL_H, downLeftHorizontal);
             }
         });
         tileSetMap.put(style, fragmentMap);
