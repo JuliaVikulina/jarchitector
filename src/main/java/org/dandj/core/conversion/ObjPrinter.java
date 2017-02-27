@@ -26,11 +26,11 @@ public class ObjPrinter {
         tileSetManager.addTileSet(ObjImportExport.parseObj(new File("tiles/qtile-tech-4/qtile-tech-4.obj")), "maze", 0.1f);
         tileSetManager.addTileSet(ObjImportExport.parseObj(new File("tiles/qtile-tech-2/qtile-tech-2.obj")), "room", 0.1f);
         ObjFile result = new ObjFile(stage.name());
-        destFolder.mkdir();
+        destFolder.mkdirs();
         stage.regions().forEach(region ->
                 region.cells().forEach(cell ->
                         cell.getFragments().forEach(fragment ->
-                                result.getObjects().add(tileSetManager.createFragment(region.style(), fragment, cell.getX(), cell.getZ()))
+                                result.getObjects().add(tileSetManager.createFragment(stage.name(), region.style(), fragment, cell.getX(), cell.getZ()))
                         )
                 )
         );

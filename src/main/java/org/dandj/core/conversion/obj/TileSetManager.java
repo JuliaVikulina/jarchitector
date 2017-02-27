@@ -16,8 +16,8 @@ public class TileSetManager {
     private long objectCounter = 0;
     private Map<String, Map<Fragment, ObjGeometry>> tileSetMap = new HashMap<>();
 
-    public ObjGeometry createFragment(@Nonnull String style, Fragment f, float x, float y) {
-        ObjGeometry result = tileSetMap.get(style).get(f).duplicate(f.name() + objectCounter++);
+    public ObjGeometry createFragment(String name, @Nonnull String style, Fragment f, float x, float y) {
+        ObjGeometry result = tileSetMap.get(style).get(f).duplicate(name + f.name() + objectCounter++);
         if (result != null)
             result.moveTo(x, y);
         return result;
