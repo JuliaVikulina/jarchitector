@@ -7,6 +7,7 @@ import com.jme3.math.Vector3f;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.Double.parseDouble;
 import static org.dandj.core.conversion.obj.ObjConstants.*;
@@ -52,41 +53,42 @@ public class ObjImportExport {
             return;
         out.println(OBJECT + g.getName());
 
-        StringWriter vBuff = new StringWriter();
-        PrintWriter vPrinter = new PrintWriter(vBuff);
-        StringWriter vtBuff = new StringWriter();
-        PrintWriter vtPrinter = new PrintWriter(vtBuff);
-        StringWriter vnBuff = new StringWriter();
-        PrintWriter vnPrinter = new PrintWriter(vnBuff);
+        List<Vector3f> vertices = new ArrayList<>();
+        List<Vector2f> uvs = new ArrayList<>();
+        List<Vector3f> normals = new ArrayList<>();
+        g.getFaces().forEach(face3f -> face3f.getNodes().forEach(n -> {
+            if (!vertices.contains(n.getVertex()))
+                vertices.add(n.getVertex());
+            if (!uvs.contains(n.getUv()))
+                uvs.add(n.getUv());
+            if (!normals.contains(n.getNormal()))
+                normals.add(n.getNormal());
+        }));
+        vertices.forEach(v -> serializeVector3(v, out, VERTEX));
+        uvs.forEach(u -> serializeVector2(u, out, TEXCOORD));
+        normals.forEach(n -> serializeVector3(n, out, NORMAL));
 
-        StringWriter faceBuff = new StringWriter();
-        PrintWriter facePrinter = new PrintWriter(faceBuff);
-        facePrinter.println(MATERIAL + g.getMaterial().getName());
-        facePrinter.println(SMOOTH + "off"); //todo implement smooth groups
+        out.println(MATERIAL + g.getMaterial().getName());
+        out.println(SMOOTH + "off"); //todo implement smooth groups
         g.getFaces().forEach(f -> {
-            facePrinter.print("f");
+            out.print("f");
             f.getNodes().forEach(n -> {
-                serializeVector3(n.getVertex(), vPrinter, "v ");
-                offset.vertex++;
-                facePrinter.print(" " + offset.vertex + "/");
+                out.print(" ");
+                out.print(vertices.indexOf(n.getVertex()) + offset.vertex + 1);
+                out.print("/");
                 if (n.getUv() != null) {
-                    serializeVector2(n.getUv(), vtPrinter, "vt ");
-                    offset.uv++;
-                    facePrinter.print(offset.uv);
+                    out.print(uvs.indexOf(n.getUv()) + offset.uv + 1);
                 }
-                facePrinter.print("/");
+                out.print("/");
                 if (n.getNormal() != null) {
-                    serializeVector3(n.getNormal(), vnPrinter, "vn ");
-                    offset.normal++;
-                    facePrinter.print(offset.normal);
+                    out.print(normals.indexOf(n.getNormal()) + offset.normal + 1);
                 }
             });
-            facePrinter.println();
+            out.println();
         });
-        out.print(vBuff);
-        out.print(vtBuff);
-        out.print(vnBuff);
-        out.print(faceBuff);
+        offset.vertex += vertices.size();
+        offset.uv += uvs.size();
+        offset.normal += normals.size();
     }
 
     public static void serializeObjfile(ObjFile objFile, PrintWriter out) throws IOException {

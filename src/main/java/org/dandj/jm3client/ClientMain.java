@@ -9,7 +9,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
-import com.jme3.light.DirectionalLight;
+import com.jme3.light.PointLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -17,6 +17,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.CameraControl;
+import com.jme3.scene.control.LightControl;
 
 /**
  * We use physics to make the walls and floors of a town model solid.
@@ -65,6 +66,9 @@ public class ClientMain extends SimpleApplication implements ActionListener {
         // 1. Create a player node.
         playerNode = new Node("the player");
         playerNode.setLocalTranslation(new Vector3f(0, 0, 0));
+        PointLight light = new PointLight(Vector3f.ZERO, ColorRGBA.Red, 50f);
+        rootNode.addLight(light);
+        playerNode.addControl(new LightControl(light));
         rootNode.attachChild(playerNode);
         // 2. Create a Character Physics Control.
         playerControl = new BetterCharacterControl(1.5f, 4, 30);
@@ -100,7 +104,7 @@ public class ClientMain extends SimpleApplication implements ActionListener {
         viewPort.setBackgroundColor(ColorRGBA.Blue);
         // 1. Load the scene node
 //        assetManager.registerLocator("town.zip", ZipLocator.class);
-        assetManager.registerLocator("/home/daniil/IdeaProjects/jarchitector/x1e1", FileLocator.class);
+        assetManager.registerLocator("/home/daniil/IdeaProjects/jarchitector/target/levels", FileLocator.class);
         Node sceneNode;
 //        sceneNode = (Node) assetManager.loadModel("main.scene");
 //        sceneNode.scale(1.5f);
@@ -109,11 +113,10 @@ public class ClientMain extends SimpleApplication implements ActionListener {
         // 3. Add the scene's PhysicsControl to the scene's geometry
         // 4. Add the scene's PhysicsControl to the PhysicsSpace
 
-        sceneNode = (Node) assetManager.loadModel("x1e1.obj");
-        sceneNode.rotate(-FastMath.HALF_PI, 0, 0);
-        sceneNode.scale(5.f);
-        sceneNode.move(-15, -10, 25);
-
+        sceneNode = (Node) assetManager.loadModel("x3e1.obj");
+        float s = 10f;
+        sceneNode.scale(s);
+        sceneNode.move(-7 + s, 0, -1 * s);
         RigidBodyControl scenePhy = new RigidBodyControl(0f);
         sceneNode.addControl(scenePhy);
         bulletAppState.getPhysicsSpace().add(scenePhy);
@@ -127,9 +130,6 @@ public class ClientMain extends SimpleApplication implements ActionListener {
     private void initLight() {
         AmbientLight ambient = new AmbientLight();
         rootNode.addLight(ambient);
-        DirectionalLight sun = new DirectionalLight();
-        sun.setDirection(new Vector3f(1.4f, -1.4f, -1.4f));
-        rootNode.addLight(sun);
     }
 
     /**
