@@ -5,6 +5,7 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,11 +25,11 @@ public class Cell {
 
     private Direction direction;
 
-    public Cell(int x, int z, Region region, CellType type, Set<Fragment> fragments) {
+    public Cell(int x, int z, Region region, CellType type, Collection<Fragment> fragments) {
         this.x = x;
         this.z = z;
         this.region = region;
-        this.fragments = fragments;
+        this.fragments = new HashSet<>(fragments);
         this.type = type;
     }
 

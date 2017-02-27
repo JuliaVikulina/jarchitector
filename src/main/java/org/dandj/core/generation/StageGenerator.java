@@ -227,7 +227,7 @@ public class StageGenerator {
         addRoom(stage, roomSizeX, roomSizeZ, roomX, roomZ);
     }
 
-    static void addRoom(Stage stage, int roomSizeX, int roomSizeZ, int roomX, int roomZ) {
+    public static void addRoom(Stage stage, int roomSizeX, int roomSizeZ, int roomX, int roomZ) {
         // check that new room does not overlap with existing ones
         for (int z = 0; z < roomSizeZ; z++) {
             for (int x = 0; x < roomSizeX; x++) {
@@ -240,7 +240,7 @@ public class StageGenerator {
         stage.regions().add(region);
     }
 
-    static Cell[][] initCells(Stage stage) {
+    public static Cell[][] initCells(Stage stage) {
         // simple two dimensional array to represent the layout
         Cell[][] stageGrid = new Cell[stage.height()][];
         for (int i = 0; i < stage.height(); i++) {

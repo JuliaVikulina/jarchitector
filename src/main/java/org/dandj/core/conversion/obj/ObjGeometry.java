@@ -3,6 +3,7 @@ package org.dandj.core.conversion.obj;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import lombok.Data;
+import org.dandj.model.Fragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,8 +64,8 @@ public class ObjGeometry {
         faces.forEach(face3F -> face3F.rotateY(radians));
     }
 
-    public ObjGeometry duplicate() {
-        ObjGeometry geometry = new ObjGeometry(name + UUID.randomUUID());
+    public ObjGeometry duplicate(Fragment f) {
+        ObjGeometry geometry = new ObjGeometry(name + f.name() + UUID.randomUUID());
         geometry.material = material;
         faces.forEach(face3F -> geometry.faces.add(face3F.duplicate()));
         return geometry;
