@@ -1,5 +1,17 @@
 # Blender MTL File: 'qtile-tech-2.blend'
-# Material Count: 2
+# Material Count: 4
+
+newmtl ceiling-material
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.013196 0.013196 0.013196
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd metal1_8.tga
+map_Bump metal1_8_norm.tga
 
 newmtl floor_material
 Ns 96.078431

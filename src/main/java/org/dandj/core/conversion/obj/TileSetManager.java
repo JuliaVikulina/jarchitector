@@ -84,6 +84,10 @@ public class TileSetManager {
                 ObjGeometry floor = o.duplicate(FLOOR.name());
                 floor.moveTo(middle, middle);
                 fragmentMap.put(FLOOR, floor);
+            } else if (o.getName().startsWith("ceiling")) {
+                ObjGeometry floor = o.duplicate(CEILING.name());
+                floor.moveTo(middle, middle);
+                fragmentMap.put(CEILING, floor);
             } else if (o.getName().startsWith("filler")) {
                 ObjGeometry upLeftVertical = o.duplicate(CORNER_UL_V.name());
                 upLeftVertical.moveTo(halfWidth, halfWidth);

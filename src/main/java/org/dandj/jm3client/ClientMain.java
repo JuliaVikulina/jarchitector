@@ -8,16 +8,17 @@ import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.light.AmbientLight;
-import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.CameraControl;
-import com.jme3.scene.control.LightControl;
+import com.jme3.shadow.SpotLightShadowFilter;
+import com.jme3.shadow.SpotLightShadowRenderer;
 
 /**
  * We use physics to make the walls and floors of a town model solid.
@@ -30,6 +31,7 @@ public class ClientMain extends SimpleApplication implements ActionListener {
     private BulletAppState bulletAppState;
     private Node playerNode;
     private BetterCharacterControl playerControl;
+    private SpotLight spot;
     private Vector3f walkDirection = new Vector3f(0, 0, 0);
     private Vector3f viewDirection = new Vector3f(0, 0, 1);
     private boolean rotateLeft = false, rotateRight = false,
@@ -47,6 +49,7 @@ public class ClientMain extends SimpleApplication implements ActionListener {
         initNavigation();
         initScene();
         initCharacter();
+        initEffects();
         initCamera();
     }
 
@@ -66,9 +69,9 @@ public class ClientMain extends SimpleApplication implements ActionListener {
         // 1. Create a player node.
         playerNode = new Node("the player");
         playerNode.setLocalTranslation(new Vector3f(0, 0, 0));
-        PointLight light = new PointLight(Vector3f.ZERO, ColorRGBA.Red, 50f);
-        rootNode.addLight(light);
-        playerNode.addControl(new LightControl(light));
+//        PointLight light = new PointLight(Vector3f.ZERO, ColorRGBA.Red, 50f);
+//        rootNode.addLight(light);
+//        playerNode.addControl(new LightControl(light));
         rootNode.attachChild(playerNode);
         // 2. Create a Character Physics Control.
         playerControl = new BetterCharacterControl(1.5f, 4, 30);
@@ -78,6 +81,7 @@ public class ClientMain extends SimpleApplication implements ActionListener {
         // 4. Add the player control to the PhysicsSpace
         playerNode.addControl(playerControl);
         bulletAppState.getPhysicsSpace().add(playerControl);
+
     }
 
     /**
@@ -113,10 +117,10 @@ public class ClientMain extends SimpleApplication implements ActionListener {
         // 3. Add the scene's PhysicsControl to the scene's geometry
         // 4. Add the scene's PhysicsControl to the PhysicsSpace
 
-        sceneNode = (Node) assetManager.loadModel("x3e1.obj");
+        sceneNode = (Node) assetManager.loadModel("x3e3.obj");
         float s = 10f;
+//        sceneNode.move(-1, 0, -7);
         sceneNode.scale(s);
-        sceneNode.move(-7 + s, 0, -1 * s);
         RigidBodyControl scenePhy = new RigidBodyControl(0f);
         sceneNode.addControl(scenePhy);
         bulletAppState.getPhysicsSpace().add(scenePhy);
@@ -128,8 +132,37 @@ public class ClientMain extends SimpleApplication implements ActionListener {
      * An ambient light and a directional sun light
      */
     private void initLight() {
-        AmbientLight ambient = new AmbientLight();
-        rootNode.addLight(ambient);
+//        AmbientLight ambient = new AmbientLight();
+//        rootNode.addLight(ambient);
+
+        spot = new SpotLight();
+        spot.setSpotRange(100);
+        spot.setSpotOuterAngle(20 * FastMath.DEG_TO_RAD);
+        spot.setSpotInnerAngle(15 * FastMath.DEG_TO_RAD);
+        spot.setDirection(cam.getDirection());
+        spot.setPosition(cam.getLocation());
+        rootNode.addLight(spot);
+
+    }
+
+    private void initEffects() {
+        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+
+        /* Drop shadow test */
+        final int SHADOWMAP_SIZE = 1024;
+        SpotLightShadowRenderer dlsr = new SpotLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
+        dlsr.setLight(spot);
+        viewPort.addProcessor(dlsr);
+        SpotLightShadowFilter dlsf = new SpotLightShadowFilter(assetManager, SHADOWMAP_SIZE);
+        dlsf.setLight(spot);
+        dlsf.setEnabled(true); // try true or false
+        fpp.addFilter(dlsf);
+        viewPort.addProcessor(fpp);
+
+        /* Activate the glow effect in the hover tank's material*/
+//        BloomFilter bf = new BloomFilter(BloomFilter);
+//        fpp.addFilter(bf);
+        viewPort.addProcessor(fpp);
     }
 
     /**
@@ -155,20 +188,28 @@ public class ClientMain extends SimpleApplication implements ActionListener {
      * the direction the user wants to go.
      */
     public void onAction(String binding, boolean isPressed, float tpf) {
-        if (binding.equals("Rotate Left")) {
-            rotateLeft = isPressed;
-        } else if (binding.equals("Rotate Right")) {
-            rotateRight = isPressed;
-        } else if (binding.equals("Strafe Left")) {
-            strafeLeft = isPressed;
-        } else if (binding.equals("Strafe Right")) {
-            strafeRight = isPressed;
-        } else if (binding.equals("Forward")) {
-            forward = isPressed;
-        } else if (binding.equals("Back")) {
-            backward = isPressed;
-        } else if (binding.equals("Jump")) {
-            playerControl.jump();
+        switch (binding) {
+            case "Rotate Left":
+                rotateLeft = isPressed;
+                break;
+            case "Rotate Right":
+                rotateRight = isPressed;
+                break;
+            case "Strafe Left":
+                strafeLeft = isPressed;
+                break;
+            case "Strafe Right":
+                strafeRight = isPressed;
+                break;
+            case "Forward":
+                forward = isPressed;
+                break;
+            case "Back":
+                backward = isPressed;
+                break;
+            case "Jump":
+                playerControl.jump();
+                break;
         }
     }
 
@@ -183,7 +224,7 @@ public class ClientMain extends SimpleApplication implements ActionListener {
         // Depending on which nav keys are pressed, determine the change in direction
 
         walkDirection.set(0, 0, 0);
-        float speed = 8;
+        float speed = 20;
         if (strafeLeft) {
             walkDirection.addLocal(modelLeftDir.mult(speed));
         } else if (strafeRight) {
@@ -204,6 +245,8 @@ public class ClientMain extends SimpleApplication implements ActionListener {
             rotateR.multLocal(viewDirection);
         }
         playerControl.setViewDirection(viewDirection);
+        spot.setPosition(cam.getLocation());
+        spot.setDirection(cam.getDirection());
     }
 
 }

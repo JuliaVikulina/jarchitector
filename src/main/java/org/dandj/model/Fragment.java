@@ -28,5 +28,7 @@ public enum Fragment {
     WALL_D,
     WALL_L,
     WALL_R,
-    FLOOR
+
+    FLOOR,
+    CEILING
 }

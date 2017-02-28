@@ -24,8 +24,8 @@ import static java.util.stream.Collectors.toSet;
 public class ObjPrinter {
     public static void printAsObj(Stage stage, File destFolder) throws IOException {
         TileSetManager tileSetManager = new TileSetManager();
-        tileSetManager.addTileSet(ObjImportExport.parseObj(new File("tiles/qtile-tech-4/qtile-tech-4.obj")), "maze", 0.1f);
-        tileSetManager.addTileSet(ObjImportExport.parseObj(new File("tiles/qtile-tech-2/qtile-tech-2.obj")), "room", 0.1f);
+        tileSetManager.addTileSet(ObjImportExport.parseObj(new File("tiles/qtile-tech-4/qtile-tech-4.obj")), "room", 0.1f);
+        tileSetManager.addTileSet(ObjImportExport.parseObj(new File("tiles/qtile-tech-2/qtile-tech-2.obj")), "maze", 0.1f);
         tileSetManager.addJunction(ObjImportExport.parseObj(new File("tiles/qdoor-tech1/qdoor-tech1.obj")));
         ObjFile result = new ObjFile(stage.name());
         destFolder.mkdirs();
