@@ -73,6 +73,12 @@
             <artifactId>batik-svggen</artifactId>
             <version>1.7</version>
         </dependency>
+        <dependency>
+            <groupId>io.jschneider</groupId>
+            <artifactId>java-power-assert</artifactId>
+            <version>0.9.1</version>
+            <scope>test</scope>
+        </dependency>
         <!--JMONKEY ENGINE-->
         <dependency>
             <groupId>javax.vecmath</groupId>

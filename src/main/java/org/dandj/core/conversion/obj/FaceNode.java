@@ -39,4 +39,24 @@ public class FaceNode {
         vertex = rot.mult(vertex);
         normal = rot.mult(normal);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FaceNode faceNode = (FaceNode) o;
+
+        if (vertex != null ? !vertex.equals(faceNode.vertex) : faceNode.vertex != null) return false;
+        if (uv != null ? !uv.equals(faceNode.uv) : faceNode.uv != null) return false;
+        return normal != null ? normal.equals(faceNode.normal) : faceNode.normal == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = vertex != null ? vertex.hashCode() : 0;
+        result = 31 * result + (uv != null ? uv.hashCode() : 0);
+        result = 31 * result + (normal != null ? normal.hashCode() : 0);
+        return result;
+    }
 }

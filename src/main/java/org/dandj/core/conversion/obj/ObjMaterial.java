@@ -2,10 +2,12 @@ package org.dandj.core.conversion.obj;
 
 import com.jme3.math.ColorRGBA;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.File;
 
 @Data
+@EqualsAndHashCode(exclude = {"diffuseMap", "bumpMap"})
 public class ObjMaterial {
     private String name = "default";
     private Double specularExponent = 100d;

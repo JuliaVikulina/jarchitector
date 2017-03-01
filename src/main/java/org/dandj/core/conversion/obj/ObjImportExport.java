@@ -7,8 +7,7 @@ import com.jme3.math.Vector3f;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.List;
 
 import static java.lang.Double.parseDouble;
 import static org.dandj.core.conversion.obj.ObjConstants.*;
@@ -54,29 +53,20 @@ public class ObjImportExport {
             return;
         out.println(OBJECT + g.getName());
 
-        Map<String, Vector3f> vertices = new TreeMap<>();
-        Map<String, Vector2f> uvs = new TreeMap<>();
-        Map<String, Vector3f> normals = new TreeMap<>();
-        Map<String, Integer> verticesIndices = new TreeMap<>();
-        Map<String, Integer> uvsIndices = new TreeMap<>();
-        Map<String, Integer> normalsIndices = new TreeMap<>();
+        List<Vector3f> vertices = new ArrayList<>();
+        List<Vector2f> uvs = new ArrayList<>();
+        List<Vector3f> normals = new ArrayList<>();
         g.getFaces().forEach(face3f -> face3f.getNodes().forEach(n -> {
-            if (!vertices.containsKey(n.getVertex().toString())) {
-                vertices.put(n.getVertex().toString(), n.getVertex());
-                verticesIndices.put(n.getVertex().toString(), verticesIndices.size());
-            }
-            if (!uvs.containsKey(n.getUv().toString())) {
-                uvs.put(n.getUv().toString(), n.getUv());
-                uvsIndices.put(n.getUv().toString(), uvsIndices.size());
-            }
-            if (!normals.containsKey(n.getNormal().toString())) {
-                normals.put(n.getNormal().toString(), n.getNormal());
-                normalsIndices.put(n.getNormal().toString(), normalsIndices.size());
-            }
+            if (!vertices.contains(n.getVertex()))
+                vertices.add(n.getVertex());
+            if (!uvs.contains(n.getUv()))
+                uvs.add(n.getUv());
+            if (!normals.contains(n.getNormal()))
+                normals.add(n.getNormal());
         }));
-        vertices.values().forEach(v -> serializeVector3(v, out, VERTEX));
-        uvs.values().forEach(u -> serializeVector2(u, out, TEXCOORD));
-        normals.values().forEach(n -> serializeVector3(n, out, NORMAL));
+        vertices.forEach(v -> serializeVector3(v, out, VERTEX));
+        uvs.forEach(u -> serializeVector2(u, out, TEXCOORD));
+        normals.forEach(n -> serializeVector3(n, out, NORMAL));
 
         out.println(MATERIAL + g.getMaterial().getName());
         out.println(SMOOTH + "off"); //todo implement smooth groups
@@ -84,14 +74,14 @@ public class ObjImportExport {
             out.print("f");
             f.getNodes().forEach(n -> {
                 out.print(" ");
-                out.print(verticesIndices.get(n.getVertex().toString()) + offset.vertex + 1);
+                out.print(vertices.indexOf(n.getVertex()) + offset.vertex + 1);
                 out.print("/");
                 if (n.getUv() != null) {
-                    out.print(uvsIndices.get(n.getUv().toString()) + offset.uv + 1);
+                    out.print(uvs.indexOf(n.getUv()) + offset.uv + 1);
                 }
                 out.print("/");
                 if (n.getNormal() != null) {
-                    out.print(normalsIndices.get(n.getNormal().toString()) + offset.normal + 1);
+                    out.print(normals.indexOf(n.getNormal()) + offset.normal + 1);
                 }
             });
             out.println();
@@ -135,7 +125,8 @@ public class ObjImportExport {
             else if (line.startsWith(MATERIAL) && currentObject != null)
                 currentObject.setMaterial(result.getMtllib().getMaterials().get(strip(line, MATERIAL)));
             else if (line.startsWith(SMOOTH) && currentObject != null)
-                currentObject.setSmoothGroup(strip(line, SMOOTH));
+//                currentObject.setSmoothGroup(strip(line, SMOOTH));
+                ;
             else if (line.startsWith(FACE) && currentObject != null)
                 currentObject.addFace(strip(line, FACE), vertices, texCoords, normals);
             else System.err.println("Not recognized command:\n" + line);
@@ -191,6 +182,7 @@ public class ObjImportExport {
 
     public static void serializeMatLib(ObjMaterialLibrary lib, File folderName) throws IOException {
         try (PrintWriter out = new PrintWriter(new FileWriter(new File(folderName, lib.getName())))) {
+            lib.getComment().forEach(out::println);
             lib.getMaterials().values().forEach(m ->
                     serializeMaterial(m, out, folderName)
             );

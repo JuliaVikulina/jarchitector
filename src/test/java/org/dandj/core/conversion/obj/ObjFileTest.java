@@ -2,7 +2,6 @@ package org.dandj.core.conversion.obj;
 
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import org.junit.Ignore;
 import org.junit.Test;
 import sun.misc.IOUtils;
 
@@ -10,8 +9,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -57,20 +54,21 @@ public class ObjFileTest {
     }
 
     /**
-     * Test that objects after export/import are equal
+     * Test that objects after import/export/import are equal
      */
-    @Ignore("THIS NEVER WORKED")
     @Test
     public void testImportExportEqual() throws Exception {
-        ObjFile f = ObjImportExport.parseObj(new File("tiles/test-tile-1/test-tileset.obj"));
+        File testFolder = new File("target", "testImportExportEqual");
+        testFolder.mkdirs();
+        ObjFile expected = ObjImportExport.parseObj(new File("tiles/test-tile-1/test-tileset.obj"));
         StringWriter out = new StringWriter();
-        ObjImportExport.serializeObjfile(f, new PrintWriter(out));
-        try (FileWriter fileWriter = new FileWriter(new File("target", "ObjFileTest-result.obj"))) {
+        ObjImportExport.serializeObjfile(expected, new PrintWriter(out));
+        File someFile = new File(testFolder, "testImportExportEqual.obj");
+        try (FileWriter fileWriter = new FileWriter(someFile)) {
             fileWriter.write(out.toString());
         }
-        assertEquals(
-                new String(Files.readAllBytes(Paths.get("tiles/test-tile-1/test-tileset.obj"))),
-                new String(Files.readAllBytes(Paths.get("target", "ObjFileTest-result.obj")))
-        );
+        ObjImportExport.serializeMatLib(expected.getMtllib(), testFolder);
+        ObjFile actual = ObjImportExport.parseObj(someFile);
+        assertEquals(expected, actual);
     }
 }

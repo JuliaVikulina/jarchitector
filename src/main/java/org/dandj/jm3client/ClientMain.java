@@ -117,9 +117,9 @@ public class ClientMain extends SimpleApplication implements ActionListener {
         // 3. Add the scene's PhysicsControl to the scene's geometry
         // 4. Add the scene's PhysicsControl to the PhysicsSpace
 
-        sceneNode = (Node) assetManager.loadModel("x3e3.obj");
+        sceneNode = (Node) assetManager.loadModel("x3e2.obj");
         float s = 10f;
-//        sceneNode.move(-1, 0, -7);
+        sceneNode.move(-20, 0, -100);
         sceneNode.scale(s);
         RigidBodyControl scenePhy = new RigidBodyControl(0f);
         sceneNode.addControl(scenePhy);

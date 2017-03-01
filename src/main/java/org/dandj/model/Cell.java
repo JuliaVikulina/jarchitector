@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Accessors(chain = true)
 @Data
-@ToString(exclude = {"region","fragments"})
+@ToString(exclude = {"region", "fragments"})
 public class Cell {
     private int x;
 
