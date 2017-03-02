@@ -60,24 +60,4 @@ public class ObjGeometry {
         faces.forEach(face3F -> geometry.faces.add(face3F.duplicate()));
         return geometry;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ObjGeometry geometry = (ObjGeometry) o;
-
-        if (material != null ? !material.equals(geometry.material) : geometry.material != null) return false;
-        if (name != null ? !name.equals(geometry.name) : geometry.name != null) return false;
-        return faces != null ? faces.equals(geometry.faces) : geometry.faces == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = material != null ? material.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (faces != null ? faces.hashCode() : 0);
-        return result;
-    }
 }

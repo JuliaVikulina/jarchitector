@@ -384,11 +384,126 @@ public class StageGenerator {
 
     static List<Cell> getUpDownLeftRightCells(int x, int z) {
         List<Cell> result = new ArrayList<>();
-        result.add(new Cell(x - 1, z, LEFT));
-        result.add(new Cell(x, z - 1, UP));
-        result.add(new Cell(x, z + 1, DOWN));
-        result.add(new Cell(x + 1, z, RIGHT));
+        Cell c = new Cell(x, z);
+        result.add(up(c));
+        result.add(down(c));
+        result.add(left(c));
+        result.add(right(c));
         return result;
+    }
+
+    /**
+     * Add appropriate fragments to each cell in a region
+     *
+     * @param r Region to fill
+     */
+    static void formRegionWalls(Region r, Cell[][] grid) {
+        r.cells().forEach(cell -> {
+            Set<Fragment> fragments = cell.getFragments();
+            getUpDownLeftRightCells(cell.getX(), cell.getZ()).forEach(c -> {
+                if (!isCellInRegion(r, grid, c)) {
+                    switch (c.getDirection()) {
+                        case UP:
+                            fragments.add(WALL_U);
+                            // UL
+                            if (isCellInRegion(r, grid, new Cell(cell.getX() - 1, cell.getZ()))) {
+                                fragments.add(CORNER_UL_H);
+                            } else {
+                                fragments.add(CORNER_UL_INNER);
+                            }
+                            // UR
+                            if (isCellInRegion(r, grid, new Cell(cell.getX() + 1, cell.getZ()))) {
+                                fragments.add(CORNER_UR_H);
+                            } else {
+                                fragments.add(CORNER_UR_INNER);
+                            }
+                            break;
+                        case DOWN:
+                            fragments.add(WALL_D);
+                            // DL
+                            if (isCellInRegion(r, grid, new Cell(cell.getX() - 1, cell.getZ()))) {
+                                fragments.add(CORNER_DL_H);
+                            } else {
+                                fragments.add(CORNER_DL_INNER);
+                            }
+                            // DR
+                            if (isCellInRegion(r, grid, new Cell(cell.getX() + 1, cell.getZ()))) {
+                                fragments.add(CORNER_DR_H);
+                            } else {
+                                fragments.add(CORNER_DR_INNER);
+                            }
+                            break;
+                        case LEFT:
+                            fragments.add(WALL_L);
+                            // UL
+                            if (isCellInRegion(r, grid, new Cell(cell.getX(), cell.getZ() - 1))) {
+                                fragments.add(CORNER_UL_V);
+                            } else {
+                                fragments.add(CORNER_UL_INNER);
+                            }
+                            // DL
+                            if (isCellInRegion(r, grid, new Cell(cell.getX(), cell.getZ() + 1))) {
+                                fragments.add(CORNER_DL_V);
+                            } else {
+                                fragments.add(CORNER_DL_INNER);
+                            }
+                            break;
+                        case RIGHT:
+                            fragments.add(WALL_R);
+                            // UR
+                            if (isCellInRegion(r, grid, new Cell(cell.getX(), cell.getZ() - 1))) {
+                                fragments.add(CORNER_UR_V);
+                            } else {
+                                fragments.add(CORNER_UR_INNER);
+                            }
+                            // DR
+                            if (isCellInRegion(r, grid, new Cell(cell.getX(), cell.getZ() + 1))) {
+                                fragments.add(CORNER_DR_V);
+                            } else {
+                                fragments.add(CORNER_DR_INNER);
+                            }
+                            break;
+                    }
+                }
+            });
+            if (isCellInRegion(r, grid, left(cell)) && isCellInRegion(r, grid, up(cell)) && !isCellInRegion(r, grid, new Cell(cell.getX() - 1, cell.getZ() - 1))) {
+                fragments.add(CORNER_UL_OUTER);
+            }
+            if (isCellInRegion(r, grid, right(cell)) && isCellInRegion(r, grid, up(cell)) && !isCellInRegion(r, grid, new Cell(cell.getX() + 1, cell.getZ() - 1))) {
+                fragments.add(CORNER_UR_OUTER);
+            }
+            if (isCellInRegion(r, grid, left(cell)) && isCellInRegion(r, grid, down(cell)) && !isCellInRegion(r, grid, new Cell(cell.getX() - 1, cell.getZ() + 1))) {
+                fragments.add(CORNER_DL_OUTER);
+            }
+            if (isCellInRegion(r, grid, right(cell)) && isCellInRegion(r, grid, down(cell)) && !isCellInRegion(r, grid, new Cell(cell.getX() + 1, cell.getZ() + 1))) {
+                fragments.add(CORNER_DR_OUTER);
+            }
+        });
+    }
+
+    /**
+     * checks if the cell c belongs to the region r
+     */
+    static boolean isCellInRegion(@Nonnull Region r, Cell[][] grid, Cell c) {
+        return c.insideStage(grid)
+                && grid[c.getZ()][c.getX()] != null
+                && grid[c.getZ()][c.getX()].getRegion().equals(r);
+    }
+
+    private static Cell up(Cell c) {
+        return new Cell(c.getX(), c.getZ() - 1, UP);
+    }
+
+    private static Cell left(Cell c) {
+        return new Cell(c.getX() - 1, c.getZ(), LEFT);
+    }
+
+    private static Cell down(Cell c) {
+        return new Cell(c.getX(), c.getZ() + 1, DOWN);
+    }
+
+    private static Cell right(Cell c) {
+        return new Cell(c.getX() + 1, c.getZ(), RIGHT);
     }
 
 }

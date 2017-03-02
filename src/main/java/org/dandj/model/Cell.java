@@ -39,6 +39,11 @@ public class Cell {
         this.direction = direction;
     }
 
+    public Cell(int x, int z) {
+        this.x = x;
+        this.z = z;
+    }
+
     /**
      * @return whether the tile is inside stage and empty or not
      */
