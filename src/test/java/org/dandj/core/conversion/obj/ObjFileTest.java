@@ -58,7 +58,7 @@ public class ObjFileTest {
      */
     @Test
     public void testImportExportEqual() throws Exception {
-        File testFolder = new File("target", "testImportExportEqual");
+        File testFolder = new File("build", "testImportExportEqual");
         testFolder.mkdirs();
         ObjFile expected = ObjImportExport.parseObj(new File("tiles/test-tile-1/test-tileset.obj"));
         StringWriter out = new StringWriter();

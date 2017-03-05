@@ -1,11 +1,12 @@
 package org.dandj.core.generation;
 
-import org.dandj.model.Cell;
-import org.dandj.model.Direction;
-import org.dandj.model.Fragment;
-import org.dandj.model.Region;
+import org.dandj.core.conversion.SvgPrinter;
+import org.dandj.model.*;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +22,9 @@ public class StageGeneratorUtilTest {
     private static final int SIZE = 3;
     private Cell cells[][];
 
+    @Rule
+    public TestName testName = new TestName();
+
     @Before
     public void setUp() {
         cells = new Cell[SIZE][];
@@ -30,6 +34,12 @@ public class StageGeneratorUtilTest {
 
     }
 
+    @After
+    public void drawResult() throws Exception{
+        Stage s = new Stage().name(testName.getMethodName())
+                .cells(cells).resolution(16).width(SIZE).height(SIZE);
+        SvgPrinter.printCellsAsSvg(s);
+    }
     @Test
     public void testGetUpDownLeftRightTiles() {
         List<Cell> tiles = getUpDownLeftRightCells(0, 0);

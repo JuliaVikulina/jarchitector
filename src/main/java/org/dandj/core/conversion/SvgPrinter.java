@@ -11,6 +11,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
@@ -46,7 +47,7 @@ public class SvgPrinter {
                     region.cells().forEach(cell ->
                             cell.getFragments().forEach(fragment ->
                                     drawFragment(svg, fragment, cell.getX(), cell.getZ(), stage.resolution()))));
-            svg.stream(new FileWriter("target/" + stage.name() + ".svg"), true);
+            svg.stream(new FileWriter("build/" + stage.name() + ".svg"), true);
         } catch (IOException | ParserConfigurationException e) {
             System.out.println("OH MY GOOOOOD" + e.getMessage());
             e.printStackTrace();
@@ -73,7 +74,7 @@ public class SvgPrinter {
             for (Cell cell : row)
                 if (cell != null)
                     cell.getFragments().forEach(fragment -> drawFragment(svg, fragment, cell.getX(), cell.getZ(), stage.resolution()));
-        svg.stream(new FileWriter("cells.svg"), true);
+        svg.stream(new FileWriter(new File("build", stage.name() + ".svg")), true);
     }
 
     private static void drawGrid(SVGGraphics2D svg, int width, int height, int r) {

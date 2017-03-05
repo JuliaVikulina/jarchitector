@@ -108,7 +108,7 @@ public class ClientMain extends SimpleApplication implements ActionListener {
         viewPort.setBackgroundColor(ColorRGBA.Blue);
         // 1. Load the scene node
 //        assetManager.registerLocator("town.zip", ZipLocator.class);
-        assetManager.registerLocator("/home/daniil/IdeaProjects/jarchitector/target/levels", FileLocator.class);
+        assetManager.registerLocator("/home/daniil/IdeaProjects/jarchitector/build/levels", FileLocator.class);
         Node sceneNode;
 //        sceneNode = (Node) assetManager.loadModel("main.scene");
 //        sceneNode.scale(1.5f);
