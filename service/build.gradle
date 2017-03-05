@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':generator')
+    compile group: 'io.dropwizard', name: 'dropwizard-core', version: '1.0.5'
+    compile group: 'io.dropwizard', name: 'dropwizard-assets', version: '1.0.5'
+}

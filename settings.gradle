@@ -1,0 +1,4 @@
+include 'generator'
+include 'jme3client'
+include 'service'
+

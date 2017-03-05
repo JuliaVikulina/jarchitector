@@ -1,0 +1,8 @@
+dependencies {
+    compile group: 'org.jmonkeyengine', name: 'jme3-lwjgl', version: '3.1.0-beta1'
+    compile group: 'org.jmonkeyengine', name: 'jme3-desktop', version: '3.1.0-beta1'
+    compile group: 'org.jmonkeyengine', name: 'jme3-plugins', version: '3.1.0-beta1'
+    compile group: 'org.jmonkeyengine', name: 'jme3-terrain', version: '3.1.0-beta1'
+    compile group: 'org.jmonkeyengine', name: 'jme3-bullet', version: '3.1.0-beta1'
+    compile group: 'org.jmonkeyengine', name: 'jme3-bullet-native', version: '3.1.0-beta1'
+}
