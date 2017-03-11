@@ -1,12 +1,12 @@
 package org.dandj.model;
 
-import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.*;
 
-import static java.util.Collections.*;
+import static java.util.Collections.unmodifiableSet;
 
 @Accessors(fluent = true)
 @Data
@@ -29,7 +29,7 @@ public class Stage {
     // Key is a unordered pair of cell
     private Map<Set<Point>, Junction> junctions = new HashMap<>();
     private transient Cell cells[][];
-    private Vector2f startPosition = new Vector2f(0, 0);
+    private Vector3f startPosition = new Vector3f(0, 0, 0);
 
     public void addJunction(Point a, Point b, Junction junction) {
         junctions().put(unmodifiableSet(new HashSet<Point>() {{

@@ -1,6 +1,6 @@
 package org.dandj.core.generation;
 
-import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.dandj.model.*;
@@ -9,7 +9,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.min;
-import static java.util.Collections.*;
+import static java.util.Collections.shuffle;
+import static java.util.Collections.unmodifiableSet;
 import static org.dandj.model.Direction.*;
 import static org.dandj.model.Fragment.*;
 
@@ -33,7 +34,7 @@ public class StageGenerator {
             Optional<Cell> firstCell = startRoom.cells().stream().findFirst();
             if (firstCell.isPresent()){
                 Cell startCell= firstCell.get();
-                Vector2f startPosition = new Vector2f(startCell.getX() + 0.5f, startCell.getZ() + 0.5f);
+                Vector3f startPosition = new Vector3f(startCell.getX() + 0.5f,0, startCell.getZ() + 0.5f);
                 stage.startPosition(startPosition);
                 log.debug("Set start position: " + startPosition);
             } else {

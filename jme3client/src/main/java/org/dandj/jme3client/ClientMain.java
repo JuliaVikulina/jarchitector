@@ -19,6 +19,11 @@ import com.jme3.scene.Node;
 import com.jme3.scene.control.CameraControl;
 import com.jme3.shadow.SpotLightShadowFilter;
 import com.jme3.shadow.SpotLightShadowRenderer;
+import org.yaml.snakeyaml.Yaml;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Map;
 
 /**
  * We use physics to make the walls and floors of a town model solid.
@@ -28,6 +33,8 @@ import com.jme3.shadow.SpotLightShadowRenderer;
  */
 public class ClientMain extends SimpleApplication implements ActionListener {
 
+    private final String STAGE_NAME = "SandboxTest2";
+    private final float SCALE = 10f;
     private BulletAppState bulletAppState;
     private Node playerNode;
     private BetterCharacterControl playerControl;
@@ -67,8 +74,17 @@ public class ClientMain extends SimpleApplication implements ActionListener {
      * for a 3rd-person player, attach a geometry to the playerNode. */
     private void initCharacter() {
         // 1. Create a player node.
+        Yaml yaml = new Yaml();
+        Map<String, Vector3f> data = null;
+        try {
+            data = (Map<String, Vector3f>) yaml.load(new FileInputStream("../generator/build/levels/" + STAGE_NAME + ".yml"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        Vector3f startingPosition = data.get("startPosition");
+        startingPosition = startingPosition.mult(SCALE);
         playerNode = new Node("the player");
-        playerNode.setLocalTranslation(new Vector3f(0, 0, 0));
+        playerNode.setLocalTranslation(startingPosition);
 //        PointLight light = new PointLight(Vector3f.ZERO, ColorRGBA.Red, 50f);
 //        rootNode.addLight(light);
 //        playerNode.addControl(new LightControl(light));
@@ -117,9 +133,8 @@ public class ClientMain extends SimpleApplication implements ActionListener {
         // 3. Add the scene's PhysicsControl to the scene's geometry
         // 4. Add the scene's PhysicsControl to the PhysicsSpace
 
-        sceneNode = (Node) assetManager.loadModel("x3e2.obj");
-        float s = 10f;
-        sceneNode.scale(s);
+        sceneNode = (Node) assetManager.loadModel(STAGE_NAME + ".obj");
+        sceneNode.scale(SCALE);
         RigidBodyControl scenePhy = new RigidBodyControl(0f);
         sceneNode.addControl(scenePhy);
         bulletAppState.getPhysicsSpace().add(scenePhy);
