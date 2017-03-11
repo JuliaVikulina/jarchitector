@@ -95,7 +95,7 @@ public class StageGenerator {
             }
             currentCell.setType(CellType.MAZE);
             currentCell.getFragments().add(FLOOR);
-//            currentCell.getFragments().add(CEILING);
+            currentCell.getFragments().add(CEILING);
             maze.cells().add(currentCell);
             currentCell.setRegion(maze);
             stage.cells()[currentCell.getZ()][currentCell.getX()] = currentCell;
@@ -239,7 +239,7 @@ public class StageGenerator {
             throw new IllegalStateException("wtf: " + current + previous);
         }
         fragments.add(FLOOR);
-//        fragments.add(CEILING);
+        fragments.add(CEILING);
         return fragments;
     }
 
@@ -343,7 +343,7 @@ public class StageGenerator {
                 fragments.add(CORNER_DL_H);
         }
         fragments.add(FLOOR);
-//        fragments.add(CEILING);
+        fragments.add(CEILING);
         return fragments;
     }
 

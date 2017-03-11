@@ -97,6 +97,8 @@ public class SvgPrinter {
     }
 
     private static void drawFragment(SVGGraphics2D svg, Fragment f, int cellX, int cellZ, int r) {
+        if (f == CEILING) // do not draw ceiling
+            return;
         int x = 0;
         int z = 0;
         int small = r / 4;
