@@ -82,7 +82,7 @@ public class StageGeneratorUtilTest {
         cells[1][1] = cell;
         formRegionFragments(well, cells, new HashMap<>());
         Set<Fragment> expected = new HashSet<>(asList(WALL_D, WALL_R, WALL_U, WALL_L,
-                CORNER_UL_INNER, CORNER_DL_INNER, CORNER_UR_INNER, CORNER_DR_INNER));
+                CORNER_UL_INNER, CORNER_DL_INNER, CORNER_UR_INNER, CORNER_DR_INNER, CEILING, FLOOR));
         assertEquals(expected, cell.getFragments());
     }
 
@@ -105,15 +105,15 @@ public class StageGeneratorUtilTest {
         }
         formRegionFragments(well3x3, cells, new HashMap<>());
 
-        assertEquals(cells[0][0].getFragments(), new HashSet<>(asList(WALL_U, WALL_L, CORNER_UL_INNER, CORNER_UR_H, CORNER_DL_V, CORNER_DR_OUTER)));
-        assertEquals(cells[0][1].getFragments(), new HashSet<>(asList(WALL_D, WALL_U, CORNER_UR_H, CORNER_UL_H, CORNER_DR_H, CORNER_DL_H)));
-        assertEquals(cells[0][2].getFragments(), new HashSet<>(asList(WALL_R, WALL_U, CORNER_UL_H, CORNER_UR_INNER, CORNER_DR_V, CORNER_DL_OUTER)));
-        assertEquals(cells[1][0].getFragments(), new HashSet<>(asList(WALL_R, WALL_L, CORNER_UL_V, CORNER_UR_V, CORNER_DL_V, CORNER_DR_V)));
+        assertEquals(cells[0][0].getFragments(), new HashSet<>(asList(CEILING, FLOOR, WALL_U, WALL_L, CORNER_UL_INNER, CORNER_UR_H, CORNER_DL_V, CORNER_DR_OUTER)));
+        assertEquals(cells[0][1].getFragments(), new HashSet<>(asList(CEILING, FLOOR, WALL_D, WALL_U, CORNER_UR_H, CORNER_UL_H, CORNER_DR_H, CORNER_DL_H)));
+        assertEquals(cells[0][2].getFragments(), new HashSet<>(asList(CEILING, FLOOR, WALL_R, WALL_U, CORNER_UL_H, CORNER_UR_INNER, CORNER_DR_V, CORNER_DL_OUTER)));
+        assertEquals(cells[1][0].getFragments(), new HashSet<>(asList(CEILING, FLOOR, WALL_R, WALL_L, CORNER_UL_V, CORNER_UR_V, CORNER_DL_V, CORNER_DR_V)));
         assertNull(cells[1][1]);
-        assertEquals(cells[1][2].getFragments(), new HashSet<>(asList(WALL_R, WALL_L, CORNER_UL_V, CORNER_UR_V, CORNER_DL_V, CORNER_DR_V)));
-        assertEquals(cells[2][0].getFragments(), new HashSet<>(asList(WALL_L, WALL_D, CORNER_UL_V, CORNER_UR_OUTER, CORNER_DR_H, CORNER_DL_INNER)));
-        assertEquals(cells[2][1].getFragments(), new HashSet<>(asList(WALL_D, WALL_U, CORNER_UR_H, CORNER_UL_H, CORNER_DR_H, CORNER_DL_H)));
-        assertEquals(cells[2][2].getFragments(), new HashSet<>(asList(WALL_R, WALL_D, CORNER_UL_OUTER, CORNER_UR_V, CORNER_DR_INNER, CORNER_DL_H)));
+        assertEquals(cells[1][2].getFragments(), new HashSet<>(asList(CEILING, FLOOR, WALL_R, WALL_L, CORNER_UL_V, CORNER_UR_V, CORNER_DL_V, CORNER_DR_V)));
+        assertEquals(cells[2][0].getFragments(), new HashSet<>(asList(CEILING, FLOOR, WALL_L, WALL_D, CORNER_UL_V, CORNER_UR_OUTER, CORNER_DR_H, CORNER_DL_INNER)));
+        assertEquals(cells[2][1].getFragments(), new HashSet<>(asList(CEILING, FLOOR, WALL_D, WALL_U, CORNER_UR_H, CORNER_UL_H, CORNER_DR_H, CORNER_DL_H)));
+        assertEquals(cells[2][2].getFragments(), new HashSet<>(asList(CEILING, FLOOR, WALL_R, WALL_D, CORNER_UL_OUTER, CORNER_UR_V, CORNER_DR_INNER, CORNER_DL_H)));
     }
 
     @Test
