@@ -2,8 +2,8 @@ package org.dandj.core.conversion.obj;
 
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import sun.misc.IOUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -49,7 +49,7 @@ public class ObjFileTest {
         }
         StringWriter out = new StringWriter();
         ObjImportExport.serializeObjfile(objFile, new PrintWriter(out));
-        String expected = new String(IOUtils.readFully(this.getClass().getResourceAsStream("test.obj"), -1, true));
+        String expected = IOUtils.toString(this.getClass().getResourceAsStream("test.obj"), "utf-8");
         assertEquals(expected, out.toString());
     }
 

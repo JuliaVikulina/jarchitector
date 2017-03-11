@@ -1,5 +1,6 @@
 package org.dandj.core.generation;
 
+import com.jme3.math.Vector2f;
 import org.dandj.core.conversion.SvgPrinter;
 import org.dandj.model.*;
 import org.junit.After;
@@ -112,5 +113,34 @@ public class StageGeneratorUtilTest {
         assertEquals(cells[2][0].getFragments(), new HashSet<>(asList(WALL_L, WALL_D, CORNER_UL_V, CORNER_UR_OUTER, CORNER_DR_H, CORNER_DL_INNER)));
         assertEquals(cells[2][1].getFragments(), new HashSet<>(asList(WALL_D, WALL_U, CORNER_UR_H, CORNER_UL_H, CORNER_DR_H, CORNER_DL_H)));
         assertEquals(cells[2][2].getFragments(), new HashSet<>(asList(WALL_R, WALL_D, CORNER_UL_OUTER, CORNER_UR_V, CORNER_DR_INNER, CORNER_DL_H)));
+    }
+
+    @Test
+    public void testSetStartPosition(){
+        Stage stage = new Stage();
+        Region well = new Region("room");
+        stage.regions().add(well);
+        Cell cell = new Cell(0, 0);
+        cell.setRegion(well);
+        well.cells().add(cell);
+        setStartPosition(stage);
+        assertEquals(new Vector2f(0.5f, 0.5f), stage.startPosition());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testSetStartPositionNoRoom(){
+        Stage stage = new Stage();
+
+        setStartPosition(stage);
+        assertEquals(new Vector2f(0.5f, 0.5f), stage.startPosition());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testSetStartPositionNoCell(){
+        Stage stage = new Stage();
+        Region well = new Region("room");
+        stage.regions().add(well);
+        setStartPosition(stage);
+        assertEquals(new Vector2f(0.5f, 0.5f), stage.startPosition());
     }
 }

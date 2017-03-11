@@ -1,11 +1,13 @@
 package org.dandj.core.conversion;
 
 import com.jme3.math.FastMath;
+import lombok.SneakyThrows;
 import org.dandj.core.conversion.obj.ObjFile;
 import org.dandj.core.conversion.obj.ObjGeometry;
 import org.dandj.core.conversion.obj.ObjImportExport;
 import org.dandj.core.conversion.obj.TileSetManager;
 import org.dandj.model.Stage;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -23,6 +25,7 @@ import static java.util.stream.Collectors.toSet;
  */
 public class ObjPrinter {
     public static void printAsObj(Stage stage, File destFolder) throws IOException {
+        writeStartPoint(stage, destFolder);
         TileSetManager tileSetManager = new TileSetManager();
         tileSetManager.addTileSet(ObjImportExport.parseObj(new File("tiles/qtile-tech-4/qtile-tech-4.obj")), "room", 0.1f);
         tileSetManager.addTileSet(ObjImportExport.parseObj(new File("tiles/qtile-tech-2/qtile-tech-2.obj")), "maze", 0.1f);
@@ -61,6 +64,17 @@ public class ObjPrinter {
         try (PrintWriter out = new PrintWriter(new FileWriter(new File(destFolder, stage.name() + ".obj")))) {
             ObjImportExport.serializeObjfile(result, out);
         }
+    }
+
+    @SneakyThrows
+    public static void writeStartPoint(Stage stage, File destFolder) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("start", stage.startPosition());
+
+        Yaml yaml = new Yaml();
+        FileWriter writer = new FileWriter(new File(destFolder, stage.name() + ".yml"));
+        yaml.dump(data, writer);
+        writer.close();
     }
 
     private static void mergeBasedOnMaterials(ObjFile result) {

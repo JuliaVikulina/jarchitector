@@ -1,5 +1,7 @@
 dependencies {
     compile group: 'org.jmonkeyengine', name: 'jme3-core', version: '3.1.0-beta1'
     compile group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.7'
+    compile group: 'org.yaml', name: 'snakeyaml', version: '1.15'
+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
 
 }

@@ -1,5 +1,8 @@
 package org.dandj.core.generation;
 
+import com.jme3.math.Vector2f;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.dandj.model.*;
 
 import java.util.*;
@@ -10,14 +13,35 @@ import static java.util.Arrays.asList;
 import static org.dandj.model.Direction.*;
 import static org.dandj.model.Fragment.*;
 
+@Slf4j
 public class StageGenerator {
     public static Stage createStage(Stage stage, Random r) {
         initCells(stage);
         for (int i = 0; i < stage.roomTries(); i++) {
             addRoom(stage, r);
         }
+        setStartPosition(stage);
         connectRegionsByTwoSets(stage, r);
         return stage;
+    }
+
+    @SneakyThrows
+    static void setStartPosition(Stage stage) {
+        Optional<Region> firstRoom = stage.regions().stream().findFirst();
+        if (firstRoom.isPresent()){
+            Region startRoom = firstRoom.get();
+            Optional<Cell> firstCell = startRoom.cells().stream().findFirst();
+            if (firstCell.isPresent()){
+                Cell startCell= firstCell.get();
+                Vector2f startPosition = new Vector2f(startCell.getX() + 0.5f, startCell.getZ() + 0.5f);
+                stage.startPosition(startPosition);
+                log.debug("Set start position: " + startPosition);
+            } else {
+                throw new IllegalStateException("No cell was found in a room");
+            }
+        } else {
+            throw new IllegalStateException("No room was found in a stage");
+        }
     }
 
     static void connectRegionsByTwoSets(Stage stage, Random r) {

@@ -108,7 +108,7 @@ public class ClientMain extends SimpleApplication implements ActionListener {
         viewPort.setBackgroundColor(ColorRGBA.Blue);
         // 1. Load the scene node
 //        assetManager.registerLocator("town.zip", ZipLocator.class);
-        assetManager.registerLocator("/home/daniil/IdeaProjects/jarchitector/generator/build/levels", FileLocator.class);
+        assetManager.registerLocator("../generator/build/levels", FileLocator.class);
         Node sceneNode;
 //        sceneNode = (Node) assetManager.loadModel("main.scene");
 //        sceneNode.scale(1.5f);
@@ -119,7 +119,6 @@ public class ClientMain extends SimpleApplication implements ActionListener {
 
         sceneNode = (Node) assetManager.loadModel("x3e2.obj");
         float s = 10f;
-        sceneNode.move(-20, 0, -100);
         sceneNode.scale(s);
         RigidBodyControl scenePhy = new RigidBodyControl(0f);
         sceneNode.addControl(scenePhy);

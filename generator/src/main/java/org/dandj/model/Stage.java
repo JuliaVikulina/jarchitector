@@ -1,5 +1,6 @@
 package org.dandj.model;
 
+import com.jme3.math.Vector2f;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -26,4 +27,5 @@ public class Stage {
     private Collection<Region> regions = new ArrayList<>();
     private Collection<Junction> junctions = new ArrayList<>();
     private transient Cell cells[][];
+    private Vector2f startPosition = new Vector2f(0, 0);
 }
