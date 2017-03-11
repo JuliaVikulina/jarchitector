@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.min;
-import static java.util.Arrays.asList;
+import static java.util.Collections.*;
 import static org.dandj.model.Direction.*;
 import static org.dandj.model.Fragment.*;
 
@@ -56,6 +56,7 @@ public class StageGenerator {
         while (!notConnected.isEmpty()) {
             connectRegions(stage, r, notConnected, connected);
         }
+        stage.regions().forEach(room -> formRegionFragments(room, stage.cells(), stage.junctions()));
     }
 
     private static boolean stageHasEmptyCells(Stage stage) {
@@ -73,8 +74,7 @@ public class StageGenerator {
             Junction junction = getAnyJunctionToDifferentRegion(region, r, connected, stage.cells());
             if (junction == null)
                 return; // this is LITERALLY impossible (currently)
-            stage.junctions().add(formJunction(junction));
-            formJunction(junction.reverse());
+            stage.addJunction(junction.from().toPoint(), junction.to().toPoint(), junction);
             notConnected.remove(region);
             connected.add(region);
             return;
@@ -87,21 +87,13 @@ public class StageGenerator {
         if (starting == null)
             return;
         Cell currentCell = starting.to();
-        Cell previousCell = null;
         while (destinations.isEmpty() && currentCell != null) { // todo make protection from infinite loop
-            if (previousCell != null) {
-                // we are inside the maze. let's create walls for previous cell
-                previousCell.setFragments(createMazeWalls(currentCell.getDirection(), previousCell.getDirection()));
-            }
             currentCell.setType(CellType.MAZE);
-            currentCell.getFragments().add(FLOOR);
-            currentCell.getFragments().add(CEILING);
             maze.cells().add(currentCell);
             currentCell.setRegion(maze);
             stage.cells()[currentCell.getZ()][currentCell.getX()] = currentCell;
             destinations = findAdjacentRegions(currentCell, stage.cells(), notConnected);
             if (destinations.isEmpty()) {
-                previousCell = currentCell;
                 currentCell = getNextCell(currentCell, stage.cells(), stage.mazeStraightness(), r);
             }
         }
@@ -112,9 +104,8 @@ public class StageGenerator {
         if (destinations.size() > 0 && currentCell != null) {
             // todo: make several connections
             Junction ending = destinations.get(0);
-            currentCell.setFragments(createMazeWalls(ending.direction().reverse(), currentCell.getDirection()));
-            stage.junctions().add(formJunction(starting));
-            stage.junctions().add(formJunction(ending));
+            stage.addJunction(starting.from().toPoint(), starting.to().toPoint(), starting);
+            stage.addJunction(ending.from().toPoint(), ending.to().toPoint(), ending);
             notConnected.remove(ending.from().getRegion());
             connected.add(ending.from().getRegion());
             connected.add(maze);
@@ -133,115 +124,18 @@ public class StageGenerator {
      */
     private static Junction getAnyJunctionToDifferentRegion(Region region, Random r, List<Region> connected, Cell[][] cells) {
         List<Cell> shuffled = region.cells();
-        Collections.shuffle(shuffled, r);
+        shuffle(shuffled, r);
         for (Cell cell : shuffled) {
             for (Cell adjacent : getUpDownLeftRightCells(cell.getX(), cell.getZ()).stream().filter(c -> c.insideStage(cells)).collect(Collectors.toList())) {
                 Cell targetCell = cells[adjacent.getZ()][adjacent.getX()];
                 if (targetCell != null && targetCell.getRegion() != null && connected.contains(targetCell.getRegion())) {
-                    return new Junction().from(cell).to(targetCell).direction(adjacent.getDirection());
+                    return new Junction().from(cell).to(targetCell);
                 }
             }
         }
         return null;
     }
 
-    /**
-     * TODO: generalize method to make fragments for any set of cells
-     */
-    private static Junction formJunction(Junction junction) {
-        Set<Fragment> walls = junction.from().getFragments();
-        if (junction.direction() == UP) {
-            walls.remove(WALL_U);
-            if (walls.contains(WALL_L)) {
-                walls.remove(CORNER_UL_INNER);
-                walls.add(CORNER_UL_V);
-            } else {
-                walls.remove(CORNER_UL_H);
-                walls.add(CORNER_UL_OUTER);
-            }
-            if (walls.contains(WALL_R)) {
-                walls.remove(CORNER_UR_INNER);
-                walls.add(CORNER_UR_V);
-            } else {
-                walls.remove(CORNER_UR_H);
-                walls.add(CORNER_UR_OUTER);
-            }
-        }
-        if (junction.direction() == RIGHT) {
-            walls.remove(WALL_R);
-            if (walls.contains(WALL_U)) {
-                walls.remove(CORNER_UR_INNER);
-                walls.add(CORNER_UR_H);
-            } else {
-                walls.remove(CORNER_UR_V);
-                walls.add(CORNER_UR_OUTER);
-            }
-            if (walls.contains(WALL_D)) {
-                walls.remove(CORNER_DR_INNER);
-                walls.add(CORNER_DR_H);
-            } else {
-                walls.remove(CORNER_DR_V);
-                walls.add(CORNER_DR_OUTER);
-            }
-        }
-        if (junction.direction() == DOWN) {
-            walls.remove(WALL_D);
-            if (walls.contains(WALL_L)) {
-                walls.remove(CORNER_DL_INNER);
-                walls.add(CORNER_DL_V);
-            } else {
-                walls.remove(CORNER_DL_H);
-                walls.add(CORNER_DL_OUTER);
-            }
-            if (walls.contains(WALL_R)) {
-                walls.remove(CORNER_DR_INNER);
-                walls.add(CORNER_DR_V);
-            } else {
-                walls.remove(CORNER_DR_H);
-                walls.add(CORNER_DR_OUTER);
-            }
-        }
-        if (junction.direction() == LEFT) {
-            walls.remove(WALL_L);
-            if (walls.contains(WALL_U)) {
-                walls.remove(CORNER_UL_INNER);
-                walls.add(CORNER_UL_H);
-            } else {
-                walls.remove(CORNER_UL_V);
-                walls.add(CORNER_UL_OUTER);
-            }
-            if (walls.contains(WALL_D)) {
-                walls.remove(CORNER_DL_INNER);
-                walls.add(CORNER_DL_H);
-            } else {
-                walls.remove(CORNER_DL_V);
-                walls.add(CORNER_DL_OUTER);
-            }
-        }
-        return junction;
-    }
-
-    private static Set<Fragment> createMazeWalls(Direction current, Direction previous) {
-        HashSet<Fragment> fragments = new HashSet<>();
-        if (previous == UP && current == UP || previous == DOWN && current == DOWN) {
-            fragments.addAll(asList(WALL_L, WALL_R, CORNER_DL_V, CORNER_DR_V, CORNER_UL_V, CORNER_UR_V));
-        } else if (previous == LEFT && current == LEFT || previous == RIGHT && current == RIGHT) {
-            fragments.addAll(asList(WALL_U, WALL_D, CORNER_DL_H, CORNER_DR_H, CORNER_UL_H, CORNER_UR_H));
-        } else if (previous == UP && current == RIGHT || previous == LEFT && current == DOWN) {
-            fragments.addAll(asList(WALL_L, WALL_U, CORNER_UL_INNER, CORNER_DR_OUTER, CORNER_UR_H, CORNER_DL_V));
-        } else if (previous == DOWN && current == LEFT || previous == RIGHT && current == UP) {
-            fragments.addAll(asList(WALL_D, WALL_R, CORNER_UL_OUTER, CORNER_UR_V, CORNER_DR_INNER, CORNER_DL_H));
-        } else if (previous == DOWN && current == RIGHT || previous == LEFT && current == UP) {
-            fragments.addAll(asList(WALL_L, WALL_D, CORNER_DL_INNER, CORNER_DR_H, CORNER_UL_V, CORNER_UR_OUTER));
-        } else if (previous == RIGHT && current == DOWN || previous == UP && current == LEFT) {
-            fragments.addAll(asList(WALL_U, WALL_R, CORNER_DL_OUTER, CORNER_DR_V, CORNER_UL_H, CORNER_UR_INNER));
-        } else {
-            throw new IllegalStateException("wtf: " + current + previous);
-        }
-        fragments.add(FLOOR);
-        fragments.add(CEILING);
-        return fragments;
-    }
 
     private static void addRoom(Stage stage, Random r) {
         int roomSizeX = min(stage.width(), r.nextInt(stage.roomSizeXMax() - stage.roomSizeXMin() + 1) + stage.roomSizeXMin());
@@ -279,72 +173,12 @@ public class StageGenerator {
         Region region = new Region("room");
         for (int x = 0; x < roomSizeX; x++) {
             for (int z = 0; z < roomSizeZ; z++) {
-                Cell cell = new Cell(roomX + x, roomZ + z, region, CellType.ROOM, createRoomWalls(x, z, roomSizeX, roomSizeZ));
+                Cell cell = new Cell(roomX + x, roomZ + z, region, CellType.ROOM);
                 region.cells().add(cell);
                 stageGrid[roomZ + z][roomX + x] = cell;
             }
         }
         return region;
-    }
-
-    private static Set<Fragment> createRoomWalls(int x, int z, int roomSizeX, int roomSizeZ) {
-        Set<Fragment> fragments = new HashSet<>();
-        if (x == 0) {
-            fragments.add(WALL_L);
-        }
-        if (x == roomSizeX - 1) {
-            fragments.add(WALL_R);
-        }
-        if (z == 0) {
-            fragments.add(WALL_U);
-        }
-        if (z == roomSizeZ - 1) {
-            fragments.add(WALL_D);
-        }
-        // Corners
-        if (x == 0 && z == 0) {
-            fragments.add(CORNER_UL_INNER);
-        }
-        if (x == roomSizeX - 1 && z == 0) {
-            fragments.add(CORNER_UR_INNER);
-        }
-        if (z == roomSizeZ - 1 && x == roomSizeX - 1) {
-            fragments.add(CORNER_DR_INNER);
-        }
-        if (z == roomSizeZ - 1 && x == 0) {
-            fragments.add(CORNER_DL_INNER);
-        }
-        // fillers
-        if (x == 0) {
-            if (z != roomSizeZ - 1)
-                fragments.add(CORNER_DL_V);
-            if (z != 0)
-                fragments.add(CORNER_UL_V);
-        }
-
-        if (x == roomSizeX - 1) {
-            if (z != roomSizeZ - 1)
-                fragments.add(CORNER_DR_V);
-            if (z != 0)
-                fragments.add(CORNER_UR_V);
-        }
-
-        if (z == 0) {
-            if (x != roomSizeX - 1)
-                fragments.add(CORNER_UR_H);
-            if (x != 0)
-                fragments.add(CORNER_UL_H);
-        }
-
-        if (z == roomSizeZ - 1) {
-            if (x != roomSizeX - 1)
-                fragments.add(CORNER_DR_H);
-            if (x != 0)
-                fragments.add(CORNER_DL_H);
-        }
-        fragments.add(FLOOR);
-        fragments.add(CEILING);
-        return fragments;
     }
 
     private static Cell getNextCell(Cell currentCell, Cell[][] stageGrid, float mazeStraightness, Random r) {
@@ -374,7 +208,7 @@ public class StageGenerator {
                 .filter(cell -> cell.insideStage(stageGrid))
                 .filter(cell -> stageGrid[cell.getZ()][cell.getX()] != null) // there is a cell at the point (getX,z)
                 .filter(cell -> notConnected.contains(stageGrid[cell.getZ()][cell.getX()].getRegion())) // connect only unconnected regions
-                .map(cell -> new Junction().to(newCell).from(stageGrid[cell.getZ()][cell.getX()]).direction(cell.getDirection().reverse()))
+                .map(cell -> new Junction().to(newCell).from(stageGrid[cell.getZ()][cell.getX()]))
                 .collect(Collectors.toList());
     }
 
@@ -386,8 +220,7 @@ public class StageGenerator {
         Cell targetCell = adjacentCells.get(r.nextInt(adjacentCells.size()));
         return new Junction()
                 .from(startingCell)
-                .to(targetCell)
-                .direction(targetCell.getDirection());
+                .to(targetCell);
     }
 
     private static Cell findValidStartingCell(Region from, Cell[][] stageGrid) {
@@ -418,24 +251,25 @@ public class StageGenerator {
     /**
      * Add appropriate fragments to each cell in a region
      *
-     * @param r Region to fill
+     * @param r         Region to fill
+     * @param junctions
      */
-    static void formRegionWalls(Region r, Cell[][] grid) {
+    static void formRegionFragments(Region r, Cell[][] grid, Map<Set<Point>, Junction> junctions) {
         r.cells().forEach(cell -> {
             Set<Fragment> fragments = cell.getFragments();
             getUpDownLeftRightCells(cell.getX(), cell.getZ()).forEach(c -> {
-                if (!isCellInRegion(r, grid, c)) {
+                if (!isCellInRegion(r, grid, c, cell, junctions)) {
                     switch (c.getDirection()) {
                         case UP:
                             fragments.add(WALL_U);
                             // UL
-                            if (isCellInRegion(r, grid, new Cell(cell.getX() - 1, cell.getZ()))) {
+                            if (isCellInRegion(r, grid, new Cell(cell.getX() - 1, cell.getZ()), cell, junctions)) {
                                 fragments.add(CORNER_UL_H);
                             } else {
                                 fragments.add(CORNER_UL_INNER);
                             }
                             // UR
-                            if (isCellInRegion(r, grid, new Cell(cell.getX() + 1, cell.getZ()))) {
+                            if (isCellInRegion(r, grid, new Cell(cell.getX() + 1, cell.getZ()), cell, junctions)) {
                                 fragments.add(CORNER_UR_H);
                             } else {
                                 fragments.add(CORNER_UR_INNER);
@@ -444,13 +278,13 @@ public class StageGenerator {
                         case DOWN:
                             fragments.add(WALL_D);
                             // DL
-                            if (isCellInRegion(r, grid, new Cell(cell.getX() - 1, cell.getZ()))) {
+                            if (isCellInRegion(r, grid, new Cell(cell.getX() - 1, cell.getZ()), cell, junctions)) {
                                 fragments.add(CORNER_DL_H);
                             } else {
                                 fragments.add(CORNER_DL_INNER);
                             }
                             // DR
-                            if (isCellInRegion(r, grid, new Cell(cell.getX() + 1, cell.getZ()))) {
+                            if (isCellInRegion(r, grid, new Cell(cell.getX() + 1, cell.getZ()), cell, junctions)) {
                                 fragments.add(CORNER_DR_H);
                             } else {
                                 fragments.add(CORNER_DR_INNER);
@@ -459,13 +293,13 @@ public class StageGenerator {
                         case LEFT:
                             fragments.add(WALL_L);
                             // UL
-                            if (isCellInRegion(r, grid, new Cell(cell.getX(), cell.getZ() - 1))) {
+                            if (isCellInRegion(r, grid, new Cell(cell.getX(), cell.getZ() - 1), cell, junctions)) {
                                 fragments.add(CORNER_UL_V);
                             } else {
                                 fragments.add(CORNER_UL_INNER);
                             }
                             // DL
-                            if (isCellInRegion(r, grid, new Cell(cell.getX(), cell.getZ() + 1))) {
+                            if (isCellInRegion(r, grid, new Cell(cell.getX(), cell.getZ() + 1), cell, junctions)) {
                                 fragments.add(CORNER_DL_V);
                             } else {
                                 fragments.add(CORNER_DL_INNER);
@@ -474,13 +308,13 @@ public class StageGenerator {
                         case RIGHT:
                             fragments.add(WALL_R);
                             // UR
-                            if (isCellInRegion(r, grid, new Cell(cell.getX(), cell.getZ() - 1))) {
+                            if (isCellInRegion(r, grid, new Cell(cell.getX(), cell.getZ() - 1), cell, junctions)) {
                                 fragments.add(CORNER_UR_V);
                             } else {
                                 fragments.add(CORNER_UR_INNER);
                             }
                             // DR
-                            if (isCellInRegion(r, grid, new Cell(cell.getX(), cell.getZ() + 1))) {
+                            if (isCellInRegion(r, grid, new Cell(cell.getX(), cell.getZ() + 1), cell, junctions)) {
                                 fragments.add(CORNER_DR_V);
                             } else {
                                 fragments.add(CORNER_DR_INNER);
@@ -489,28 +323,35 @@ public class StageGenerator {
                     }
                 }
             });
-            if (isCellInRegion(r, grid, left(cell)) && isCellInRegion(r, grid, up(cell)) && !isCellInRegion(r, grid, new Cell(cell.getX() - 1, cell.getZ() - 1))) {
+            if (isCellInRegion(r, grid, left(cell), cell, junctions) && isCellInRegion(r, grid, up(cell), cell, junctions) && !isCellInRegion(r, grid, new Cell(cell.getX() - 1, cell.getZ() - 1), cell, junctions)) {
                 fragments.add(CORNER_UL_OUTER);
             }
-            if (isCellInRegion(r, grid, right(cell)) && isCellInRegion(r, grid, up(cell)) && !isCellInRegion(r, grid, new Cell(cell.getX() + 1, cell.getZ() - 1))) {
+            if (isCellInRegion(r, grid, right(cell), cell, junctions) && isCellInRegion(r, grid, up(cell), cell, junctions) && !isCellInRegion(r, grid, new Cell(cell.getX() + 1, cell.getZ() - 1), cell, junctions)) {
                 fragments.add(CORNER_UR_OUTER);
             }
-            if (isCellInRegion(r, grid, left(cell)) && isCellInRegion(r, grid, down(cell)) && !isCellInRegion(r, grid, new Cell(cell.getX() - 1, cell.getZ() + 1))) {
+            if (isCellInRegion(r, grid, left(cell), cell, junctions) && isCellInRegion(r, grid, down(cell), cell, junctions) && !isCellInRegion(r, grid, new Cell(cell.getX() - 1, cell.getZ() + 1), cell, junctions)) {
                 fragments.add(CORNER_DL_OUTER);
             }
-            if (isCellInRegion(r, grid, right(cell)) && isCellInRegion(r, grid, down(cell)) && !isCellInRegion(r, grid, new Cell(cell.getX() + 1, cell.getZ() + 1))) {
+            if (isCellInRegion(r, grid, right(cell), cell, junctions) && isCellInRegion(r, grid, down(cell), cell, junctions) && !isCellInRegion(r, grid, new Cell(cell.getX() + 1, cell.getZ() + 1), cell, junctions)) {
                 fragments.add(CORNER_DR_OUTER);
             }
+            cell.getFragments().add(FLOOR);
+            cell.getFragments().add(CEILING);
         });
     }
 
     /**
-     * checks if the cell c belongs to the region r
+     * checks if the cell 'a' belongs to the region r,
+     * or there is a junction from cell 'a' to 'b'
      */
-    static boolean isCellInRegion(Region r, Cell[][] grid, Cell c) {
-        return c.insideStage(grid)
-                && grid[c.getZ()][c.getX()] != null
-                && grid[c.getZ()][c.getX()].getRegion().equals(r);
+    static boolean isCellInRegion(Region r, Cell[][] grid, Cell a, Cell b, Map<Set<Point>, Junction> junctions) {
+        return a.insideStage(grid)
+                && grid[a.getZ()][a.getX()] != null
+                && grid[a.getZ()][a.getX()].getRegion().equals(r)
+                || junctions.containsKey(unmodifiableSet(new HashSet<Point>() {{
+            add(a.toPoint());
+            add(b.toPoint());
+        }}));
     }
 
     private static Cell up(Cell c) {

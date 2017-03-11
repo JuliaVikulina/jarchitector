@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,23 +23,24 @@ public class Cell {
 
     private Direction direction;
 
-    public Cell(int x, int z, Region region, CellType type, Collection<Fragment> fragments) {
-        this.x = x;
-        this.z = z;
-        this.region = region;
-        this.fragments = new HashSet<>(fragments);
-        this.type = type;
-    }
-
     public Cell(int x, int z, Direction direction) {
-        this.x = x;
-        this.z = z;
+        this(x, z);
         this.direction = direction;
     }
 
     public Cell(int x, int z) {
         this.x = x;
         this.z = z;
+    }
+
+    public Cell(int x, int z, Region region, CellType type) {
+        this(x, z);
+        this.region = region;
+        this.type = type;
+    }
+
+    public Point toPoint() {
+        return new Point(x, z);
     }
 
     /**

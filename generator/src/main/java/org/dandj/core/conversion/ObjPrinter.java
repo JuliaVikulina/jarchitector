@@ -39,7 +39,7 @@ public class ObjPrinter {
                         )
                 )
         );
-        stage.junctions().forEach(junction -> {
+        stage.junctions().values().forEach(junction -> {
             float x;
             float y;
             float angle = FastMath.HALF_PI; // by default, doors are aligned by z axis

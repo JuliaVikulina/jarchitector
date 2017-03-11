@@ -4,8 +4,9 @@ import com.jme3.math.Vector2f;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
+
+import static java.util.Collections.*;
 
 @Accessors(fluent = true)
 @Data
@@ -25,7 +26,15 @@ public class Stage {
 
     // result
     private Collection<Region> regions = new ArrayList<>();
-    private Collection<Junction> junctions = new ArrayList<>();
+    // Key is a unordered pair of cell
+    private Map<Set<Point>, Junction> junctions = new HashMap<>();
     private transient Cell cells[][];
     private Vector2f startPosition = new Vector2f(0, 0);
+
+    public void addJunction(Point a, Point b, Junction junction) {
+        junctions().put(unmodifiableSet(new HashSet<Point>() {{
+            add(a);
+            add(b);
+        }}), junction);
+    }
 }

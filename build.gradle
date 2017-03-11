@@ -1,5 +1,6 @@
 allprojects {
     apply plugin: 'java'
+    apply plugin: "jacoco"
 
     group = 'org.dandj'
     version = '1.0-SNAPSHOT'

@@ -42,7 +42,7 @@ public class SvgPrinter {
         try {
             SVGGraphics2D svg = createSvg();
             drawGrid(svg, stage.width(), stage.height(), stage.resolution());
-            stage.junctions().forEach(junction -> drawJunction(svg, junction, stage.resolution()));
+//            stage.junctions().forEach(junction -> drawJunction(svg, junction, stage.resolution()));
             stage.regions().forEach(region ->
                     region.cells().forEach(cell ->
                             cell.getFragments().forEach(fragment ->

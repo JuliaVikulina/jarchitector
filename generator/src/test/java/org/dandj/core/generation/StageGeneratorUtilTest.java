@@ -9,6 +9,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -79,7 +80,7 @@ public class StageGeneratorUtilTest {
         cell.setRegion(well);
         well.cells().add(cell);
         cells[1][1] = cell;
-        formRegionWalls(well, cells);
+        formRegionFragments(well, cells, new HashMap<>());
         Set<Fragment> expected = new HashSet<>(asList(WALL_D, WALL_R, WALL_U, WALL_L,
                 CORNER_UL_INNER, CORNER_DL_INNER, CORNER_UR_INNER, CORNER_DR_INNER));
         assertEquals(expected, cell.getFragments());
@@ -102,7 +103,7 @@ public class StageGeneratorUtilTest {
                 }
             }
         }
-        formRegionWalls(well3x3, cells);
+        formRegionFragments(well3x3, cells, new HashMap<>());
 
         assertEquals(cells[0][0].getFragments(), new HashSet<>(asList(WALL_U, WALL_L, CORNER_UL_INNER, CORNER_UR_H, CORNER_DL_V, CORNER_DR_OUTER)));
         assertEquals(cells[0][1].getFragments(), new HashSet<>(asList(WALL_D, WALL_U, CORNER_UR_H, CORNER_UL_H, CORNER_DR_H, CORNER_DL_H)));
