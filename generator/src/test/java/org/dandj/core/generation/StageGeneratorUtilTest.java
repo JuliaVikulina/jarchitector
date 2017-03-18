@@ -1,6 +1,6 @@
 package org.dandj.core.generation;
 
-import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import org.dandj.core.conversion.SvgPrinter;
 import org.dandj.model.*;
 import org.junit.After;
@@ -125,7 +125,7 @@ public class StageGeneratorUtilTest {
         cell.setRegion(well);
         well.cells().add(cell);
         setStartPosition(stage);
-        assertEquals(new Vector2f(0.5f, 0.5f), stage.startPosition());
+        assertEquals(new Vector3f(0.5f, 0f, 0.5f), stage.startPosition());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -133,7 +133,7 @@ public class StageGeneratorUtilTest {
         Stage stage = new Stage();
 
         setStartPosition(stage);
-        assertEquals(new Vector2f(0.5f, 0.5f), stage.startPosition());
+        assertEquals(new Vector3f(0.5f, 0f, 0.5f), stage.startPosition());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -142,6 +142,6 @@ public class StageGeneratorUtilTest {
         Region well = new Region("room");
         stage.regions().add(well);
         setStartPosition(stage);
-        assertEquals(new Vector2f(0.5f, 0.5f), stage.startPosition());
+        assertEquals(new Vector3f(0.5f, 0f, 0.5f), stage.startPosition());
     }
 }
